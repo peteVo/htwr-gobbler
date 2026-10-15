@@ -1,0 +1,67 @@
+import { test, expect } from "@playwright/test";
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import path from "node:path";
+test("read-only MCP queries the same persisted academic records", async ({
+  request,
+}) => {
+  const headers = { Origin: "http://127.0.0.1:5173" };
+  const registration = await request.post("/api/auth/register", {
+    headers,
+    data: {
+      email: `mcp-${Date.now()}@example.test`,
+      password: "a-local-test-password-123",
+    },
+  });
+  expect(registration.ok()).toBe(true);
+  expect(
+    (
+      await request.post("/api/items", {
+        headers,
+        data: {
+          title: "MCP evidenced deadline",
+          kind: "assignment",
+          starts_at: "2099-10-20T14:00:00Z",
+          evidence: "A test fixture, not a university deadline.",
+        },
+      })
+    ).ok(),
+  ).toBe(true);
+  const { token } = await (
+    await request.post("/api/mcp-token", { headers })
+  ).json();
+  const transport = new StdioClientTransport({
+    command: process.execPath,
+    args: [
+      path.resolve("node_modules/tsx/dist/cli.mjs"),
+      path.resolve("apps/mcp/index.ts"),
+    ],
+    env: {
+      ...Object.fromEntries(
+        Object.entries(process.env).filter(
+          (e): e is [string, string] => typeof e[1] === "string",
+        ),
+      ),
+      GOBBLER_URL: "http://127.0.0.1:8787",
+      GOBBLER_TOKEN: token,
+    },
+    stderr: "pipe",
+  });
+  const client = new Client({ name: "gobbler-test", version: "1.0" });
+  try {
+    await client.connect(transport);
+    const tools = await client.listTools();
+    expect(tools.tools).toHaveLength(10);
+    expect(tools.tools.every((t) => t.annotations?.readOnlyHint)).toBe(true);
+    const result = await client.callTool({
+      name: "get_upcoming_deadlines",
+      arguments: { limit: 10 },
+    });
+    expect(result.isError).not.toBe(true);
+    expect(JSON.stringify(result.structuredContent)).toContain(
+      "MCP evidenced deadline",
+    );
+  } finally {
+    await client.close();
+  }
+});

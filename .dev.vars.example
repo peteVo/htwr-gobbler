@@ -1,0 +1,6 @@
+# Copy to .dev.vars. Generate each secret with: node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
+SESSION_SECRET=replace-with-at-least-32-random-characters
+FEED_SECRET=replace-with-a-different-32-character-secret
+# Optional, never required for calendar/task functionality:
+# OPENAI_API_KEY=
+# OPENAI_MODEL=

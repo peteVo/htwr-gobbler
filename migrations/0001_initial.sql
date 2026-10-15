@@ -1,0 +1,15 @@
+PRAGMA foreign_keys = ON;
+CREATE TABLE users (id TEXT PRIMARY KEY, email TEXT NOT NULL UNIQUE, password_hash TEXT NOT NULL, salt TEXT NOT NULL, created_at TEXT NOT NULL);
+CREATE TABLE sessions (token_hash TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, expires_at TEXT NOT NULL);
+CREATE INDEX sessions_user ON sessions(user_id);
+CREATE TABLE api_tokens (token_hash TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, expires_at TEXT NOT NULL);
+CREATE INDEX tokens_user ON api_tokens(user_id);
+CREATE TABLE courses (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, name TEXT NOT NULL, code TEXT NOT NULL, color TEXT NOT NULL);
+CREATE INDEX courses_user ON courses(user_id);
+CREATE TABLE sources (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, name TEXT NOT NULL, kind TEXT NOT NULL, feed_cipher TEXT, status TEXT NOT NULL DEFAULT 'not_configured', last_attempt TEXT, last_success TEXT, error TEXT, imported_count INTEGER NOT NULL DEFAULT 0);
+CREATE INDEX sources_user ON sources(user_id);
+CREATE TABLE items (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, course_id TEXT REFERENCES courses(id) ON DELETE SET NULL, source_id TEXT REFERENCES sources(id) ON DELETE SET NULL, external_id TEXT, title TEXT NOT NULL, description TEXT NOT NULL DEFAULT '', kind TEXT NOT NULL, starts_at TEXT NOT NULL, ends_at TEXT, all_day INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'open', verification TEXT NOT NULL, source_url TEXT NOT NULL DEFAULT '', evidence TEXT NOT NULL DEFAULT '', last_verified TEXT, content_hash TEXT, UNIQUE(user_id, source_id, external_id));
+CREATE INDEX items_user_date ON items(user_id, starts_at);
+CREATE TABLE changes (id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE, item_id TEXT, title TEXT NOT NULL, kind TEXT NOT NULL, created_at TEXT NOT NULL);
+CREATE INDEX changes_user_date ON changes(user_id, created_at);
+CREATE TABLE preferences (user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, language TEXT NOT NULL DEFAULT 'en', theme TEXT NOT NULL DEFAULT 'system', reminders INTEGER NOT NULL DEFAULT 0, quiet_start INTEGER NOT NULL DEFAULT 22, quiet_end INTEGER NOT NULL DEFAULT 7);

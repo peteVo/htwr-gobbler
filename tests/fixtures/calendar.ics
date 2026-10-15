@@ -1,0 +1,19 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//gobbler//Test fixture//EN
+BEGIN:VEVENT
+UID:exercise-03@test.invalid
+DTSTART:20261020T140000Z
+DTEND:20261020T140000Z
+SUMMARY:Exercise sheet 03 deadline
+DESCRIPTION:Submit through the original course system.
+URL:https://moodle.rwth-aachen.de/calendar/view.php
+END:VEVENT
+BEGIN:VEVENT
+UID:lecture@test.invalid
+DTSTART:20261021T080000Z
+DTEND:20261021T100000Z
+SUMMARY:Algorithms lecture
+DESCRIPTION:Audimax
+END:VEVENT
+END:VCALENDAR
