@@ -215,3 +215,34 @@ export async function syncFeed(
     );
   }
 }
+
+export async function checkSources(
+  db: D1Database,
+  secret: string,
+  user?: string,
+) {
+  const before = new Date(Date.now() - 30 * 60000).toISOString();
+  const rows = (
+    await db
+      .prepare(
+        "SELECT id,user_id,feed_cipher FROM sources WHERE kind='feed' AND (last_attempt IS NULL OR last_attempt<=?)" +
+          (user ? " AND user_id=?" : "") +
+          " ORDER BY COALESCE(last_attempt,'') LIMIT 10",
+      )
+      .bind(...(user ? [before, user] : [before]))
+      .all<{
+        id: string;
+        user_id: string;
+        feed_cipher: string;
+      }>()
+  ).results;
+  let failed = 0;
+  for (const row of rows) {
+    try {
+      await syncFeed(db, row, secret);
+    } catch {
+      failed++;
+    }
+  }
+  return { attempted: rows.length, failed };
+}

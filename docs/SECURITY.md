@@ -14,6 +14,7 @@
 - Service worker caches app-shell assets only; API routes bypass it. Private records and provider keys are not stored in browser offline caches. Notification suppression stores only account/event identifiers in localStorage.
 - Read-only MCP tokens are random, stored hashed, expire after 30 days, and can all be revoked in Settings. No cookie or RWTH password must be copied into an AI client.
 - Secrets, local database files, generated test results and build output are ignored by Git.
+- The Windows local runner checks only its configured account and keeps seven verified online SQLite backups. These contain private records and matching session/feed secrets; the installer restricts the local operations folder to the Windows user and SYSTEM. Gobbler does not encrypt these backups at rest. Full-disk loss is outside local backup protection; see LOCAL_USE.md.
 
 ## Still required for public release
 

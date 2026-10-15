@@ -6,6 +6,7 @@
   "packageManager": "pnpm@11.25.0",
   "scripts": {
     "dev": "concurrently -k \"vite --host 127.0.0.1\" \"wrangler dev --ip 127.0.0.1\"",
+    "local": "tsx scripts/local.ts",
     "build": "tsc --noEmit && vite build",
     "test": "vitest run",
     "test:e2e": "playwright test",

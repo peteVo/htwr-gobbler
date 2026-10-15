@@ -2,7 +2,7 @@ import { beforeEach, describe, it, expect, vi } from "vitest";
 import { DatabaseSync } from "node:sqlite";
 import { readFileSync, readdirSync } from "node:fs";
 import { app } from "../apps/api/index";
-import { syncFeed } from "../apps/api/sync";
+import { syncFeed, checkSources } from "../apps/api/sync";
 import { crypt } from "../apps/api/security";
 
 // The adapter exercises the actual migration and SQL against SQLite, without mocking query results.
@@ -92,6 +92,57 @@ const item = {
   starts_at: "2026-10-20T14:00:00.000Z",
 };
 describe("account-scoped API and persistence", () => {
+  it("automatic checks skip fresh feeds and other local workspaces, then record failure without losing records", async () => {
+    const a = await account();
+    const user = (sqlite.prepare("SELECT id FROM users").get() as any).id;
+    await account("other-monitor@example.test");
+    const other = (
+      sqlite.prepare("SELECT id FROM users WHERE id!=?").get(user) as any
+    ).id;
+    const cipher = await crypt(
+      "https://moodle.rwth-aachen.de/calendar/export_execute.php?token=synthetic",
+      env().FEED_SECRET,
+    );
+    for (const [id, owner, attempt] of [
+      ["due", user, null],
+      ["fresh", user, new Date().toISOString()],
+      ["other", other, null],
+    ]) {
+      sqlite
+        .prepare(
+          "INSERT INTO sources (id,user_id,name,kind,feed_cipher,last_attempt) VALUES (?,?,'Calendar','feed',?,?)",
+        )
+        .run(id, owner, cipher, attempt);
+    }
+    await request("/items", "POST", item, a);
+    const fetcher = vi.fn().mockRejectedValue(new Error("private URL"));
+    vi.stubGlobal("fetch", fetcher);
+    try {
+      expect(await checkSources(db, env().FEED_SECRET, user)).toEqual({
+        attempted: 1,
+        failed: 1,
+      });
+      expect(fetcher).toHaveBeenCalledTimes(2);
+      expect(await checkSources(db, env().FEED_SECRET, user)).toEqual({
+        attempted: 0,
+        failed: 0,
+      });
+      expect(
+        sqlite.prepare("SELECT status FROM sources WHERE id='due'").get()!
+          .status,
+      ).toBe("failed");
+      expect(
+        sqlite
+          .prepare("SELECT last_attempt FROM sources WHERE id='other'")
+          .get()!.last_attempt,
+      ).toBeNull();
+      expect(sqlite.prepare("SELECT COUNT(*) AS n FROM items").get()!.n).toBe(
+        1,
+      );
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
   it("reuses document candidates without resetting reviewed state, and updates a selected task for a revised document", async () => {
     const a = await account(),
       b = await account("paper-other@example.test");

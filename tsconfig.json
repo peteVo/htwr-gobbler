@@ -12,5 +12,5 @@
     "resolveJsonModule": true,
     "types": ["vite/client", "@cloudflare/workers-types", "node"]
   },
-  "include": ["apps", "packages", "tests", "*.ts"]
+  "include": ["apps", "packages", "scripts", "tests", "*.ts"]
 }

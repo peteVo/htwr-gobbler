@@ -13,7 +13,7 @@ import {
   itemChangeKind,
 } from "../../packages/core/index";
 import { hash, passwordHash, equal, crypt } from "./security";
-import { acquireSource, ingest, syncFeed } from "./sync";
+import { acquireSource, ingest, syncFeed, checkSources } from "./sync";
 
 type Env = {
   DB: D1Database;
@@ -727,17 +727,7 @@ export default {
         await env.DB.prepare("DELETE FROM changes WHERE created_at<?")
           .bind(new Date(Date.now() - 90 * 86400000).toISOString())
           .run();
-        const rows = (
-          await env.DB.prepare(
-            "SELECT id,user_id,feed_cipher FROM sources WHERE kind='feed' ORDER BY COALESCE(last_attempt,'') LIMIT 10",
-          ).all<{ id: string; user_id: string; feed_cipher: string }>()
-        ).results;
-        for (const row of rows)
-          try {
-            await syncFeed(env.DB, row, env.FEED_SECRET);
-          } catch {
-            /* source records its failure */
-          }
+        await checkSources(env.DB, env.FEED_SECRET);
       })(),
     );
   },

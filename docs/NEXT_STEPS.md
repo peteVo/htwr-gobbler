@@ -70,4 +70,6 @@ Document review now requires a module, retains evidence, recognizes explicit Ger
 
 ## Immediate next action
 
+The student chose local use. Windows startup, per-account 30-minute feed checks, visible runner/source failure status and seven verified daily backups are installed; see LOCAL_USE.md. Local verification passes 51 unit/API/backup checks and 14 browser scenarios. Next validate a complete restart/sleep-resume cycle and review the next real course sheet. Hosting and phone push remain deferred.
+
 The approved synthetic staging deployment and remote D1 export restoration passed. Native sign-in/import CPU exceeds the Free allowance, so personal migration and scheduled checks are stopped pending a paid-hosting decision; see DEPLOYMENT.md. If approved, continue the prepared migration, real feed check, backup verification and Windows/Android test. Complete the university prerequisites and inspect the future exercise-group course when it becomes available. Direct Moodle course/file access requires Gobbler's own client registration and current capability documentation; see INTEGRATIONS.md. Existing calendar checks and local document review remain usable meanwhile.

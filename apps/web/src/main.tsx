@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { z } from "zod";
 import { createRoot } from "react-dom/client";
 import {
   ArrowDownToLine,
@@ -164,6 +165,31 @@ function App() {
       window.removeEventListener("beforeinstallprompt", installPrompt);
     };
   }, []);
+  useEffect(() => {
+    if (!email || modal || busy) return;
+    let active = true;
+    const refresh = async () => {
+      if (document.hidden || !navigator.onLine) return;
+      try {
+        const next = await api<Snapshot>("/data");
+        if (active) setData(next);
+      } catch {
+        if (active)
+          setError(
+            "Could not refresh your workspace. Displayed source checks may be outdated.",
+          );
+      }
+    };
+    const timer = window.setInterval(refresh, 60000);
+    window.addEventListener("focus", refresh);
+    window.addEventListener("online", refresh);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refresh);
+      window.removeEventListener("online", refresh);
+    };
+  }, [email, modal, busy]);
   useEffect(() => {
     const focusSearch = (event: KeyboardEvent) => {
       if (
@@ -1100,12 +1126,7 @@ function App() {
                   <section>{sourceHealth}</section>
                   {["127.0.0.1", "localhost", "[::1]"].includes(
                     location.hostname,
-                  ) && (
-                    <p className="muted small">
-                      Running locally: use Check now to refresh subscriptions.
-                      Automatic scheduled checks require the hosted backend.
-                    </p>
-                  )}
+                  ) && <LocalStatus />}
                   <div className="source-actions">
                     <button
                       className="secondary"
@@ -1214,6 +1235,10 @@ function App() {
                       </select>
                     </label>
                     {!isDemo && <Recovery />}
+                    {!isDemo &&
+                      ["127.0.0.1", "localhost", "[::1]"].includes(
+                        location.hostname,
+                      ) && <LocalStatus />}
                     <h2>Reminders, with boundaries</h2>
                     <p className="muted">
                       Reminders work while this app is open. Background push
@@ -2000,6 +2025,82 @@ function Auth({
         </button>
       </div>
     </form>
+  );
+}
+const localStatusSchema = z.object({
+  heartbeat: z.string().datetime(),
+  last_check: z.string().datetime().nullable(),
+  check_failed: z.boolean(),
+  last_backup: z.string().datetime().nullable(),
+  backup_failed: z.boolean(),
+});
+function LocalStatus() {
+  const [status, setStatus] = useState<z.infer<
+    typeof localStatusSchema
+  > | null>(null);
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    let active = true;
+    const refresh = async () => {
+      try {
+        const result = await fetch("/local-status", { cache: "no-store" });
+        const value = localStatusSchema.safeParse(
+          result.ok ? await result.json() : null,
+        );
+        if (active) setStatus(value.success ? value.data : null);
+      } catch {
+        if (active) setStatus(null);
+      }
+      if (active) setNow(Date.now());
+    };
+    void refresh();
+    const timer = setInterval(refresh, 60000);
+    window.addEventListener("focus", refresh);
+    return () => {
+      active = false;
+      clearInterval(timer);
+      window.removeEventListener("focus", refresh);
+    };
+  }, []);
+  const running = status && now - Date.parse(status.heartbeat) < 180000;
+  const date = (value: string) =>
+    new Intl.DateTimeFormat(undefined, {
+      dateStyle: "medium",
+      timeStyle: "short",
+    }).format(new Date(value));
+  return (
+    <section aria-label="Local monitoring" className="muted small">
+      <h3>Local monitoring & backups</h3>
+      <p>
+        {running
+          ? "Automatic calendar checks are active while this PC is awake and you are signed in to Windows. Connected feeds are checked every 30 minutes; overdue checks resume after sleep."
+          : "Automatic local checks are not running. Use the Gobbler startup shortcut, or Check now for a manual update."}
+      </p>
+      {running && status.check_failed && (
+        <p role="status" className="warning-text">
+          The last automatic check failed. Previous records are retained; review
+          Sources.
+        </p>
+      )}
+      {running && status.last_check && (
+        <p>Last automatic check: {date(status.last_check)}</p>
+      )}
+      <p>
+        {status?.last_backup
+          ? `Last verified local backup: ${date(status.last_backup)}. Seven daily copies are retained on this PC.`
+          : "No automatic backup has been verified yet."}
+      </p>
+      {status?.backup_failed && (
+        <p role="status" className="warning-text">
+          Automatic backup failed. Check free disk space and restart the local
+          runner; the previous backup is retained.
+        </p>
+      )}
+      <p>
+        Reminders still require an open browser. Local backups do not protect
+        against losing this PC.
+      </p>
+    </section>
   );
 }
 function Recovery() {

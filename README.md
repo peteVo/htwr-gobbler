@@ -25,11 +25,13 @@ Open **http://127.0.0.1:5173**. Use this address rather than `localhost` so the 
 
 The logged-out view is a clearly labeled, read-only sample workspace. Sign in → **Create an account** opens an empty personal workspace. This is a gobbler account, separate from RWTH SSO. Do not reuse your RWTH password.
 
+For daily Windows use, the installed local runner starts the app at Windows sign-in, checks connected feeds every 30 minutes while the PC is awake, and keeps seven verified daily backups. Sources and Settings show its current status. See [local operation, backup verification and removal](docs/LOCAL_USE.md). `pnpm dev` alone does not start automatic checks/backups.
+
 ## What works
 
 - Responsive Today dashboard, course management, task/event CRUD, completion and dismissal, source URLs, evidence and verification states.
 - Assignments are the default Tasks view. Moodle calendar categories identify modules automatically; those modules appear with tasks and calendar deadlines. Ordinary Übung sessions are tutorials, while “ist fällig” entries are assignments. Times remain the exported instants.
-- Persistent account-scoped D1 records; another browser/device sees the same records when connected to the same deployed backend. Reload to fetch updates. Local development is intentionally loopback-only.
+- Persistent account-scoped D1 records; another browser/device sees the same records when connected to the same deployed backend. Visible signed-in views refresh every minute and on focus/connectivity return. Local development is intentionally loopback-only.
 - One-use account recovery keys generated after password confirmation in Settings. Recovery preserves records and revokes old sessions and MCP tokens. Operators can close registration for a private pilot.
 - Day/week/month calendars, course/type filters and search of stored academic entries; Berlin display and DST-aware calendar boundaries.
 - `.ics` import/reimport with stable UID deduplication, automatic recognition of repeated file calendars, content-hash updates, meaningful change history, cancellation handling, and retained records when a check fails.

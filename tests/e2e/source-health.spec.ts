@@ -4,6 +4,7 @@ import { defaultPreferences } from "../../packages/core/index";
 test("connecting a subscription can replace its uploaded calendar", async ({
   page,
 }) => {
+  await page.route("**/local-status", (route) => route.fulfill({ json: null }));
   await page.route("**/api/me", (route) =>
     route.fulfill({ json: { email: "feed@example.test" } }),
   );
@@ -40,7 +41,7 @@ test("connecting a subscription can replace its uploaded calendar", async ({
     .getByRole("button", { name: "Sources", exact: true })
     .click();
   await expect(
-    page.getByText("Running locally: use Check now to refresh subscriptions.", {
+    page.getByText("Automatic local checks are not running.", {
       exact: false,
     }),
   ).toBeVisible();
