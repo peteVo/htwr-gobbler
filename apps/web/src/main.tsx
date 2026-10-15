@@ -36,6 +36,7 @@ import {
   type Item,
   type Snapshot,
   type Preferences,
+  type Change,
 } from "../../../packages/core/index";
 import { demo } from "./demo";
 import {
@@ -111,6 +112,15 @@ function App() {
   const prefs = data.preferences,
     t = messages[prefs.language],
     locale = { en: "en-GB", de: "de-DE", vi: "vi-VN" }[prefs.language];
+  const urgentChange = (change: Change) =>
+    Number(
+      change.kind === "deadline_earlier" &&
+        Date.parse(change.created_at) > clock.getTime() - 7 * 86400000 &&
+        data.items.some((i) => i.id === change.item_id && i.status === "open"),
+    );
+  const recentChanges = [...data.changes].sort(
+    (a, b) => urgentChange(b) - urgentChange(a),
+  );
   const stamp = (
     date: string,
     options: Intl.DateTimeFormatOptions = {
@@ -207,6 +217,8 @@ function App() {
         if (
           i.kind === "assignment" &&
           i.status === "open" &&
+          i.verification === "confirmed" &&
+          !i.all_day &&
           due > now &&
           due - now < 86400000 &&
           !localStorage.getItem(key)
@@ -319,7 +331,10 @@ function App() {
               item.starts_at,
               item.all_day ? { dateStyle: "medium" } : undefined,
             )}
-            {item.all_day && " · all day"}
+            {item.all_day &&
+              (item.kind === "assignment"
+                ? " · date only; verify cutoff"
+                : " · all day")}
             <span
               className={`verification ${item.verification === "needs_review" || outdated ? "review" : ""}`}
             >
@@ -761,7 +776,7 @@ function App() {
                         <h2>{t.activity}</h2>
                         <span className="tiny-label">RECENT ACTIVITY</span>
                       </div>
-                      {data.changes.slice(0, 4).map((c) => (
+                      {recentChanges.slice(0, 4).map((c) => (
                         <div className="activity-row" key={c.id}>
                           <span className="activity-symbol">
                             {c.kind === "added" ? (
@@ -772,6 +787,47 @@ function App() {
                           </span>
                           <div>
                             <strong>{c.title}</strong>
+                            <small>
+                              {
+                                data.courses.find(
+                                  (course) =>
+                                    course.id ===
+                                    data.items.find((i) => i.id === c.item_id)
+                                      ?.course_id,
+                                )?.name
+                              }
+                            </small>
+                            {c.previous_starts_at &&
+                              c.next_starts_at &&
+                              c.previous_starts_at !== c.next_starts_at && (
+                                <span
+                                  className={
+                                    c.kind === "deadline_earlier"
+                                      ? "warning-text"
+                                      : ""
+                                  }
+                                >
+                                  {c.kind === "deadline_earlier"
+                                    ? "Deadline moved earlier"
+                                    : c.kind === "deadline_later"
+                                      ? "Deadline moved later"
+                                      : "Schedule changed"}
+                                  :{" "}
+                                  {stamp(c.previous_starts_at, {
+                                    dateStyle: "medium",
+                                    ...(c.previous_all_day
+                                      ? {}
+                                      : { timeStyle: "short" as const }),
+                                  })}{" "}
+                                  →{" "}
+                                  {stamp(c.next_starts_at, {
+                                    dateStyle: "medium",
+                                    ...(c.next_all_day
+                                      ? {}
+                                      : { timeStyle: "short" as const }),
+                                  })}
+                                </span>
+                              )}
                             <span>
                               {c.kind === "added"
                                 ? "Added to your workspace"
@@ -1157,10 +1213,12 @@ function App() {
                         <option value="dark">Dark</option>
                       </select>
                     </label>
+                    {!isDemo && <Recovery />}
                     <h2>Reminders, with boundaries</h2>
                     <p className="muted">
                       Reminders work while this app is open. Background push
-                      delivery is not implemented.
+                      delivery is not implemented. Only confirmed deadlines with
+                      a known time trigger reminders.
                     </p>
                     <button
                       className="secondary"
@@ -1387,7 +1445,9 @@ function App() {
                 await load();
                 setModal(null);
                 setNotice(
-                  "Your personal workspace is ready. Add a course or import a calendar.",
+                  action === "recover"
+                    ? "Account recovered. Previous sessions and MCP tokens were revoked. Save a new recovery key in Settings."
+                    : "Your personal workspace is ready. Add a course or import a calendar.",
                 );
               } catch (e) {
                 setError((e as Error).message);
@@ -1781,6 +1841,8 @@ function App() {
         )}
         {modal === "ai" && (
           <AI
+            courses={data.courses}
+            items={data.items}
             busy={busy}
             extract={async (text) => {
               setBusy(true);
@@ -1796,14 +1858,35 @@ function App() {
                 setBusy(false);
               }
             }}
-            add={(d) => {
+            add={(d, review) => {
+              const exact = data.items.find(
+                (i) =>
+                  i.course_id === review.course_id &&
+                  i.document_key === review.document_key,
+              );
+              const previous = review.target_id
+                ? data.items.find((i) => i.id === review.target_id)
+                : exact;
+              if (exact && !review.target_id) {
+                setEditing(exact);
+                setNotice(
+                  "This document date is already saved. Reviewing its existing task.",
+                );
+                setModal("item");
+                return;
+              }
               setEditing({
                 ...blank,
-                id: "",
+                ...previous,
+                ...review,
+                source_url: review.source_url || previous?.source_url || "",
+                id: previous?.id || "",
                 source_id: null,
                 last_verified: null,
-                title: d.title,
+                title: previous?.title || d.title,
                 starts_at: d.deadline,
+                all_day: d.all_day ?? false,
+                ends_at: null,
                 evidence: `${d.document}${d.page ? ` · page ${d.page}` : ""}: ${d.evidence}`,
                 verification: "needs_review",
               } as Item);
@@ -1837,6 +1920,12 @@ function Auth({
   busy: boolean;
 }) {
   const [action, setAction] = useState("login");
+  const [registrationOpen, setRegistrationOpen] = useState(false);
+  useEffect(() => {
+    api("/auth/options")
+      .then((v) => setRegistrationOpen(v.registration_open))
+      .catch(() => {});
+  }, []);
   return (
     <form
       onSubmit={(e) => {
@@ -1847,7 +1936,9 @@ function Auth({
       <p className="muted">
         {action === "register"
           ? "Create an account for your own courses and calendars. Never use your RWTH password here."
-          : "Sign in to your gobbler account. This is separate from RWTH SSO."}
+          : action === "recover"
+            ? "Use the recovery key you previously saved. This resets your password, consumes the key and revokes existing sessions and MCP tokens. If you never saved a key, contact your Gobbler operator."
+            : "Sign in to your gobbler account. This is separate from RWTH SSO."}
       </p>
       <label>
         Email
@@ -1866,35 +1957,136 @@ function Auth({
           required
         />
       </label>
+      {action === "recover" && (
+        <label>
+          Recovery key
+          <input
+            name="recovery_key"
+            required
+            autoComplete="off"
+            maxLength={200}
+          />
+        </label>
+      )}
       <div className="modal-actions">
-        <button
-          className="text-button"
-          type="button"
-          onClick={() => setAction(action === "login" ? "register" : "login")}
-        >
-          {action === "login"
-            ? "Create an account"
-            : "I already have an account"}
-        </button>
+        {(registrationOpen || action !== "login") && (
+          <button
+            className="text-button"
+            type="button"
+            onClick={() => setAction(action === "login" ? "register" : "login")}
+          >
+            {action === "login"
+              ? "Create an account"
+              : "I already have an account"}
+          </button>
+        )}
+        {action === "login" && (
+          <button
+            className="text-button"
+            type="button"
+            onClick={() => setAction("recover")}
+          >
+            Recover account
+          </button>
+        )}
         <button className="primary" disabled={busy}>
           {busy
             ? "Opening…"
             : action === "login"
               ? "Sign in"
-              : "Create account"}
+              : action === "recover"
+                ? "Reset password and sign in"
+                : "Create account"}
         </button>
       </div>
     </form>
   );
 }
+function Recovery() {
+  const [key, setKey] = useState(""),
+    [busy, setBusy] = useState(false),
+    [error, setError] = useState("");
+  return (
+    <section>
+      <h2>Account recovery</h2>
+      <p className="muted">
+        Save a recovery key outside Gobbler. It can reset your password once.
+        Generating a new key replaces the previous one.
+      </p>
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          const form = e.currentTarget,
+            password = String(new FormData(form).get("password"));
+          setBusy(true);
+          setError("");
+          setKey("");
+          try {
+            const result = await api("/recovery-key", "POST", { password });
+            setKey(result.recovery_key);
+            form.reset();
+          } catch (e) {
+            setError((e as Error).message);
+          } finally {
+            setBusy(false);
+          }
+        }}
+      >
+        <label>
+          Current password
+          <input
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            required
+            maxLength={128}
+          />
+        </label>
+        <button className="secondary" disabled={busy}>
+          {busy ? "Generating…" : "Generate recovery key"}
+        </button>
+      </form>
+      {error && (
+        <p role="alert" className="alert error">
+          {error}
+        </p>
+      )}
+      {key && (
+        <div>
+          <p role="status">
+            Save this key now. It will not be shown again after you leave this
+            page.
+          </p>
+          <label htmlFor="recovery-key">Your recovery key</label>
+          <textarea id="recovery-key" readOnly value={key} autoComplete="off" />
+          <button className="text-button" onClick={() => setKey("")}>
+            I saved my key · hide it
+          </button>
+        </div>
+      )}
+    </section>
+  );
+}
+type DocumentReview = {
+  course_id: string;
+  source_url: string;
+  document_name: string;
+  document_hash: string;
+  document_key: string;
+  target_id?: string;
+};
 function AI({
   extract,
   add,
   busy,
+  courses,
+  items,
 }: {
   extract: (text: string) => Promise<DeadlineCandidate[]>;
-  add: (d: DeadlineCandidate) => void;
+  add: (d: DeadlineCandidate, review: DocumentReview) => void;
   busy: boolean;
+  courses: Course[];
+  items: Item[];
 }) {
   const [results, setResults] = useState<DeadlineCandidate[] | null>(null),
     [pages, setPages] = useState<DocumentPage[]>([]),
@@ -1903,13 +2095,46 @@ function AI({
     [localError, setLocalError] = useState(""),
     [reading, setReading] = useState(false),
     [consent, setConsent] = useState(false);
+  const [courseId, setCourseId] = useState(""),
+    [sourceUrl, setSourceUrl] = useState(""),
+    [targets, setTargets] = useState<Record<number, string>>({});
   return (
     <>
       <p className="muted">
         Read a PDF locally or paste an excerpt. The local check finds numeric
-        German dates with a year and time near deadline wording. Berlin time is
-        assumed; every result needs review.
+        and German month-name dates with a year near deadline wording. Berlin
+        time is assumed when a time is given. Date-only results have an unknown
+        cutoff; every result needs review.
       </p>
+      <label>
+        Module for this document
+        <select
+          value={courseId}
+          onChange={(e) => {
+            setCourseId(e.target.value);
+            setTargets({});
+          }}
+        >
+          <option value="">Choose a module</option>
+          {courses.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+      </label>
+      {!courses.length && (
+        <p className="muted">Add a course before saving document deadlines.</p>
+      )}
+      <label>
+        Original document URL (optional)
+        <input
+          type="url"
+          value={sourceUrl}
+          onChange={(e) => setSourceUrl(e.target.value)}
+          maxLength={4000}
+        />
+      </label>
       <label>
         Exercise PDF · up to 20 pages, 10 MB
         <input
@@ -1922,6 +2147,7 @@ function AI({
             setReading(true);
             setLocalError("");
             setResults(null);
+            setTargets({});
             setText("");
             setPages([]);
             try {
@@ -1946,20 +2172,20 @@ function AI({
           {localError}
         </p>
       )}
-      <label>
-        Document text
-        <textarea
-          value={text}
-          maxLength={20000}
-          rows={6}
-          onChange={(e) => {
-            setText(e.target.value);
-            setPages([{ page: null, text: e.target.value }]);
-            setDocumentName("Pasted document");
-            setResults(null);
-          }}
-        />
-      </label>
+      <label htmlFor="document-text">Document text</label>
+      <textarea
+        id="document-text"
+        value={text}
+        maxLength={20000}
+        rows={6}
+        onChange={(e) => {
+          setText(e.target.value);
+          setPages([{ page: null, text: e.target.value }]);
+          setDocumentName("Pasted document");
+          setResults(null);
+          setTargets({});
+        }}
+      />
       <button
         className="secondary"
         disabled={reading || busy || !text.trim()}
@@ -1999,10 +2225,89 @@ function AI({
         <article key={i} className="candidate">
           <h3>{d.title}</h3>
           <p>
-            {d.deadline} · Needs review{d.page ? " · Page " + d.page : ""}
+            {d.all_day
+              ? d.deadline.slice(0, 10) + " · cutoff time unknown"
+              : d.deadline}{" "}
+            · Needs review{d.page ? " · Page " + d.page : ""}
           </p>
           <blockquote>{d.evidence}</blockquote>
-          <button className="secondary" onClick={() => add(d)}>
+          {items.some(
+            (item) =>
+              item.course_id === courseId &&
+              item.kind === "assignment" &&
+              item.document_name,
+          ) && (
+            <label>
+              Update an existing document task (optional)
+              <select
+                value={targets[i] || ""}
+                onChange={(e) =>
+                  setTargets({ ...targets, [i]: e.target.value })
+                }
+              >
+                <option value="">
+                  Create a new task, or reopen an identical saved date
+                </option>
+                {items
+                  .filter(
+                    (item) =>
+                      item.course_id === courseId &&
+                      item.kind === "assignment" &&
+                      item.document_name,
+                  )
+                  .map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.title} · {item.document_name}
+                    </option>
+                  ))}
+              </select>
+            </label>
+          )}
+          <button
+            className="secondary"
+            disabled={!courseId || reading || busy}
+            onClick={async () => {
+              setReading(true);
+              setLocalError("");
+              try {
+                const digest = async (value: string) =>
+                  Array.from(
+                    new Uint8Array(
+                      await crypto.subtle.digest(
+                        "SHA-256",
+                        new TextEncoder().encode(value),
+                      ),
+                    ),
+                    (b) => b.toString(16).padStart(2, "0"),
+                  ).join("");
+                const document_hash = await digest(
+                  text.replace(/\s+/g, " ").trim(),
+                );
+                const document_key = await digest(
+                  JSON.stringify([
+                    document_hash,
+                    d.page,
+                    d.deadline,
+                    d.evidence.replace(/\s+/g, " ").trim(),
+                  ]),
+                );
+                add(d, {
+                  course_id: courseId,
+                  source_url: sourceUrl,
+                  document_name: documentName,
+                  document_hash,
+                  document_key,
+                  target_id: targets[i] || undefined,
+                });
+              } catch {
+                setLocalError(
+                  "Could not prepare document evidence. Nothing was saved.",
+                );
+              } finally {
+                setReading(false);
+              }
+            }}
+          >
             Review and save
           </button>
         </article>

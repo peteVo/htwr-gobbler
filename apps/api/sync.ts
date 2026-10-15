@@ -1,4 +1,8 @@
-import { parseCalendar, validateFeed } from "../../packages/core/index";
+import {
+  parseCalendar,
+  validateFeed,
+  itemChangeKind,
+} from "../../packages/core/index";
 import { crypt, hash } from "./security";
 export async function acquireSource(db: D1Database, user: string, id: string) {
   const result = await db
@@ -35,10 +39,16 @@ export async function ingest(
   const existing = (
     await db
       .prepare(
-        "SELECT id, external_id, content_hash FROM items WHERE user_id=? AND source_id=?",
+        "SELECT id, external_id, content_hash,starts_at,all_day FROM items WHERE user_id=? AND source_id=?",
       )
       .bind(user, source)
-      .all<{ id: string; external_id: string; content_hash: string }>()
+      .all<{
+        id: string;
+        external_id: string;
+        content_hash: string;
+        starts_at: string;
+        all_day: number;
+      }>()
   ).results;
   const statements: D1PreparedStatement[] = [];
   const courses = new Map(
@@ -109,15 +119,19 @@ export async function ingest(
     statements.push(
       db
         .prepare(
-          "INSERT INTO changes (id,user_id,item_id,title,kind,created_at) VALUES (?,?,?,?,?,?)",
+          "INSERT INTO changes (id,user_id,item_id,title,kind,created_at,previous_starts_at,next_starts_at,previous_all_day,next_all_day) VALUES (?,?,?,?,?,?,?,?,?,?)",
         )
         .bind(
           crypto.randomUUID(),
           user,
           id,
           e.title,
-          old ? "updated" : "added",
+          itemChangeKind(old, e),
           now,
+          old?.starts_at ?? null,
+          e.starts_at,
+          old?.all_day ?? null,
+          Number(e.all_day),
         ),
     );
   }

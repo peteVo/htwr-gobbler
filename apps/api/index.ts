@@ -10,6 +10,7 @@ import {
   validateFeed,
   defaultPreferences,
   parseCalendar,
+  itemChangeKind,
 } from "../../packages/core/index";
 import { hash, passwordHash, equal, crypt } from "./security";
 import { acquireSource, ingest, syncFeed } from "./sync";
@@ -23,6 +24,7 @@ type Env = {
   OPENAI_API_KEY?: string;
   OPENAI_MODEL?: string;
   AUTH_LIMIT?: RateLimit;
+  REGISTRATION_OPEN?: string;
 };
 export const app = new Hono<{ Bindings: Env; Variables: { user: string } }>();
 app.use(
@@ -50,6 +52,18 @@ app.use("/api/*", async (c, next) => {
         403,
       );
   }
+  if (
+    c.req.method === "POST" &&
+    (c.req.path.startsWith("/api/auth/") ||
+      c.req.path === "/api/recovery-key") &&
+    c.env.AUTH_LIMIT &&
+    !(
+      await c.env.AUTH_LIMIT.limit({
+        key: c.req.header("CF-Connecting-IP") || "unknown",
+      })
+    ).success
+  )
+    return c.json({ error: "Too many attempts. Try again later." }, 429);
   await next();
 });
 const credentials = z.object({
@@ -59,24 +73,28 @@ const credentials = z.object({
     .transform((s) => s.toLowerCase()),
   password: z.string().min(12).max(128),
 });
+app.get("/api/auth/options", (c) =>
+  c.json({ registration_open: c.env.REGISTRATION_OPEN !== "false" }),
+);
 app.post("/api/auth/:action", async (c) => {
   const action = c.req.param("action");
-  if (!["login", "register"].includes(action))
+  if (!["login", "register", "recover"].includes(action))
     return c.json({ error: "Unknown action" }, 404);
-  // Production must bind the edge rate limiter; local development is loopback only.
-  if (
-    c.env.AUTH_LIMIT &&
-    !(
-      await c.env.AUTH_LIMIT.limit({
-        key: c.req.header("CF-Connecting-IP") || "unknown",
-      })
-    ).success
-  )
-    return c.json({ error: "Too many attempts. Try again later." }, 429);
-  const { email, password } = credentials.parse(await c.req.json());
+  const input = await c.req.json();
+  const { email, password } = credentials.parse(input);
+  if (action === "register" && c.env.REGISTRATION_OPEN === "false")
+    return c.json(
+      { error: "Account registration is closed for this private workspace." },
+      403,
+    );
   let row = await c.env.DB.prepare("SELECT * FROM users WHERE email=?")
     .bind(email)
-    .first<{ id: string; password_hash: string; salt: string }>();
+    .first<{
+      id: string;
+      password_hash: string;
+      salt: string;
+      recovery_hash?: string | null;
+    }>();
   if (action === "register") {
     if (row)
       return c.json(
@@ -84,19 +102,37 @@ app.post("/api/auth/:action", async (c) => {
         400,
       );
     const id = crypto.randomUUID(),
-      salt = crypto.randomUUID();
+      salt = crypto.randomUUID(),
+      password_hash = await passwordHash(password, salt);
     await c.env.DB.prepare(
       "INSERT INTO users (id,email,password_hash,salt,created_at) VALUES (?,?,?,?,?)",
     )
-      .bind(
-        id,
-        email,
-        await passwordHash(password, salt),
-        salt,
-        new Date().toISOString(),
-      )
+      .bind(id, email, password_hash, salt, new Date().toISOString())
       .run();
-    row = { id, password_hash: "", salt };
+    row = { id, password_hash, salt };
+  } else if (action === "recover") {
+    const { recovery_key } = z
+      .object({ recovery_key: z.string().min(1).max(200) })
+      .parse(input);
+    const digest = await hash(recovery_key.trim());
+    if (!row?.recovery_hash || !equal(row.recovery_hash, digest))
+      return c.json({ error: "Email or recovery key is incorrect." }, 401);
+    const salt = crypto.randomUUID(),
+      password_hash = await passwordHash(password, salt);
+    const results = await c.env.DB.batch([
+      c.env.DB.prepare(
+        "UPDATE users SET password_hash=?,salt=?,recovery_hash=NULL WHERE id=? AND recovery_hash=?",
+      ).bind(password_hash, salt, row.id, digest),
+      c.env.DB.prepare(
+        "DELETE FROM sessions WHERE user_id=? AND EXISTS (SELECT 1 FROM users WHERE id=? AND salt=?)",
+      ).bind(row.id, row.id, salt),
+      c.env.DB.prepare(
+        "DELETE FROM api_tokens WHERE user_id=? AND EXISTS (SELECT 1 FROM users WHERE id=? AND salt=?)",
+      ).bind(row.id, row.id, salt),
+    ]);
+    if (!results[0].meta.changes)
+      return c.json({ error: "Email or recovery key is incorrect." }, 401);
+    row = { ...row, password_hash, salt };
   } else {
     const computed = await passwordHash(
       password,
@@ -112,15 +148,20 @@ app.post("/api/auth/:action", async (c) => {
     .setIssuedAt()
     .setExpirationTime("7d")
     .sign(new TextEncoder().encode(c.env.SESSION_SECRET));
-  await c.env.DB.prepare(
-    "INSERT INTO sessions (token_hash,user_id,expires_at) VALUES (?,?,?)",
+  const session = await c.env.DB.prepare(
+    "INSERT INTO sessions (token_hash,user_id,expires_at) SELECT ?,?,? WHERE EXISTS (SELECT 1 FROM users WHERE id=? AND salt=? AND password_hash=?)",
   )
     .bind(
       await hash(token),
       row!.id,
       new Date(Date.now() + 7 * 86400000).toISOString(),
+      row!.id,
+      row!.salt,
+      row!.password_hash,
     )
     .run();
+  if (!session.meta.changes)
+    return c.json({ error: "Account changed. Please sign in again." }, 409);
   setCookie(c, "session", token, {
     httpOnly: true,
     secure: new URL(c.req.url).protocol === "https:",
@@ -178,17 +219,48 @@ app.get("/api/me", async (c) =>
       .first(),
   ),
 );
+app.post("/api/recovery-key", async (c) => {
+  const { password } = z
+    .object({ password: z.string().min(1).max(128) })
+    .parse(await c.req.json());
+  const user = c.get("user");
+  const row = await c.env.DB.prepare(
+    "SELECT password_hash,salt FROM users WHERE id=?",
+  )
+    .bind(user)
+    .first<{ password_hash: string; salt: string }>();
+  if (!row || !equal(await passwordHash(password, row.salt), row.password_hash))
+    return c.json({ error: "Current password is incorrect." }, 401);
+  const key = crypto.randomUUID() + crypto.randomUUID();
+  // Reauthentication binds rotation to the password version just verified.
+  const result = await c.env.DB.prepare(
+    "UPDATE users SET recovery_hash=? WHERE id=? AND password_hash=? AND salt=?",
+  )
+    .bind(await hash(key), user, row.password_hash, row.salt)
+    .run();
+  if (!result.meta.changes)
+    return c.json(
+      { error: "Account changed. Sign in again before generating a key." },
+      409,
+    );
+  return c.json({ recovery_key: key });
+});
 app.post("/api/mcp-token", async (c) => {
   const token = crypto.randomUUID() + crypto.randomUUID();
-  await c.env.DB.prepare(
-    "INSERT INTO api_tokens (token_hash,user_id,expires_at) VALUES (?,?,?)",
+  const result = await c.env.DB.prepare(
+    "INSERT INTO api_tokens (token_hash,user_id,expires_at) SELECT ?,?,? WHERE EXISTS (SELECT 1 FROM sessions WHERE token_hash=? AND user_id=? AND expires_at>?)",
   )
     .bind(
       await hash(token),
       c.get("user"),
       new Date(Date.now() + 30 * 86400000).toISOString(),
+      await hash(getCookie(c, "session")!),
+      c.get("user"),
+      new Date().toISOString(),
     )
     .run();
+  if (!result.meta.changes)
+    return c.json({ error: "Session expired. Sign in again." }, 401);
   return c.json({ token });
 });
 app.delete("/api/mcp-token", async (c) => {
@@ -226,7 +298,7 @@ app.get("/api/data", async (c) => {
       .all(),
     db
       .prepare(
-        "SELECT id,item_id,title,kind,created_at FROM changes WHERE user_id=? ORDER BY created_at DESC LIMIT 100",
+        "SELECT id,item_id,title,kind,created_at,previous_starts_at,next_starts_at,previous_all_day,next_all_day FROM changes WHERE user_id=? ORDER BY created_at DESC,rowid DESC LIMIT 100",
       )
       .bind(user)
       .all(),
@@ -301,9 +373,21 @@ app.delete("/api/courses/:id", async (c) => {
     : c.json({ error: "Course not found" }, 404);
 });
 app.on(["POST", "PUT"], "/api/items/:id?", async (c) => {
+  if (c.req.method === "POST" && c.req.param("id"))
+    return c.json(
+      {
+        error: "Create items at /api/items; use PUT to edit an existing item.",
+      },
+      400,
+    );
   const v = itemInput.parse(await c.req.json()),
     user = c.get("user"),
-    id = c.req.param("id") || crypto.randomUUID();
+    id =
+      c.req.param("id") ||
+      (v.document_key
+        ? "document-" +
+          (await hash(JSON.stringify([user, v.course_id, v.document_key])))
+        : crypto.randomUUID());
   if (
     v.course_id &&
     !(await c.env.DB.prepare("SELECT id FROM courses WHERE id=? AND user_id=?")
@@ -311,17 +395,31 @@ app.on(["POST", "PUT"], "/api/items/:id?", async (c) => {
       .first())
   )
     return c.json({ error: "Course not found" }, 400);
-  if (
-    c.req.method === "PUT" &&
-    !(await c.env.DB.prepare("SELECT id FROM items WHERE id=? AND user_id=?")
-      .bind(id, user)
-      .first())
-  )
+  if (c.req.method === "POST" && v.document_key) {
+    const existing = await c.env.DB.prepare(
+      "SELECT id FROM items WHERE user_id=? AND course_id IS ? AND document_key=?",
+    )
+      .bind(user, v.course_id, v.document_key)
+      .first<{ id: string }>();
+    if (existing) return c.json({ id: existing.id, reused: true });
+  }
+  const previous =
+    c.req.method === "PUT"
+      ? await c.env.DB.prepare(
+          "SELECT starts_at,all_day FROM items WHERE id=? AND user_id=?",
+        )
+          .bind(id, user)
+          .first<{ starts_at: string; all_day: number }>()
+      : null;
+  if (c.req.method === "PUT" && !previous)
     return c.json({ error: "Item not found" }, 404);
   const now = new Date().toISOString();
   await c.env.DB.batch([
     c.env.DB.prepare(
-      "INSERT INTO items (id,user_id,course_id,title,description,kind,starts_at,ends_at,all_day,status,verification,source_url,evidence,last_verified) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET course_id=excluded.course_id,title=excluded.title,description=excluded.description,kind=excluded.kind,starts_at=excluded.starts_at,ends_at=excluded.ends_at,all_day=excluded.all_day,status=excluded.status,verification=excluded.verification,source_url=excluded.source_url,evidence=excluded.evidence,last_verified=excluded.last_verified",
+      "INSERT INTO items (id,user_id,course_id,title,description,kind,starts_at,ends_at,all_day,status,verification,source_url,evidence,last_verified,document_key,document_name,document_hash) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) " +
+        (c.req.method === "POST"
+          ? "DO NOTHING"
+          : "DO UPDATE SET course_id=excluded.course_id,title=excluded.title,description=excluded.description,kind=excluded.kind,starts_at=excluded.starts_at,ends_at=excluded.ends_at,all_day=excluded.all_day,status=excluded.status,verification=excluded.verification,source_url=excluded.source_url,evidence=excluded.evidence,last_verified=excluded.last_verified,document_key=excluded.document_key,document_name=excluded.document_name,document_hash=excluded.document_hash"),
     ).bind(
       id,
       user,
@@ -337,16 +435,23 @@ app.on(["POST", "PUT"], "/api/items/:id?", async (c) => {
       v.source_url,
       v.evidence,
       v.verification === "confirmed" ? now : null,
+      v.document_key ?? null,
+      v.document_name ?? null,
+      v.document_hash ?? null,
     ),
     c.env.DB.prepare(
-      "INSERT INTO changes (id,user_id,item_id,title,kind,created_at) VALUES (?,?,?,?,?,?)",
+      "INSERT INTO changes (id,user_id,item_id,title,kind,created_at,previous_starts_at,next_starts_at,previous_all_day,next_all_day) VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO NOTHING",
     ).bind(
-      crypto.randomUUID(),
+      c.req.method === "POST" ? "created-" + id : crypto.randomUUID(),
       user,
       id,
       v.title,
-      c.req.method === "POST" ? "added" : "updated",
+      itemChangeKind(previous, v),
       now,
+      previous?.starts_at ?? null,
+      v.starts_at,
+      previous?.all_day ?? null,
+      Number(v.all_day),
     ),
   ]);
   return c.json({ id });

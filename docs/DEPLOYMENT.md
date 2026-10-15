@@ -4,7 +4,7 @@ Nothing is deployed by the development setup. One Worker can serve the built PWA
 
 ## Proposed private pilot — 15 October 2026
 
-Use one Cloudflare Worker named `htwr-gobbler` with bundled static assets, one D1 database named `gobbler`, the existing 30-minute schedule, and one personal account/feed. Start with the provider's HTTPS workers.dev address; no domain purchase, AI provider, object storage, email service or paid plan is included. Actual account ID, database ID and origin must be resolved after operator sign-in. This is a proposal, not an approved or completed deployment.
+Use one Cloudflare Worker named `htwr-gobbler-staging` with bundled static assets and one D1 database named `gobbler-staging`. Cloudflare CLI sign-in is complete; no Gobbler database exists remotely. Start with the provider's HTTPS workers.dev address; no domain purchase, AI provider, object storage, email service or paid plan is included. The actual database ID and HTTPS origin must be resolved during approved provisioning. This is a proposal, not an approved or completed deployment.
 
 Current [Workers pricing](https://developers.cloudflare.com/workers/platform/pricing/) provides 100,000 free dynamic requests/day and 10 ms CPU per invocation. Current [D1 pricing](https://developers.cloudflare.com/d1/platform/pricing/) provides 5 million rows read/day, 100,000 rows written/day and 5 GB total storage on Workers Free. Exceeding the D1 free allowance causes errors; it does not provide unlimited service. Workers Paid starts at $5 USD/month and requires a separate decision.
 
@@ -13,18 +13,19 @@ Planning estimate, not a deployed benchmark: one unchanged 226-event feed checke
 Local evidence already available:
 
 - File-to-feed conversion and two real fetches retained 230 personal academic records without duplicate calendar IDs or lost completion/module choices.
-- Both schema migrations are applied locally. The identity migration preserved all records present at application time.
+- All five schema migrations are applied locally. The identity migration preserved all records present at application time.
 - A complete ignored SQL backup was restored to an in-memory SQLite database. All user/session/token/course/source/item/change/preference rows matched the original; foreign keys and the calendar uniqueness index were intact. The separately held feed key could decrypt restored feed credentials. This is a local restore test, not a remote D1 restore test.
 
-Before presenting a launch approval request, finish these concrete prerequisites:
+Prepared for review:
 
-1. Implement and test a recovery method and restrict registration for the single-user pilot. Current account creation has no email ownership verification or recovery. Choose an operator-managed recovery route or a verified identity service before exposing the backend.
-2. Resolve the user's Cloudflare account, actual resource IDs, HTTPS origin, rate-limit binding and runtime CPU fit. Keep the Free plan unless a reviewed alternative is approved.
-3. Prepare a tenant-only migration, selecting the personal workspace rather than browser-test accounts. Preserve user/course/source/item/change/preferences identities and completion states. Exclude old sessions and MCP tokens. Re-encrypt subscription credentials with a separately stored production feed key; retain a tested local rollback copy. Do not export decrypted subscription URLs.
-4. Back up the production feed key separately from the database; test the pair. Set a new session secret so development sessions cannot authorize production requests. Keep AI disabled.
-5. Review migration counts, planned hostname, expected cost and CPU results with the user, then request deployment approval as the final step. No remote resource creation, data upload or deployment has occurred.
+1. Recovery keys and closed registration pass API/browser checks. The student saved a key outside Gobbler. Staging sets `REGISTRATION_OPEN=false`.
+2. The ignored tenant-only migration contains one account, 12 modules, one encrypted feed, 230 academic items and 470 change records. It preserves IDs, dates, completion states, password and recovery-key hashes. Browser-test accounts, sessions and MCP tokens are excluded. No plaintext password or recovery key is exported.
+3. Fresh staging session/feed secrets are generated separately from the database. The feed is re-encrypted and verified; a local rollback snapshot is retained. Restore into a fresh in-memory database passes foreign-key and count checks.
+4. The prepared staging bundle passes `wrangler deploy --dry-run`. Its database ID and origin are deliberate placeholders. Scheduled checks are initially disabled. Secrets and private migration files remain ignored by Git.
 
-After approval: create the reviewed resources, migrate the selected workspace, verify HTTPS/session isolation, execute a real cron check, and test the same account on Windows and Android. Background push is a later feature and is not part of the current foreground-reminder implementation.
+Approval scope: create the named Free-plan staging Worker/database and deploy the reviewed app with registration closed. First use synthetic records to measure authentication/import CPU and verify HTTPS, cookies, rate limiting and isolation. Stop for a new decision if the Free allowance is unsuitable; do not weaken password hashing or enable billing. Only after that gate passes, upload the prepared personal workspace, verify its records and run a real feed check. Enable the existing 30-minute scheduler after successful smoke checks, then test Windows and Android against the same account. Back up the feed key separately and verify remote export/restoration before treating the pilot as dependable.
+
+No remote resource creation, personal-data upload or deployment has occurred. Cloudflare login alone does not authorize those actions. Background push is a subsequent feature requiring a real device test.
 
 ## Deployment procedure
 
@@ -36,7 +37,7 @@ After approval: create the reviewed resources, migrate the selected workspace, v
 6. Run tests and build. Apply `wrangler d1 migrations apply gobbler --remote` to the intended database only after a backup and migration review. Then deploy with `pnpm deploy` when authorized.
 7. Verify HTTPS cookie flags, account isolation, static-content headers, source failures, actual scheduled events, browser installation, and usage limits. Cron checks up to 10 feeds each run, prioritizing oldest attempts; it is not an unlimited per-user scheduler.
 
-Before public release, add email verification and account recovery, a secure deletion workflow, operational monitoring/backups, deployed CPU/load measurements and an independent security review. Do not expose the local development server to a public network as a substitute for this process.
+Before public release, add email ownership verification, a secure deletion workflow, operational monitoring/backups, deployed CPU/load measurements and an independent security review. Recovery without a previously saved key is not supported. Do not expose the local development server to a public network as a substitute for this process.
 
 ## Local cron check
 

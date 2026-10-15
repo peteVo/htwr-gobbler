@@ -6,6 +6,7 @@
 - Passwords use PBKDF2-SHA256 with random per-user salts and 100,000 iterations, the Workers Web Crypto supported ceiling. Validate deployed CPU cost and consider a stronger supported authentication service before public release.
 - Sessions use signed HS256 tokens plus a server-side revocation record; cookies are HttpOnly, SameSite=Strict, Secure under HTTPS, expire after seven days, and are removed/revoked on logout. Local HTTP is loopback only.
 - Authentication routes use a configured edge rate limiter (10 attempts per minute per source IP). Shared university networks may hit this threshold. API keys and subscription URLs are never put into logs by application code.
+- Recovery keys require current-password reauthentication to generate or rotate. Only a SHA-256 digest is retained. A key can reset the password once; successful recovery atomically consumes it and revokes sessions and MCP tokens. In-flight sign-in/token issuance checks the current password/session version. Keep the key outside Gobbler. The private pilot disables new account registration with `REGISTRATION_OPEN=false`.
 - Same-origin write checks block cross-site requests. External source links accept HTTP(S) only. Production static assets include restrictive content security and anti-framing headers.
 - Calendar subscription URLs are AES-GCM encrypted with fresh nonces and an operator-held secret, never returned in API snapshots. Only the exact HTTPS Moodle calendar endpoint is fetched, without redirects, bounded by timeout and size.
 - Imports use atomic batches, stable external IDs, hashes, per-source check locks, retained old data on failure, and explicit last-success/error information. Lack of an entry in a rolling feed is not treated as proof of deletion.
@@ -16,6 +17,6 @@
 
 ## Still required for public release
 
-Email verification and recovery, secure account/data deletion, deployed resource/abuse limits beyond login, operational alerts, tested backups/restore, a review of dependency vulnerabilities, and independent penetration/security testing. Account creation currently does not verify email ownership. The app is a tested development MVP, not a completed identity service.
+Email ownership verification, secure account/data deletion, deployed resource/abuse limits beyond login, operational alerts, remote backups/restore, a review of dependency vulnerabilities, and independent penetration/security testing. Account creation currently does not verify email ownership. Lost passwords without a previously saved recovery key have no self-service recovery path. The app is a tested development MVP, not a completed identity service.
 
 The university remains authoritative for deadlines and submission receipts. Calendar-only coverage, explicit date extraction, stale sources, and unsupported recurrence are surfaced as limitations rather than hidden.

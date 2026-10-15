@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { berlinDay, type Snapshot } from "../../packages/core/index";
+import { berlinDay, isPastDue, type Snapshot } from "../../packages/core/index";
 
 const base = new URL(process.env.GOBBLER_URL || "http://127.0.0.1:8787");
 if (
@@ -95,7 +95,7 @@ for (const name of tools)
           case "get_week_schedule":
             records = data.items.filter(
               (i) =>
-                new Date(i.starts_at) >= now &&
+                !isPastDue(i, now) &&
                 new Date(i.starts_at).getTime() <= now.getTime() + 7 * 86400000,
             );
             break;
@@ -104,7 +104,7 @@ for (const name of tools)
               (i) =>
                 i.kind === "assignment" &&
                 i.status === "open" &&
-                new Date(i.starts_at) >= now,
+                !isPastDue(i, now),
             );
             break;
           default:

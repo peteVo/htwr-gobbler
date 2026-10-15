@@ -9,12 +9,21 @@ import {
   itemInput,
   calendarDates,
   shiftCalendarPeriod,
+  isPastDue,
 } from "../packages/core/index";
 import { crypt, passwordHash, equal } from "../apps/api/security";
 const fixture = readFileSync(
   new URL("./fixtures/calendar.ics", import.meta.url),
   "utf8",
 );
+it("keeps date-only deadlines due today rather than overdue at midnight", () => {
+  const day = { starts_at: "2026-10-22T00:00:00.000Z", all_day: true };
+  expect(isPastDue(day, new Date("2026-10-22T18:00:00Z"))).toBe(false);
+  expect(isPastDue(day, new Date("2026-10-22T22:00:00Z"))).toBe(true);
+  expect(
+    isPastDue({ ...day, all_day: false }, new Date("2026-10-22T18:00:00Z")),
+  ).toBe(true);
+});
 describe("calendar trust boundary", () => {
   it("extracts explicit Moodle modules and distinguishes due dates from sessions and openings", () => {
     const events = parseCalendar(

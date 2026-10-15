@@ -38,10 +38,26 @@ export const itemInput = z
       ])
       .default(""),
     evidence: z.string().max(3000).default(""),
+    document_key: z
+      .string()
+      .regex(/^[a-f0-9]{64}$/)
+      .nullable()
+      .optional(),
+    document_hash: z
+      .string()
+      .regex(/^[a-f0-9]{64}$/)
+      .nullable()
+      .optional(),
+    document_name: z.string().trim().min(1).max(250).nullable().optional(),
   })
   .refine(
     (v) => !v.ends_at || new Date(v.ends_at) >= new Date(v.starts_at),
     "End must follow start",
+  )
+  .refine(
+    (v) =>
+      !v.document_key || !!(v.document_hash && v.document_name && v.course_id),
+    "Document dates need a module, document name and content fingerprint",
   );
 export const preferencesInput = z.object({
   language: z.enum(["en", "de", "vi"]),
@@ -74,6 +90,10 @@ export type Change = {
   title: string;
   kind: string;
   created_at: string;
+  previous_starts_at?: string | null;
+  next_starts_at?: string | null;
+  previous_all_day?: boolean | number | null;
+  next_all_day?: boolean | number | null;
 };
 export type Snapshot = {
   courses: Course[];
@@ -82,6 +102,17 @@ export type Snapshot = {
   changes: Change[];
   preferences: Preferences;
 };
+export function itemChangeKind(
+  previous: { starts_at: string } | null | undefined,
+  next: { starts_at: string; kind: string },
+) {
+  if (!previous) return "added";
+  if (next.kind === "assignment" && previous.starts_at !== next.starts_at)
+    return next.starts_at < previous.starts_at
+      ? "deadline_earlier"
+      : "deadline_later";
+  return "updated";
+}
 export const defaultPreferences: Preferences = {
   language: "en",
   theme: "system",
@@ -139,10 +170,10 @@ export function briefing(items: Item[], sources: Source[], now = new Date()) {
   );
   const week = pending.filter(
     (i) =>
-      new Date(i.starts_at).getTime() >= now.getTime() &&
+      !isPastDue(i, now) &&
       new Date(i.starts_at).getTime() <= now.getTime() + 7 * 86400000,
   );
-  const overdue = pending.filter((i) => new Date(i.starts_at) < now);
+  const overdue = pending.filter((i) => isPastDue(i, now));
   const healthy = sources.filter(
     (s) =>
       s.status === "connected" &&
@@ -158,6 +189,14 @@ export function briefing(items: Item[], sources: Source[], now = new Date()) {
     healthy,
     total: sources.length,
   };
+}
+export function isPastDue(
+  item: Pick<Item, "starts_at" | "all_day">,
+  now = new Date(),
+) {
+  return item.all_day
+    ? berlinDay(item.starts_at) < berlinDay(now)
+    : Date.parse(item.starts_at) < now.getTime();
 }
 export type ImportedEvent = {
   external_id: string;

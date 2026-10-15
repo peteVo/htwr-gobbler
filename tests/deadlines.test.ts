@@ -22,10 +22,34 @@ describe("evidenced local deadline candidates", () => {
     for (const text of [
       "Lecture 20.10.2026 um 16:00",
       "Abgabe 20.10. um 16:00",
-      "Abgabe 20.10.2026",
       "Abgabe 31.02.2026 um 16:00",
     ])
       expect(extractExplicitDeadlines([{ page: 1, text }])).toEqual([]);
+  });
+  it("keeps explicit date-only registration cutoffs uncertain rather than inventing a time", () => {
+    for (const text of [
+      "Anmeldung bis Donnerstag, 22. Oktober 2026.",
+      "Abgabe 22.10.2026",
+    ]) {
+      expect(
+        extractExplicitDeadlines([{ page: 41, text }], "Overview.pdf"),
+      ).toMatchObject([
+        {
+          deadline: "2026-10-22T00:00:00.000Z",
+          all_day: true,
+          page: 41,
+          evidence: text,
+        },
+      ]);
+    }
+    expect(
+      extractExplicitDeadlines([{ page: 1, text: "Abgabe 31. Februar 2026" }]),
+    ).toEqual([]);
+    expect(
+      extractExplicitDeadlines([
+        { page: 1, text: "Abgabe 20. Oktober 2026 um 16:00" },
+      ])[0].deadline,
+    ).toBe("2026-10-20T14:00:00.000Z");
   });
   it("rejects impossible and ambiguous daylight saving times", () => {
     expect(berlinInstant(2026, 3, 29, 2, 30)).toBeNull();

@@ -92,6 +92,255 @@ const item = {
   starts_at: "2026-10-20T14:00:00.000Z",
 };
 describe("account-scoped API and persistence", () => {
+  it("reuses document candidates without resetting reviewed state, and updates a selected task for a revised document", async () => {
+    const a = await account(),
+      b = await account("paper-other@example.test");
+    const { id: course_id }: any = await (
+      await request("/courses", "POST", { name: "Paper module" }, a)
+    ).json();
+    const paper = {
+      ...item,
+      course_id,
+      document_key: "a".repeat(64),
+      document_hash: "b".repeat(64),
+      document_name: "Sheet.pdf",
+      verification: "needs_review",
+    };
+    const { id }: any = await (
+      await request("/items", "POST", paper, a)
+    ).json();
+    await request(
+      "/items/" + id,
+      "PUT",
+      {
+        ...paper,
+        title: "My reviewed assignment",
+        status: "done",
+        verification: "confirmed",
+      },
+      a,
+    );
+    expect(
+      await (await request("/items", "POST", paper, a)).json(),
+    ).toMatchObject({ id, reused: true });
+    let data: any = await (await request("/data", "GET", undefined, a)).json();
+    expect(data.items).toHaveLength(1);
+    expect(data.items[0]).toMatchObject({
+      id,
+      title: "My reviewed assignment",
+      status: "done",
+      verification: "confirmed",
+    });
+    const revised = {
+      ...paper,
+      document_key: "c".repeat(64),
+      document_hash: "d".repeat(64),
+      starts_at: "2026-10-19T14:00:00.000Z",
+      status: "done",
+    };
+    expect((await request("/items/" + id, "PUT", revised, b)).status).toBe(400);
+    expect((await request("/items/" + id, "POST", revised, b)).status).toBe(
+      400,
+    );
+    await request("/items/" + id, "PUT", revised, a);
+    expect(
+      await (await request("/items", "POST", revised, a)).json(),
+    ).toMatchObject({ id, reused: true });
+    data = await (await request("/data", "GET", undefined, a)).json();
+    expect(data.items).toHaveLength(1);
+    expect(data.items[0]).toMatchObject({
+      id,
+      document_hash: revised.document_hash,
+      status: "done",
+    });
+    expect(data.changes[0].kind).toBe("deadline_earlier");
+    expect(
+      (await request("/items", "POST", { ...paper, course_id: null }, a))
+        .status,
+    ).toBe(400);
+    // Removing modules retains documents, including the same PDF used in multiple modules.
+    const { id: secondCourse }: any = await (
+      await request("/courses", "POST", { name: "Second module" }, a)
+    ).json();
+    await request("/items", "POST", { ...revised, course_id: secondCourse }, a);
+    expect(
+      (await request("/courses/" + course_id, "DELETE", undefined, a)).status,
+    ).toBe(200);
+    expect(
+      (await request("/courses/" + secondCourse, "DELETE", undefined, a))
+        .status,
+    ).toBe(200);
+    expect(
+      ((await (await request("/data", "GET", undefined, a)).json()) as any)
+        .items,
+    ).toHaveLength(2);
+  });
+  it("rotates and consumes recovery keys, resets passwords, and revokes previous sessions and MCP tokens", async () => {
+    const a = await account(),
+      b = await account("unaffected@example.test");
+    const originalPassword = "a-test-password-123",
+      nextPassword = "a-new-test-password-456";
+    await request("/items", "POST", item, a);
+    const { token }: any = await (
+      await request("/mcp-token", "POST", undefined, a)
+    ).json();
+    expect(
+      (await request("/recovery-key", "POST", { password: "incorrect" }, a))
+        .status,
+    ).toBe(401);
+    const first: any = await (
+      await request("/recovery-key", "POST", { password: originalPassword }, a)
+    ).json();
+    const second: any = await (
+      await request("/recovery-key", "POST", { password: originalPassword }, a)
+    ).json();
+    expect(first.recovery_key).not.toBe(second.recovery_key);
+    expect(
+      JSON.stringify(sqlite.prepare("SELECT * FROM users").all()),
+    ).not.toContain(second.recovery_key);
+    expect(
+      await (await request("/data", "GET", undefined, a)).text(),
+    ).not.toContain("recovery_hash");
+    const payload = {
+      email: "one@example.test",
+      password: nextPassword,
+      recovery_key: second.recovery_key,
+    };
+    expect(
+      (
+        await request("/auth/recover", "POST", {
+          ...payload,
+          recovery_key: first.recovery_key,
+        })
+      ).status,
+    ).toBe(401);
+    expect(
+      (
+        await request("/auth/recover", "POST", {
+          ...payload,
+          email: "unaffected@example.test",
+        })
+      ).status,
+    ).toBe(401);
+    const result = await request("/auth/recover", "POST", payload);
+    expect(result.status).toBe(200);
+    const recoveredCookie = result.headers.get("set-cookie")!.split(";")[0];
+    expect((await request("/data", "GET", undefined, a)).status).toBe(401);
+    expect(
+      (await request("/data", "GET", undefined, undefined, undefined, token))
+        .status,
+    ).toBe(401);
+    expect((await request("/data", "GET", undefined, b)).status).toBe(200);
+    expect(
+      (
+        (await (
+          await request("/data", "GET", undefined, recoveredCookie)
+        ).json()) as any
+      ).items,
+    ).toHaveLength(1);
+    expect((await request("/auth/recover", "POST", payload)).status).toBe(401);
+    expect(
+      (
+        await request("/auth/login", "POST", {
+          email: payload.email,
+          password: originalPassword,
+        })
+      ).status,
+    ).toBe(401);
+    expect(
+      (
+        await request("/auth/login", "POST", {
+          email: payload.email,
+          password: nextPassword,
+        })
+      ).status,
+    ).toBe(200);
+    expect(
+      sqlite
+        .prepare("SELECT recovery_hash FROM users WHERE email=?")
+        .get(payload.email),
+    ).toEqual({ recovery_hash: null });
+  });
+  it("can close pilot registration without blocking existing login or recovery and rate-limits recovery", async () => {
+    const a = await account();
+    const { recovery_key }: any = await (
+      await request(
+        "/recovery-key",
+        "POST",
+        { password: "a-test-password-123" },
+        a,
+      )
+    ).json();
+    const post = (action: string, payload: unknown, bindings: any) =>
+      app.request(
+        "http://localhost:8787/api/auth/" + action,
+        {
+          method: "POST",
+          headers: {
+            Origin: "http://localhost:5173",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        },
+        bindings,
+      );
+    const payload = {
+      email: "one@example.test",
+      password: "a-test-password-123",
+      recovery_key,
+    };
+    const closed = { ...env(), REGISTRATION_OPEN: "false" };
+    expect(
+      (
+        await post(
+          "register",
+          { email: "new@example.test", password: payload.password },
+          closed,
+        )
+      ).status,
+    ).toBe(403);
+    expect((await post("login", payload, closed)).status).toBe(200);
+    expect(
+      (
+        await post("recover", payload, {
+          ...closed,
+          AUTH_LIMIT: { limit: async () => ({ success: false }) },
+        })
+      ).status,
+    ).toBe(429);
+    expect((await post("recover", payload, closed)).status).toBe(200);
+    expect(
+      await (
+        await app.request("http://localhost:8787/api/auth/options", {}, closed)
+      ).json(),
+    ).toEqual({ registration_open: false });
+  });
+  it("records old and new dates for manual assignment changes without mistaking completion for a date change", async () => {
+    const a = await account();
+    const { id }: any = await (await request("/items", "POST", item, a)).json();
+    await request(
+      "/items/" + id,
+      "PUT",
+      { ...item, starts_at: "2026-10-19T14:00:00.000Z" },
+      a,
+    );
+    let data: any = await (await request("/data", "GET", undefined, a)).json();
+    expect(data.changes[0]).toMatchObject({
+      kind: "deadline_earlier",
+      previous_starts_at: item.starts_at,
+      next_starts_at: "2026-10-19T14:00:00.000Z",
+      previous_all_day: 0,
+      next_all_day: 0,
+    });
+    await request(
+      "/items/" + id,
+      "PUT",
+      { ...item, starts_at: "2026-10-19T14:00:00.000Z", status: "done" },
+      a,
+    );
+    data = await (await request("/data", "GET", undefined, a)).json();
+    expect(data.changes[0].kind).toBe("updated");
+  });
   it("enforces calendar identity across sources even if a concurrent check passed its overlap query", async () => {
     const a = await account(),
       b = await account("isolated@example.test");
@@ -570,9 +819,13 @@ describe("account-scoped API and persistence", () => {
     );
     data = (await (await request("/data", "GET", undefined, a)).json()) as any;
     expect(data.items).toHaveLength(2);
-    expect(data.changes.filter((c: any) => c.kind === "updated")).toHaveLength(
-      1,
-    );
+    expect(
+      data.changes.filter((c: any) => c.kind === "deadline_earlier"),
+    ).toHaveLength(1);
+    expect(data.changes[0]).toMatchObject({
+      previous_starts_at: "2026-10-20T14:00:00.000Z",
+      next_starts_at: "2026-10-19T14:00:00.000Z",
+    });
     expect(
       (
         await request(

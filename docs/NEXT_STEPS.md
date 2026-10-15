@@ -2,7 +2,7 @@
 
 ## Starting point
 
-The local app imports Moodle calendar events without duplicate file uploads, preserves explicit module names, prioritizes assignments, and retains completion states. The user has checked that displayed times look correct. Local verification currently passes 40 unit/API tests and 10 browser scenarios, plus build and Linux CI.
+The local app imports Moodle calendar events without duplicate file uploads, preserves explicit module names, prioritizes assignments, and retains completion states. The user has checked that displayed times look correct. Local verification currently passes 49 unit/API tests and 13 browser scenarios, plus type-check and build. Linux CI passed the preceding calendar connection change; the latest change needs its own CI result.
 
 The principal gap is coverage: a successful calendar import does not establish that all exercise sheets, instructions, announcements or submission requirements have been checked. Assignment discovery and reliable monitoring take priority over additional visual polish or AI features.
 
@@ -64,8 +64,10 @@ Two authenticated courses were inspected. Their current material confirms that c
 
 University registration, account/password/MFA setup and any teaching-team email require student action. The automation has not completed those steps on the student's behalf.
 
-File-to-feed conversion retains existing source IDs and records, with overlap rejection and a database uniqueness constraint. The student connected a real subscription directly in the app. Two live checks each returned 226 events with zero changes, retaining 230 personal records, completion states and modules without duplicates. Unit/API checks total 43 and browser scenarios total 11. Local checks remain manual; cloud deployment and phone push delivery have not been completed.
+File-to-feed conversion retains existing source IDs and records, with overlap rejection and a database uniqueness constraint. The student connected a real subscription directly in the app. Two live checks each returned 226 events with zero changes, retaining 230 personal records, completion states and modules without duplicates. Local checks remain manual; cloud deployment and phone push delivery have not been completed.
+
+Document review now requires a module, retains evidence, recognizes explicit German month/date-only formats, reopens identical saved dates and supports updating an existing task from a revised document. Today shows earlier deadline changes with old/new dates. Date-only tasks remain due today until the Berlin day passes. Account recovery and single-user registration controls are implemented and tested; the student saved a recovery key. Cloudflare is signed in, and a private staging migration and bundle dry run are ready for approval. See DEPLOYMENT.md for the exact resources, migration counts, CPU gate and limits.
 
 ## Immediate next action
 
-Complete the university prerequisites and inspect the future exercise-group course when it becomes available. Direct Moodle course/file access has an identified university OAuth/proxy route, but requires Gobbler's own client registration and current capability documentation; see INTEGRATIONS.md. Prepare the private deployment prerequisites before requesting launch approval. Existing calendar checks and local document review remain usable meanwhile.
+Review and approve the prepared Free-plan staging deployment, then validate runtime limits, remote restoration and the same account on Windows/Android. Complete the university prerequisites and inspect the future exercise-group course when it becomes available. Direct Moodle course/file access requires Gobbler's own client registration and current capability documentation; see INTEGRATIONS.md. Existing calendar checks and local document review remain usable meanwhile.
