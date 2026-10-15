@@ -1,6 +1,16 @@
 # Deployment, when authorized
 
-Nothing is deployed by the development setup. One Worker can serve the built PWA and API with one D1 database; clients then share an account and database across devices. The separate stdio MCP adapter runs in the AI client's environment and connects to that same API.
+Local development does not deploy resources. An approved staging Worker and D1 database now exist, containing synthetic test data only. Personal migration is paused at the CPU gate below. The separate stdio MCP adapter runs in the AI client's environment and connects to the same API.
+
+## Staging result — 15 October 2026
+
+The student approved the Free-plan staging test and conditional personal migration. One Worker (`htwr-gobbler-staging`) and one D1 database (`gobbler-staging`) were created. The account's new workers.dev subdomain is `petevo-gobbler`; staging is at https://htwr-gobbler-staging.petevo-gobbler.workers.dev. All five migrations and fresh staging secrets are configured, registration is closed and cron remains disabled.
+
+Synthetic live checks pass: HTTPS/security headers, Secure/HttpOnly/SameSite cookies, sign-in, logged-out access rejection, closed registration, cross-origin write rejection, a 226-event import/reimport with retained IDs and logout revocation. A remote D1 export restored into fresh in-memory SQLite with one synthetic user, 226 items and no foreign-key errors. This is a small smoke test, not a load test or personal-data restore.
+
+**Free-plan CPU gate did not pass.** Native real-time invocation records measured sign-in at 32–43 ms CPU, a 226-event sample import at 118 ms and its unchanged repeat at 66 ms. GraphQL analytics independently reported CPU quantiles above 10 ms with no invocation errors. The [Free limit is 10 ms](https://developers.cloudflare.com/workers/platform/limits/#cpu-time); [runtime rollover can allow successful requests above that limit](https://developers.cloudflare.com/workers/observability/metrics-and-analytics/). Successful requests therefore do not establish dependable Free-plan operation.
+
+No personal records, recovery hash or Moodle subscription have been uploaded. No paid plan was enabled, password hashing was not weakened, and scheduled checks remain off. The next decision is explicit approval of Workers Paid (currently a $5/month minimum plus usage beyond included allowances), or retaining local use. The private staging credentials, diagnostics, secrets, migration and backups remain ignored by Git. The local workspace is unchanged.
 
 ## Proposed private pilot — 15 October 2026
 
@@ -25,7 +35,7 @@ Prepared for review:
 
 Approval scope: create the named Free-plan staging Worker/database and deploy the reviewed app with registration closed. First use synthetic records to measure authentication/import CPU and verify HTTPS, cookies, rate limiting and isolation. Stop for a new decision if the Free allowance is unsuitable; do not weaken password hashing or enable billing. Only after that gate passes, upload the prepared personal workspace, verify its records and run a real feed check. Enable the existing 30-minute scheduler after successful smoke checks, then test Windows and Android against the same account. Back up the feed key separately and verify remote export/restoration before treating the pilot as dependable.
 
-No remote resource creation, personal-data upload or deployment has occurred. Cloudflare login alone does not authorize those actions. Background push is a subsequent feature requiring a real device test.
+The approved synthetic staging deployment has occurred as recorded above; personal-data upload remains gated. Background push is a subsequent feature requiring a real device test.
 
 ## Deployment procedure
 
