@@ -16,6 +16,48 @@ const fixture = readFileSync(
   "utf8",
 );
 describe("calendar trust boundary", () => {
+  it("extracts explicit Moodle modules and distinguishes due dates from sessions and openings", () => {
+    const events = parseCalendar(
+      readFileSync("tests/fixtures/moodle.ics", "utf8"),
+    );
+    expect(events.map((e) => e.kind)).toEqual([
+      "assignment",
+      "assignment",
+      "tutorial",
+      "announcement",
+    ]);
+    expect(
+      events.every((e) => e.course_name === "Foundations of Testing"),
+    ).toBe(true);
+    expect(events[0].starts_at).toBe("2026-11-03T17:30:00.000Z");
+    const source = readFileSync("tests/fixtures/moodle.ics", "utf8");
+    expect(
+      parseCalendar(
+        source.replace(
+          "Exam poll (deadline November 1) opens",
+          "Open Source Systems",
+        ),
+      )[3].kind,
+    ).toBe("lecture");
+  });
+  it("does not guess a module from non-Moodle categories or multiple categories", () => {
+    const calendar = readFileSync("tests/fixtures/moodle.ics", "utf8");
+    expect(
+      parseCalendar(
+        calendar
+          .replace("Moodle Pty Ltd", "Another exporter")
+          .replace("Moodle Test Calendar", "Academic Calendar"),
+      )[0].course_name,
+    ).toBeNull();
+    expect(
+      parseCalendar(
+        calendar.replaceAll(
+          "CATEGORIES:(VO) Foundations of Testing",
+          "CATEGORIES:Work,Personal",
+        ),
+      )[0].course_name,
+    ).toBeNull();
+  });
   it("normalizes API offsets to one UTC representation", () =>
     expect(
       itemInput.parse({

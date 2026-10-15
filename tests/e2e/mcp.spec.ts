@@ -14,12 +14,19 @@ test("read-only MCP queries the same persisted academic records", async ({
     },
   });
   expect(registration.ok()).toBe(true);
+  const { id: course_id } = await (
+    await request.post("/api/courses", {
+      headers,
+      data: { name: "MCP test module" },
+    })
+  ).json();
   expect(
     (
       await request.post("/api/items", {
         headers,
         data: {
           title: "MCP evidenced deadline",
+          course_id,
           kind: "assignment",
           starts_at: "2099-10-20T14:00:00Z",
           evidence: "A test fixture, not a university deadline.",
@@ -60,6 +67,9 @@ test("read-only MCP queries the same persisted academic records", async ({
     expect(result.isError).not.toBe(true);
     expect(JSON.stringify(result.structuredContent)).toContain(
       "MCP evidenced deadline",
+    );
+    expect(JSON.stringify(result.structuredContent)).toContain(
+      "MCP test module",
     );
   } finally {
     await client.close();

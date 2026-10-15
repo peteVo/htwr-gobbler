@@ -31,15 +31,42 @@ export async function ingest(
       .all<{ id: string; external_id: string; content_hash: string }>()
   ).results;
   const statements: D1PreparedStatement[] = [];
+  const courses = new Map(
+    (
+      await db
+        .prepare("SELECT id,name FROM courses WHERE user_id=?")
+        .bind(user)
+        .all<{ id: string; name: string }>()
+    ).results.map((course) => [course.name.toLowerCase(), course.id]),
+  );
   let changed = 0;
   for (const e of events) {
+    let courseId: string | null = null;
+    if (e.course_name) {
+      const key = e.course_name.toLowerCase();
+      courseId =
+        courses.get(key) ||
+        "ics-course-" + (await hash(JSON.stringify([user, key])));
+      if (!courses.has(key)) {
+        statements.push(
+          db
+            .prepare(
+              "INSERT INTO courses (id,user_id,name,code,color) VALUES (?,?,?,'','sage') ON CONFLICT(id) DO NOTHING",
+            )
+            .bind(courseId, user, e.course_name),
+        );
+        courses.set(key, courseId);
+      }
+    }
     const digest = await hash(JSON.stringify(e));
     const old = existing.find((i) => i.external_id === e.external_id);
     if (old?.content_hash === digest) {
       statements.push(
         db
-          .prepare("UPDATE items SET last_verified=? WHERE id=? AND user_id=?")
-          .bind(now, old.id, user),
+          .prepare(
+            "UPDATE items SET last_verified=?,course_id=COALESCE(course_id,?) WHERE id=? AND user_id=?",
+          )
+          .bind(now, courseId, old.id, user),
       );
       continue;
     }
@@ -48,7 +75,7 @@ export async function ingest(
     statements.push(
       db
         .prepare(
-          `INSERT INTO items (id,user_id,source_id,external_id,title,description,kind,starts_at,ends_at,all_day,verification,source_url,last_verified,content_hash,status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(user_id,source_id,external_id) DO UPDATE SET title=excluded.title,description=excluded.description,kind=excluded.kind,starts_at=excluded.starts_at,ends_at=excluded.ends_at,all_day=excluded.all_day,source_url=excluded.source_url,last_verified=excluded.last_verified,content_hash=excluded.content_hash,verification='confirmed',status=CASE WHEN excluded.status='dismissed' THEN 'dismissed' ELSE items.status END`,
+          `INSERT INTO items (id,user_id,source_id,external_id,title,description,kind,starts_at,ends_at,all_day,verification,source_url,last_verified,content_hash,status,course_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(user_id,source_id,external_id) DO UPDATE SET course_id=COALESCE(items.course_id,excluded.course_id),title=excluded.title,description=excluded.description,kind=excluded.kind,starts_at=excluded.starts_at,ends_at=excluded.ends_at,all_day=excluded.all_day,source_url=excluded.source_url,last_verified=excluded.last_verified,content_hash=excluded.content_hash,verification='confirmed',status=CASE WHEN excluded.status='dismissed' THEN 'dismissed' ELSE items.status END`,
         )
         .bind(
           id,
@@ -66,6 +93,7 @@ export async function ingest(
           now,
           digest,
           e.cancelled ? "dismissed" : "open",
+          courseId,
         ),
     );
     statements.push(

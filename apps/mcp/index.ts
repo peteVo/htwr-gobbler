@@ -110,6 +110,16 @@ for (const name of tools)
           default:
             records = [...data.items, ...data.courses];
         }
+        records = records.map((record) =>
+          record && typeof record === "object" && "course_id" in record
+            ? {
+                ...record,
+                course_name:
+                  data.courses.find((course) => course.id === record.course_id)
+                    ?.name || null,
+              }
+            : record,
+        );
         if (query)
           records = records.filter((r) =>
             JSON.stringify(r).toLowerCase().includes(query.toLowerCase()),

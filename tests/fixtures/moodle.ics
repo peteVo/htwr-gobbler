@@ -1,0 +1,31 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Moodle Pty Ltd//NONSGML Moodle Test Calendar//EN
+BEGIN:VEVENT
+UID:exercise@moodle.example.test
+DTSTART:20261103T173000Z
+DTEND:20261103T173000Z
+SUMMARY:Übung 1 ist fällig.
+CATEGORIES:(VO) Foundations of Testing
+DESCRIPTION:Abgabe am 03.11.2026 um 18:30 Uhr.
+END:VEVENT
+BEGIN:VEVENT
+UID:registration@moodle.example.test
+DTSTART:20261101T120000Z
+SUMMARY:Anmeldung Bonuspunkte ist fällig
+CATEGORIES:(VO) Foundations of Testing
+END:VEVENT
+BEGIN:VEVENT
+UID:tutorial@moodle.example.test
+DTSTART:20261102T100000Z
+DTEND:20261102T113000Z
+SUMMARY:Übung
+CATEGORIES:(VO) Foundations of Testing
+END:VEVENT
+BEGIN:VEVENT
+UID:poll@moodle.example.test
+DTSTART:20261001T100000Z
+SUMMARY:Exam poll (deadline November 1) opens
+CATEGORIES:(VO) Foundations of Testing
+END:VEVENT
+END:VCALENDAR

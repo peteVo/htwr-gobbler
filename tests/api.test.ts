@@ -89,6 +89,56 @@ const item = {
   starts_at: "2026-10-20T14:00:00.000Z",
 };
 describe("account-scoped API and persistence", () => {
+  it("links Moodle tasks to explicit modules and preserves completion and manual course choices on reimport", async () => {
+    const a = await account(),
+      b = await account("another@example.test"),
+      text = readFileSync("tests/fixtures/moodle.ics", "utf8");
+    await request("/import", "POST", { name: "Moodle", text }, a);
+    let data = (await (
+      await request("/data", "GET", undefined, a)
+    ).json()) as any;
+    expect(data.courses).toHaveLength(1);
+    expect(data.courses[0].name).toBe("Foundations of Testing");
+    expect(
+      data.items.every((i: any) => i.course_id === data.courses[0].id),
+    ).toBe(true);
+    const original = data.items.find(
+      (i: any) => i.external_id === "exercise@moodle.example.test",
+    );
+    const { id } = (await (
+      await request("/courses", "POST", { name: "My chosen module" }, a)
+    ).json()) as any;
+    await request(
+      "/items/" + original.id,
+      "PUT",
+      { ...original, status: "done", course_id: id },
+      a,
+    );
+    await request(
+      "/import",
+      "POST",
+      {
+        name: "Moodle again",
+        text: text.replace(
+          "SUMMARY:Übung 1 ist fällig.",
+          "SUMMARY:Übung 1 · Abgabe",
+        ),
+      },
+      a,
+    );
+    data = (await (await request("/data", "GET", undefined, a)).json()) as any;
+    expect(data.items.find((i: any) => i.id === original.id)).toMatchObject({
+      status: "done",
+      course_id: id,
+      starts_at: "2026-11-03T17:30:00.000Z",
+    });
+    expect(data.courses).toHaveLength(2);
+    expect(data.items).toHaveLength(4);
+    expect(
+      ((await (await request("/data", "GET", undefined, b)).json()) as any)
+        .courses,
+    ).toHaveLength(0);
+  });
   it("recognizes a repeat upload without source_id even when its name changes, preserving completion", async () => {
     const a = await account(),
       text = readFileSync("tests/fixtures/calendar.ics", "utf8");

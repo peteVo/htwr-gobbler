@@ -91,7 +91,7 @@ function App() {
     [search, setSearch] = useState(""),
     [filter, setFilter] = useState("open"),
     [courseFilter, setCourseFilter] = useState(""),
-    [typeFilter, setTypeFilter] = useState("");
+    [typeFilter, setTypeFilter] = useState("assignment");
   const [notice, setNotice] = useState(""),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
@@ -232,7 +232,7 @@ function App() {
           .toLowerCase()
           .includes(search.toLowerCase())) &&
       (!courseFilter || i.course_id === courseFilter) &&
-      (!typeFilter || i.kind === typeFilter),
+      (page !== "tasks" || !typeFilter || i.kind === typeFilter),
   );
   const deadlines = items
     .filter((i) => i.kind === "assignment")
@@ -310,7 +310,7 @@ function App() {
         <button className="task-content" onClick={() => edit(item)}>
           <span className="course-label">
             <i className={`dot ${c?.color || "sage"}`} />
-            {c?.name || "Personal"}
+            {c?.name || (item.source_id ? "Module not provided" : "Personal")}
           </span>
           <strong>{item.title}</strong>
           <span className="task-meta">
@@ -438,7 +438,7 @@ function App() {
                 setMobile(false);
                 setSearch("");
                 setCourseFilter("");
-                setTypeFilter("");
+                setTypeFilter("assignment");
               }}
             >
               <Icon size={19} />
@@ -513,7 +513,10 @@ function App() {
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
-                if (e.target.value) setPage("tasks");
+                if (e.target.value) {
+                  setPage("tasks");
+                  setTypeFilter("");
+                }
               }}
             />
             <kbd>/</kbd>
@@ -871,10 +874,12 @@ function App() {
                           {
                             data.items.filter(
                               (i) =>
-                                i.course_id === c.id && i.status === "open",
+                                i.course_id === c.id &&
+                                i.status === "open" &&
+                                i.kind === "assignment",
                             ).length
                           }{" "}
-                          open items
+                          open assignments
                         </p>
                         <div className="course-actions">
                           <button
@@ -1001,6 +1006,12 @@ function App() {
                                         minute: "2-digit",
                                       })}
                                 </small>
+                                {i.kind === "assignment" && (
+                                  <small>
+                                    {course(i.course_id)?.name ||
+                                      "Module not provided"}
+                                  </small>
+                                )}
                                 {i.title}
                                 {i.verification === "needs_review" && (
                                   <CircleAlert size={12} />

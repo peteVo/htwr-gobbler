@@ -166,7 +166,8 @@ export type ImportedEvent = {
   starts_at: string;
   ends_at: string | null;
   all_day: boolean;
-  kind: "assignment" | "lecture" | "exam";
+  kind: "assignment" | "lecture" | "exam" | "tutorial" | "announcement";
+  course_name: string | null;
   source_url: string;
   cancelled: boolean;
 };
@@ -178,6 +179,9 @@ export function parseCalendar(text: string): ImportedEvent[] {
     throw new Error("Choose an iCalendar file under 2 MB.");
   ICAL.TimezoneService.reset();
   const root = new ICAL.Component(ICAL.parse(text));
+  const moodle = /moodle/i.test(
+    String(root.getFirstPropertyValue("prodid") || ""),
+  );
   if (root.getAllSubcomponents("vtodo").length)
     throw new Error(
       "Task calendars (VTODO) are not supported. Export an event calendar instead.",
@@ -218,21 +222,43 @@ export function parseCalendar(text: string): ImportedEvent[] {
       );
     const url = String(c.getFirstPropertyValue("url") || "");
     const title = e.summary || "Untitled event";
+    const categories = [
+      ...new Set(
+        c
+          .getAllProperties("categories")
+          .flatMap((property) => property.getValues())
+          .map((value) => String(value).trim())
+          .filter(Boolean),
+      ),
+    ];
+    const course_name =
+      moodle && categories.length === 1
+        ? categories[0]
+            .replace(/^\((?:VO|VU|UE|Ü|SE|PR)\)\s*/u, "")
+            .slice(0, 150)
+        : null;
     const starts_at = start.isDate
       ? `${start.toString()}T00:00:00.000Z`
       : start.toJSDate().toISOString();
     return {
       external_id: e.uid,
+      course_name: course_name || null,
       title: title.slice(0, 250),
       description: (e.description || "").slice(0, 10000),
       starts_at,
       ends_at: e.endDate ? e.endDate.toJSDate().toISOString() : null,
       all_day: start.isDate,
-      kind: /deadline|abgabe|assignment|due|übung|exercise/i.test(title)
-        ? "assignment"
-        : /exam|klausur|prüfung/i.test(title)
-          ? "exam"
-          : "lecture",
+      kind: /\bopens\b|öffnet|wird geöffnet/i.test(title)
+        ? "announcement"
+        : /deadline|abgabe|assignment|\bdue\b|fällig|faellig|anmeldeschluss|\bcloses\b/i.test(
+              title,
+            )
+          ? "assignment"
+          : /exam|klausur|prüfung/i.test(title)
+            ? "exam"
+            : /übung|uebung|tutorial|exercise|tutorium/i.test(title)
+              ? "tutorial"
+              : "lecture",
       source_url: /^https?:\/\//i.test(url) ? url : "",
       cancelled: c.getFirstPropertyValue("status") === "CANCELLED",
     };

@@ -6,7 +6,7 @@
 
 Do not conclude that RWTH exposes ordinary Moodle token authentication. Confirm documented REST/mobile service availability and university permission with IT Center before adding course/material/announcement discovery. If approved APIs are unavailable, assess a desktop extension using the student's existing session with explicit permissions; do not bypass SSO or MFA.
 
-Calendar event classification is heuristic and editable: deadline/assignment/Abgabe/Übung wording becomes an assignment, exam/Klausur wording an exam, otherwise a lecture. Review imported events; a calendar is not a definitive assignment inventory. The connector boundary consists of `parseCalendar`, `ingest`, and `syncFeed`; future connectors should normalize into the same items and source-health model.
+Calendar event classification is heuristic and editable: due/deadline/assignment/Abgabe/fällig wording becomes an assignment; opening notices are announcements; exams/Klausuren are exams; ordinary Übung/tutorial sessions are tutorials. A single CATEGORIES value in an explicitly Moodle-produced calendar supplies the module name, with common teaching-format prefixes removed. Multiple or absent categories do not produce a guessed module. Imported course associations populate existing course records; manual non-empty course choices and completion states survive reimport. Review imported events; a calendar is not a definitive assignment inventory. The connector boundary consists of `parseCalendar`, `ingest`, and `syncFeed`; future connectors should normalize into the same items and source-health model.
 
 ## RWTHonline
 
