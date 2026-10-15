@@ -12,6 +12,8 @@ Synthetic live checks pass: HTTPS/security headers, Secure/HttpOnly/SameSite coo
 
 No personal records, recovery hash or Moodle subscription have been uploaded. No paid plan was enabled, password hashing was not weakened, and scheduled checks remain off. The next decision is explicit approval of Workers Paid (currently a $5/month minimum plus usage beyond included allowances), or retaining local use. The private staging credentials, diagnostics, secrets, migration and backups remain ignored by Git. The local workspace is unchanged.
 
+The student chose research into another free host. [The comparison](FREE_HOSTING.md) recommends testing Netlify Free standard Node Functions with Turso Free next, subject to an adapter, security checks, bounded scheduler runtime and a synthetic deployment gate. No replacement deployment or personal-data transfer has been authorized by that research request.
+
 ## Proposed private pilot — 15 October 2026
 
 Use one Cloudflare Worker named `htwr-gobbler-staging` with bundled static assets and one D1 database named `gobbler-staging`. Cloudflare CLI sign-in is complete; no Gobbler database exists remotely. Start with the provider's HTTPS workers.dev address; no domain purchase, AI provider, object storage, email service or paid plan is included. The actual database ID and HTTPS origin must be resolved during approved provisioning. This is a proposal, not an approved or completed deployment.
