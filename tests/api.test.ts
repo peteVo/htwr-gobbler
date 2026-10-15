@@ -89,6 +89,98 @@ const item = {
   starts_at: "2026-10-20T14:00:00.000Z",
 };
 describe("account-scoped API and persistence", () => {
+  it("recognizes a repeat upload without source_id even when its name changes, preserving completion", async () => {
+    const a = await account(),
+      text = readFileSync("tests/fixtures/calendar.ics", "utf8");
+    await request("/import", "POST", { name: "RWTHmoodle", text }, a);
+    let data = (await (
+      await request("/data", "GET", undefined, a)
+    ).json()) as any;
+    const original = data.items[0];
+    await request(
+      "/items/" + original.id,
+      "PUT",
+      { ...original, status: "done" },
+      a,
+    );
+    expect(
+      await (
+        await request(
+          "/import",
+          "POST",
+          { name: "University calendar", text },
+          a,
+        )
+      ).json(),
+    ).toEqual({ imported: 2, changed: 0 });
+    data = (await (await request("/data", "GET", undefined, a)).json()) as any;
+    expect(data.sources).toHaveLength(1);
+    expect(data.sources[0].name).toBe("RWTHmoodle");
+    expect(data.items).toHaveLength(2);
+    expect(data.items.find((i: any) => i.id === original.id).status).toBe(
+      "done",
+    );
+    expect(data.changes).toHaveLength(3);
+    const b = await account("other@example.test");
+    await request("/import", "POST", { name: "Same calendar", text }, b);
+    expect(
+      ((await (await request("/data", "GET", undefined, b)).json()) as any)
+        .items,
+    ).toHaveLength(2);
+  });
+  it("blocks partial overlaps until an existing source is explicitly selected", async () => {
+    const a = await account(),
+      text = readFileSync("tests/fixtures/calendar.ics", "utf8");
+    await request("/import", "POST", { name: "Original", text }, a);
+    const overlapping = text.replace(
+      "lecture@test.invalid",
+      "new-lecture@test.invalid",
+    );
+    expect(
+      (
+        await request(
+          "/import",
+          "POST",
+          { name: "New name", text: overlapping },
+          a,
+        )
+      ).status,
+    ).toBe(409);
+    let data = (await (
+      await request("/data", "GET", undefined, a)
+    ).json()) as any;
+    expect(data.sources).toHaveLength(1);
+    expect(data.items).toHaveLength(2);
+    expect(
+      (
+        await request(
+          "/import",
+          "POST",
+          {
+            name: "Original",
+            source_id: data.sources[0].id,
+            text: overlapping,
+          },
+          a,
+        )
+      ).status,
+    ).toBe(200);
+  });
+  it("serializes concurrent first imports of the same events", async () => {
+    const a = await account(),
+      text = readFileSync("tests/fixtures/calendar.ics", "utf8");
+    const responses = await Promise.all([
+      request("/import", "POST", { name: "First", text }, a),
+      request("/import", "POST", { name: "Second", text }, a),
+    ]);
+    expect(responses.every((r) => [200, 409].includes(r.status))).toBe(true);
+    const data = (await (
+      await request("/data", "GET", undefined, a)
+    ).json()) as any;
+    expect(data.sources).toHaveLength(1);
+    expect(data.items).toHaveLength(2);
+    expect(data.changes).toHaveLength(2);
+  });
   it("sets HTTPS session protections", async () => {
     const response = await app.request(
       "https://gobbler.test/api/auth/register",

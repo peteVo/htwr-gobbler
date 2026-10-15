@@ -99,6 +99,29 @@ test("personal workspace persists tasks, imports, completion and preferences", a
     page.getByText("University calendar", { exact: true }).first(),
   ).toBeVisible();
   await page
+    .getByRole("button", { name: "Import calendar", exact: true })
+    .first()
+    .click();
+  await page
+    .getByLabel("Source name", { exact: true })
+    .fill("Same calendar with a different name");
+  await page
+    .getByLabel("Calendar file", { exact: true })
+    .setInputFiles({
+      name: "fixture-again.ics",
+      mimeType: "text/calendar",
+      buffer: readFileSync("tests/fixtures/calendar.ics"),
+    });
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Import calendar", exact: true })
+    .click();
+  await expect(page.getByRole("dialog")).not.toBeVisible();
+  const imported = await (await page.request.get("/api/data")).json();
+  expect(imported.sources).toHaveLength(1);
+  expect(imported.items).toHaveLength(3);
+  expect(imported.changes).toHaveLength(4);
+  await page
     .getByRole("navigation")
     .getByRole("button", { name: "Settings", exact: true })
     .click();

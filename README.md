@@ -30,7 +30,7 @@ The logged-out view is a clearly labeled, read-only sample workspace. Sign in �
 - Responsive Today dashboard, course management, task/event CRUD, completion and dismissal, source URLs, evidence and verification states.
 - Persistent account-scoped D1 records; another browser/device sees the same records when connected to the same deployed backend. Reload to fetch updates. Local development is intentionally loopback-only.
 - Day/week/month calendars, course/type filters and search of stored academic entries; Berlin display and DST-aware calendar boundaries.
-- `.ics` import/reimport with stable UID deduplication, content-hash updates, meaningful change history, cancellation handling, and retained records when a check fails.
+- `.ics` import/reimport with stable UID deduplication, automatic recognition of repeated file calendars, content-hash updates, meaningful change history, cancellation handling, and retained records when a check fails.
 - Allowlisted RWTHmoodle calendar subscription, encrypted URLs, manual checks, bounded retry, source locks and a scheduled Worker handler. Local cron requires an explicit trigger; deployed cron selects the 10 oldest-attempted feeds every 30 minutes.
 - Local PDF text extraction with page evidence, plus conservative numeric German date/time candidates. Every candidate starts as **needs review**. No document upload or API key is required for local extraction.
 - Optional, consent-gated OpenAI extraction of pasted/extracted text. An exact source quotation is required. No live provider request was made during development.
@@ -45,7 +45,7 @@ Completing a task here **does not submit it to Moodle**.
 
 1. Create a course in **My courses** and a manual task in **Tasks & deadlines**.
 2. In **Sources → Import calendar**, choose `tests/fixtures/calendar.ics`. These are synthetic test events, not real RWTH deadlines.
-3. Import it again and select the existing file source. No duplicate events or change notifications should appear.
+3. Import it again with **Detect automatically**, even using another source name. Its existing calendar is reused; no duplicate events or change notifications should appear. Partially overlapping exports require selecting the existing file source explicitly.
 4. Change one event's date in your own copy and reimport into that source. Its record updates and a change appears on Today.
 5. Upload an invalid file into that same source: the failed check remains visible and the old records survive.
 6. In **Settings → Review document text**, select `tests/fixtures/exercise.pdf`. **Find explicit dates locally**, inspect the page evidence, then **Review and save**. It stays unverified until you confirm against the original.

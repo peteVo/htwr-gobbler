@@ -9,6 +9,7 @@ import {
   preferencesInput,
   validateFeed,
   defaultPreferences,
+  parseCalendar,
 } from "../../packages/core/index";
 import { hash, passwordHash, equal, crypt } from "./security";
 import { acquireSource, ingest, syncFeed } from "./sync";
@@ -366,23 +367,56 @@ app.post("/api/import", async (c) => {
       source_id: z.string().optional(),
     })
     .parse(await c.req.json());
-  const user = c.get("user"),
-    id = source_id || crypto.randomUUID();
+  const user = c.get("user");
+  let id = source_id;
   if (
     source_id &&
     !(await c.env.DB.prepare(
       "SELECT id FROM sources WHERE id=? AND user_id=? AND kind='file'",
     )
-      .bind(id, user)
+      .bind(source_id, user)
       .first())
   )
     return c.json({ error: "Import source not found" }, 404);
-  if (!source_id)
+  if (!id) {
+    let events;
+    try {
+      events = parseCalendar(text);
+    } catch (error) {
+      return c.json(
+        { error: error instanceof Error ? error.message : "Import failed" },
+        400,
+      );
+    }
+    const uids = events.map((event) => event.external_id).sort();
+    const matches = (
+      await c.env.DB.prepare(
+        "SELECT s.id,COUNT(*) AS matched FROM sources s JOIN items i ON i.source_id=s.id AND i.user_id=s.user_id WHERE s.user_id=? AND s.kind='file' AND i.external_id IN (SELECT value FROM json_each(?)) GROUP BY s.id",
+      )
+        .bind(user, JSON.stringify(uids))
+        .all<{ id: string; matched: number }>()
+    ).results;
+    if (
+      matches.length > 1 ||
+      (matches.length === 1 && matches[0].matched !== events.length)
+    )
+      return c.json(
+        {
+          error:
+            "These events overlap existing calendars. Select the existing file source to update; no new import was created.",
+        },
+        409,
+      );
+    // Identical concurrent uploads share a source ID, so the source lock also protects first imports.
+    id =
+      matches[0]?.id ||
+      "ics-" + (await hash(JSON.stringify([user, uids.length ? uids : name])));
     await c.env.DB.prepare(
-      "INSERT INTO sources (id,user_id,name,kind,status) VALUES (?,?,?,'file','syncing')",
+      "INSERT INTO sources (id,user_id,name,kind,status) VALUES (?,?,?,'file','not_configured') ON CONFLICT(id) DO NOTHING",
     )
       .bind(id, user, name)
       .run();
+  }
   if (!(await acquireSource(c.env.DB, user, id)))
     return c.json(
       { error: "A check for this source is already running." },

@@ -1664,9 +1664,9 @@ function App() {
               />
             </label>
             <label>
-              Update an existing file source
+              Calendar to update
               <select name="source_id">
-                <option value="">Create new source</option>
+                <option value="">Detect automatically</option>
                 {data.sources
                   .filter((s) => s.kind === "file")
                   .map((s) => (
@@ -1686,8 +1686,9 @@ function App() {
               />
             </label>
             <p className="muted small">
-              Reuse the same source when re-uploading to prevent duplicates.
-              File imports do not check automatically.
+              Repeat uploads are matched by their event IDs, even if the source
+              name changes. For partially overlapping exports, choose the
+              existing source above. File imports do not check automatically.
             </p>
             <div className="modal-actions">
               <button className="primary" disabled={busy}>
