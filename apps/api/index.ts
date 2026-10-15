@@ -391,19 +391,20 @@ app.post("/api/import", async (c) => {
     const uids = events.map((event) => event.external_id).sort();
     const matches = (
       await c.env.DB.prepare(
-        "SELECT s.id,COUNT(*) AS matched FROM sources s JOIN items i ON i.source_id=s.id AND i.user_id=s.user_id WHERE s.user_id=? AND s.kind='file' AND i.external_id IN (SELECT value FROM json_each(?)) GROUP BY s.id",
+        "SELECT s.id,s.kind,COUNT(*) AS matched FROM sources s JOIN items i ON i.source_id=s.id AND i.user_id=s.user_id WHERE s.user_id=? AND i.external_id IN (SELECT value FROM json_each(?)) GROUP BY s.id",
       )
         .bind(user, JSON.stringify(uids))
-        .all<{ id: string; matched: number }>()
+        .all<{ id: string; kind: string; matched: number }>()
     ).results;
     if (
+      matches.some((s) => s.kind !== "file") ||
       matches.length > 1 ||
       (matches.length === 1 && matches[0].matched !== events.length)
     )
       return c.json(
         {
           error:
-            "These events overlap existing calendars. Select the existing file source to update; no new import was created.",
+            "These events overlap existing calendars. Update the existing file source or check its connected feed; no new import was created.",
         },
         409,
       );
@@ -448,6 +449,7 @@ app.post("/api/sources", async (c) => {
     .object({
       name: z.string().trim().min(1).max(100),
       url: z.string().max(4000),
+      source_id: z.string().optional(),
     })
     .parse(await c.req.json());
   let url: string;
@@ -458,6 +460,23 @@ app.post("/api/sources", async (c) => {
       { error: "Use the official HTTPS RWTHmoodle calendar export URL." },
       400,
     );
+  }
+  const user = c.get("user");
+  if (v.source_id) {
+    const updated = await c.env.DB.prepare(
+      "UPDATE sources SET kind='feed',name=?,feed_cipher=?,status='not_configured',last_success=NULL,error=NULL WHERE id=? AND user_id=? AND kind='file' AND status!='syncing'",
+    )
+      .bind(v.name, await crypt(url, c.env.FEED_SECRET), v.source_id, user)
+      .run();
+    return updated.meta.changes
+      ? c.json({ id: v.source_id })
+      : c.json(
+          {
+            error:
+              "Choose an existing file source that is not currently being checked.",
+          },
+          409,
+        );
   }
   const id = crypto.randomUUID();
   await c.env.DB.prepare(

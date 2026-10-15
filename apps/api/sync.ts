@@ -21,6 +21,16 @@ export async function ingest(
   text: string,
 ) {
   const events = parseCalendar(text);
+  const overlap = await db
+    .prepare(
+      "SELECT id FROM items WHERE user_id=? AND source_id IS NOT NULL AND source_id!=? AND external_id IN (SELECT value FROM json_each(?)) LIMIT 1",
+    )
+    .bind(user, source, JSON.stringify(events.map((e) => e.external_id)))
+    .first();
+  if (overlap)
+    throw new Error(
+      "These events already belong to another calendar. Connect the feed by replacing its existing file source; no events were imported.",
+    );
   const now = new Date().toISOString();
   const existing = (
     await db
@@ -182,7 +192,7 @@ export async function syncFeed(
     await db
       .prepare("UPDATE sources SET status='failed',error=? WHERE id=?")
       .bind(
-        "Calendar check failed. Previous records are retained; verify the feed and try a supported, non-recurring export.",
+        "Calendar check failed. Previous records are retained. Check for overlapping calendars, or connect the feed by replacing its existing file source. Verify the feed uses a supported, non-recurring export.",
         source.id,
       )
       .run();

@@ -1,6 +1,6 @@
 import { beforeEach, describe, it, expect, vi } from "vitest";
 import { DatabaseSync } from "node:sqlite";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { app } from "../apps/api/index";
 import { syncFeed } from "../apps/api/sync";
 import { crypt } from "../apps/api/security";
@@ -10,7 +10,10 @@ let sqlite: DatabaseSync, db: D1Database;
 beforeEach(() => {
   sqlite?.close();
   sqlite = new DatabaseSync(":memory:");
-  sqlite.exec(readFileSync("migrations/0001_initial.sql", "utf8"));
+  for (const file of readdirSync("migrations")
+    .filter((f) => f.endsWith(".sql"))
+    .sort())
+    sqlite.exec(readFileSync("migrations/" + file, "utf8"));
   const prepare = (sql: string) => {
     let args: unknown[] = [];
     const stmt = {
@@ -89,6 +92,161 @@ const item = {
   starts_at: "2026-10-20T14:00:00.000Z",
 };
 describe("account-scoped API and persistence", () => {
+  it("enforces calendar identity across sources even if a concurrent check passed its overlap query", async () => {
+    const a = await account(),
+      b = await account("isolated@example.test");
+    const text = readFileSync("tests/fixtures/calendar.ics", "utf8");
+    await request("/import", "POST", { name: "First", text }, a);
+    const existing: any = sqlite.prepare("SELECT * FROM items LIMIT 1").get();
+    sqlite
+      .prepare(
+        "INSERT INTO sources (id,user_id,name,kind) VALUES ('second',?,'Second','feed')",
+      )
+      .run(existing.user_id);
+    expect(() =>
+      sqlite
+        .prepare(
+          "INSERT INTO items (id,user_id,source_id,external_id,title,kind,starts_at,verification) VALUES ('duplicate',?,'second',?,'Duplicate','assignment',?,'confirmed')",
+        )
+        .run(existing.user_id, existing.external_id, existing.starts_at),
+    ).toThrow(/UNIQUE/);
+    // The same university event is valid for another student.
+    expect(
+      (await request("/import", "POST", { name: "Another account", text }, b))
+        .status,
+    ).toBe(200);
+    expect(sqlite.prepare("SELECT COUNT(*) AS count FROM items").get()).toEqual(
+      { count: 4 },
+    );
+  });
+  it("converts a file to a feed without replacing events, modules or completion states", async () => {
+    const a = await account(),
+      b = await account("other@example.test");
+    const text = readFileSync("tests/fixtures/moodle.ics", "utf8");
+    await request("/import", "POST", { name: "Uploaded", text }, a);
+    const before: any = await (
+      await request("/data", "GET", undefined, a)
+    ).json();
+    const existing = before.items.find(
+      (i: any) => i.external_id === "exercise@moodle.example.test",
+    );
+    await request(
+      "/items/" + existing.id,
+      "PUT",
+      { ...existing, status: "done" },
+      a,
+    );
+    const payload = {
+      name: "Automatic Moodle",
+      source_id: before.sources[0].id,
+      url: "https://moodle.rwth-aachen.de/calendar/export_execute.php?token=private",
+    };
+    expect((await request("/sources", "POST", payload, b)).status).toBe(409);
+    expect((await request("/sources", "POST", payload, a)).status).toBe(200);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(() => Promise.resolve(new Response(text))),
+    );
+    try {
+      for (let n = 0; n < 2; n++)
+        expect(
+          (
+            await request(
+              "/sources/" + payload.source_id + "/sync",
+              "POST",
+              undefined,
+              a,
+            )
+          ).status,
+        ).toBe(200);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+    const after: any = await (
+      await request("/data", "GET", undefined, a)
+    ).json();
+    expect(after.sources).toHaveLength(1);
+    expect(after.sources[0].kind).toBe("feed");
+    expect(after.items).toHaveLength(before.items.length);
+    for (const old of before.items) {
+      const current = after.items.find((i: any) => i.id === old.id);
+      expect(current.course_id).toBe(old.course_id);
+      expect(current.starts_at).toBe(old.starts_at);
+    }
+    expect(after.items.find((i: any) => i.id === existing.id).status).toBe(
+      "done",
+    );
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockImplementation(() =>
+          Promise.resolve(
+            new Response(
+              text.replaceAll("20261103T173000Z", "20261102T173000Z"),
+            ),
+          ),
+        ),
+    );
+    try {
+      const result: any = await (
+        await request(
+          "/sources/" + payload.source_id + "/sync",
+          "POST",
+          undefined,
+          a,
+        )
+      ).json();
+      expect(result.changed).toBe(1);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+    const revised: any = await (
+      await request("/data", "GET", undefined, a)
+    ).json();
+    expect(revised.items).toHaveLength(before.items.length);
+    const revisedItem = revised.items.find((i: any) => i.id === existing.id);
+    expect(revisedItem.starts_at).toBe("2026-11-02T17:30:00.000Z");
+    expect(revisedItem.status).toBe("done");
+    expect(revisedItem.course_id).toBe(existing.course_id);
+    expect(
+      (await request("/import", "POST", { name: "Again", text }, a)).status,
+    ).toBe(409);
+    expect((await request("/sources", "POST", payload, a)).status).toBe(409);
+  });
+  it("rejects a separate overlapping feed without creating duplicate events", async () => {
+    const a = await account(),
+      text = readFileSync("tests/fixtures/calendar.ics", "utf8");
+    await request("/import", "POST", { name: "Uploaded", text }, a);
+    const { id }: any = await (
+      await request(
+        "/sources",
+        "POST",
+        {
+          name: "Separate",
+          url: "https://moodle.rwth-aachen.de/calendar/export_execute.php?token=private",
+        },
+        a,
+      )
+    ).json();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(() => Promise.resolve(new Response(text))),
+    );
+    try {
+      expect(
+        (await request("/sources/" + id + "/sync", "POST", undefined, a))
+          .status,
+      ).toBe(502);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+    const after: any = await (
+      await request("/data", "GET", undefined, a)
+    ).json();
+    expect(after.items).toHaveLength(2);
+    expect(after.sources.find((s: any) => s.id === id).status).toBe("failed");
+  });
   it("links Moodle tasks to explicit modules and preserves completion and manual course choices on reimport", async () => {
     const a = await account(),
       b = await account("another@example.test"),

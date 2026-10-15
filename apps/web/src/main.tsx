@@ -1042,6 +1042,14 @@ function App() {
                     </div>
                   </div>
                   <section>{sourceHealth}</section>
+                  {["127.0.0.1", "localhost", "[::1]"].includes(
+                    location.hostname,
+                  ) && (
+                    <p className="muted small">
+                      Running locally: use Check now to refresh subscriptions.
+                      Automatic scheduled checks require the hosted backend.
+                    </p>
+                  )}
                   <div className="source-actions">
                     <button
                       className="secondary"
@@ -1714,7 +1722,11 @@ function App() {
               e.preventDefault();
               const f = new FormData(e.currentTarget);
               act(
-                () => api("/sources", "POST", Object.fromEntries(f)),
+                () =>
+                  api("/sources", "POST", {
+                    ...Object.fromEntries(f),
+                    source_id: f.get("source_id") || undefined,
+                  }),
                 "Calendar connected. Use Check now for the first sync.",
               );
             }}
@@ -1733,6 +1745,24 @@ function App() {
                 maxLength={100}
               />
             </label>
+            <label>
+              Existing calendar
+              <select name="source_id" defaultValue="">
+                <option value="">Connect a separate calendar</option>
+                {data.sources
+                  .filter((s) => s.kind === "file")
+                  .map((s) => (
+                    <option key={s.id} value={s.id}>
+                      Replace file import: {s.name}
+                    </option>
+                  ))}
+              </select>
+            </label>
+            <p className="muted small">
+              If you already uploaded this calendar, replace that file import to
+              preserve its events, modules and completion states. Overlapping
+              calendars are rejected during checks.
+            </p>
             <label>
               Calendar export URL
               <input type="url" name="url" required autoComplete="off" />
