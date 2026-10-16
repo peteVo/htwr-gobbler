@@ -36,6 +36,9 @@ test("online backups restore data and feed credentials, reject corruption and re
     db.prepare(
       "INSERT INTO items (id,user_id,title,kind,starts_at,status,verification) VALUES ('i','u','Saved task','assignment','2026-10-22T10:00:00.000Z','done','confirmed')",
     ).run();
+    db.prepare(
+      "INSERT INTO actions (id,user_id,title,created_at) VALUES ('a','u','Setup MFA','2026-10-16T00:00:00.000Z')",
+    ).run();
     expect(findDatabase(root)).toBe(file);
     for (let day = 1; day <= 8; day++)
       await createBackup(
@@ -48,6 +51,7 @@ test("online backups restore data and feed credentials, reject corruption and re
     expect(names).toHaveLength(7);
     const latest = path.join(copies, names.at(-1)!);
     expect((await verifyBackup(latest)).counts.items).toBe(1);
+    expect((await verifyBackup(latest)).counts.actions).toBe(1);
     const restored = new DatabaseSync(path.join(latest, "workspace.sqlite"), {
       readOnly: true,
     });

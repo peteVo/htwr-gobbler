@@ -1,75 +1,29 @@
-# Next steps: dependable assignment coverage
+# Next steps · local pilot · 16 October 2026
 
-## Starting point
+The current objective is dependable daily coursework on this PC. Hosting, phone push and paid infrastructure are deferred by the user's choice.
 
-The local app imports Moodle calendar events without duplicate file uploads, preserves explicit module names, prioritizes assignments, and retains completion states. The user has checked that displayed times look correct. Local verification currently passes 49 unit/API tests and 13 browser scenarios, plus type-check and build. Linux CI passed the preceding calendar connection change; the latest change needs its own CI result.
+## Completed
 
-The principal gap is coverage: a successful calendar import does not establish that all exercise sheets, instructions, announcements or submission requirements have been checked. Assignment discovery and reliable monitoring take priority over additional visual polish or AI features.
+1. Calendar reliability: an encrypted personal Moodle feed, stable event IDs, file-to-feed conversion, module context, completion preservation and duplicate protection. The real workspace retains 230 dated records and 226 feed events, with no duplicate calendar UIDs.
+2. Daily workflow: assignment-first Tasks, sourced/verified deadlines, old/new deadline changes, review-required document dates, repeat/revision protection and Berlin date-only boundaries.
+3. Local operation: Windows sign-in startup, per-account 30-minute checks, visible health/failure status, automatic view refresh and seven verified daily online SQLite backups. Cold startup and the user's shutdown/startup and short sleep/wake checks passed. A simulated 31-minute gap confirms overdue checks resume without replaying a burst. A physical sleep spanning a scheduled interval and a full 24-hour backup interval remain unobserved.
+4. Account safety: saved one-use recovery key, session/token revocation and tenant-scoped API access. Real backup copies restore with feed credentials intact; corruption and incorrect keys are rejected.
+5. Next actions: module-linked undated checklists on Today, with source URLs, notes, completion/reopening/editing/deletion and read-only MCP access. These do not fabricate due dates or university registration/submission outcomes. Five personal prerequisites/review actions were populated from the existing private audit; the existing dated registration task was retained rather than duplicated. Backup manifests now include actions while older snapshots remain verifiable.
 
-## 1. Validate coverage on two active modules
+Validation for this local milestone: 52 unit/API/backup checks, 16 Windows browser scenarios, strict TypeScript and production build. Source changes remain in the draft PR; hosted CI is reported separately.
 
-Choose two modules with regular homework. Compare their currently released assignments with the imported calendar and inspect one representative exercise sheet from each. Record whether deadlines live in Moodle assignment activities, PDF text, announcements, another system, or several of these.
+## Next student actions
 
-Deliverable: a small coverage checklist per module, distinguishing known assignments, missing assignments, review-required dates and sources that have not been checked. Avoid entering a generic exercise session as a submission deadline.
+1. Finish the separate exercise-group registration already shown in Tasks. Confirm its cutoff against the university system; a date-only deadline does not imply midnight. Gobbler cannot complete registration by checking a box.
+2. Follow the HPC account/service-password, MFA/access test and course-group-email actions in Today, in that order. These require the student's university login/MFA. No email was sent and no university account/registration was changed by the assistant.
+3. After allocation, review the separate exercise-group course and its first released sheet. Review the other module's first published materials when available. The in-app actions retain the audited publication guidance, source links and uncertainty. Enter only explicit submission deadlines, with module and page evidence; publication/discussion dates remain distinct.
 
-Done when: every assignment in this bounded sample has a module, original source and explicit deadline state, and every omission has an identified cause.
+Personal course details, enrollment status, course links and quotations stay in the local database/private audit, outside Git. The audited sample had no currently released submission sheet. A future sheet cannot be validated before it exists or before authorized access is available.
 
-Needed from the user: two module names and where their homework is published; representative PDFs can be read locally through the app. No university passwords are needed.
+## Remaining integration boundary
 
-## 2. Validate an automatic Moodle calendar connection
-
-Use the user's authorized subscription URL in the app, keeping it out of chat, Git and logs. Test a real manual feed check, a repeated unchanged check, and failure handling. Preserve existing records, module choices and completion states; guard against duplication between an existing uploaded calendar and a newly connected feed before enabling both together.
-
-Done when: the live feed matches the existing export, repeats create no duplicates, a changed due date updates the same assignment, and a failed check visibly marks information stale. Controlled fixtures can test a deadline change and an outage without changing Moodle.
-
-Needed from the user: obtain the personal export/subscription URL in Moodle and enter it in the app when the file-to-feed transition is ready. If no usable URL is offered, retain explicit manual-import status rather than implying automatic monitoring.
-
-## 3. Cover exercises missing from calendars
-
-Use findings from step 1 to choose the smallest useful connector. Investigate permitted official read-only Moodle APIs first. Do not assume token login works with RWTH SSO/MFA. Consider a narrowly scoped desktop-session extension only if supported access is unavailable and permissions are understood.
-
-While that access is unresolved, improve the existing local PDF workflow: associate sheets with modules, recognize the date formats seen in the samples, preserve page quotations, avoid duplicate candidates when a sheet is reread, and distinguish updated document versions. Dates lacking a year/time or otherwise ambiguous remain review-required; they are never silently confirmed. File reading and deterministic extraction remain usable without external AI.
-
-Done when: a newly released sample sheet can become a sourced assignment with evidence, a revised sheet produces a useful change record, and unchecked materials remain visible as a coverage gap. Automatic discovery is only considered complete after a permitted real connector demonstrates it.
-
-## 4. Make the daily view actionable
-
-Use the real assignment sample to refine Today around overdue tasks, upcoming deadlines, unreviewed dates and deadlines moved earlier. Show old and new dates for meaningful deadline changes, the affected module and the reason an alert was generated. Maintain separate meanings for completed, dismissed and actually submitted; calendar access cannot verify submission.
-
-Done when: the student can identify the next assignment to act on and what information remains uncertain without searching through lecture events.
-
-## 5. Prepare and deploy a private cross-device pilot
-
-Prepare account recovery, backups/restore, secret configuration, local-data migration and a minimal security/usage review. Measure expected Worker and database use against current service limits. Present a concrete deployment configuration and any expected costs before asking for deployment approval; prefer a free-tier pilot without promising unlimited capacity.
-
-Only after authorization, deploy one HTTPS backend and database, migrate the selected personal workspace safely, and enable scheduled feed checks. Test Windows and Android against that same account. Do not expose the local development server publicly as a shortcut.
-
-Done when: both devices see the same assignments and changes, supported source checks continue with the PC off, and backup restoration has been exercised.
-
-Needed from the user later: hosting-account sign-in and approval of the prepared deployment. Do not request account passwords or API keys in chat.
-
-## 6. Deliver background reminders
-
-Add real Web Push subscriptions, revocation and delivery handling after hosting works. Respect quiet hours, per-device permissions and duplicate suppression. Prioritize approaching deadlines, earlier deadline changes and source-check failures; make denied permissions and unavailable delivery explicit.
-
-Done when: a test reminder reaches an authorized Android device with the app closed, repeated synchronization does not duplicate it, quiet hours are honored, and reminders can be disabled.
+Automatic course/material discovery requires Gobbler's own approved RWTH OAuth client registration and current API capabilities/rate limits. The identified university proxy establishes course/file access in another registered app, not complete assignment/announcement coverage for Gobbler. Obtain that registration/documentation before implementation; do not borrow application IDs, copy browser cookies or bypass SSO/MFA. See INTEGRATIONS.md.
 
 ## Deferred
 
-Additional AI providers, a general chat interface, Google Calendar writes, university email, Dynexite and broad visual redesigns wait until assignment coverage and monitoring are dependable. Recurring timetable support remains useful but secondary to the user's deadline and exercise priorities.
-
-## Validation progress — 15 October 2026
-
-Two authenticated courses were inspected. Their current material confirms that calendar exports omit some registration requirements and that exercise publication/discussion dates must not automatically become submission deadlines. No currently published submission sheet was found in the visible sample; one course will use a separate exercise-group room. Conflicting source dates remain unresolved. Personal course names, enrollment/prerequisite status and evidence are retained locally outside Git.
-
-University registration, account/password/MFA setup and any teaching-team email require student action. The automation has not completed those steps on the student's behalf.
-
-File-to-feed conversion retains existing source IDs and records, with overlap rejection and a database uniqueness constraint. The student connected a real subscription directly in the app. Two live checks each returned 226 events with zero changes, retaining 230 personal records, completion states and modules without duplicates. Local checks remain manual; cloud deployment and phone push delivery have not been completed.
-
-Document review now requires a module, retains evidence, recognizes explicit German month/date-only formats, reopens identical saved dates and supports updating an existing task from a revised document. Today shows earlier deadline changes with old/new dates. Date-only tasks remain due today until the Berlin day passes. Account recovery and single-user registration controls are implemented and tested; the student saved a recovery key. Cloudflare is signed in, and a private staging migration and bundle dry run are ready for approval. See DEPLOYMENT.md for the exact resources, migration counts, CPU gate and limits.
-
-## Immediate next action
-
-The student chose local use. Windows startup, per-account 30-minute feed checks, visible runner/source failure status and seven verified daily backups are installed; see LOCAL_USE.md. Local verification passes 51 unit/API/backup checks and 14 browser scenarios. Next validate a complete restart/sleep-resume cycle and review the next real course sheet. Hosting and phone push remain deferred.
-
-The approved synthetic staging deployment and remote D1 export restoration passed. Native sign-in/import CPU exceeds the Free allowance, so personal migration and scheduled checks are stopped pending a paid-hosting decision; see DEPLOYMENT.md. If approved, continue the prepared migration, real feed check, backup verification and Windows/Android test. Complete the university prerequisites and inspect the future exercise-group course when it becomes available. Direct Moodle course/file access requires Gobbler's own client registration and current capability documentation; see INTEGRATIONS.md. Existing calendar checks and local document review remain usable meanwhile.
+Cloud migration, remote phone access and Web Push; university email/Dynexite/Google Calendar writes; OCR, broad recurrence and additional AI providers. The synthetic Cloudflare staging deployment remains closed to registration with cron disabled and no personal data. Free-hosting research is in FREE_HOSTING.md; it does not authorize another deployment.

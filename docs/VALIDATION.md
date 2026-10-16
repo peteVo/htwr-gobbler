@@ -2,6 +2,8 @@
 
 ## Executed locally
 
+- Next-action milestone: 52 unit/API/backup tests and 16 Windows/Edge browser scenarios pass, plus strict TypeScript and build. Undated actions are tenant-scoped, module-linked, survive module deletion, reject unsafe URLs and persist completion/reopening/editing/deletion. Read-only MCP exposes the same actions; phone-width forms are checked at 320/375/414/768 px. Backups retain actions and remain compatible with pre-action snapshots. A simulated 31-minute gap tests overdue source eligibility. The user's actual shutdown/startup and short sleep/wake checks retained records and advancing runner heartbeats. No university registration, MFA enrollment, email send or submission was performed.
+
 - Local-use update: 51 unit/API/backup checks and 14 Windows/Edge browser scenarios pass, plus strict TypeScript and production build. Online backups preserve completion/recovery data and feed decryption; tests reject corruption/wrong keys and retain seven completed snapshots. Automatic source scans skip fresh feeds and other configured accounts, preserve records on failure and refresh visible health. The installed hidden Windows startup action remains active, repeat launches keep a single runner, and a cold-start test recreated both loopback servers after stopping all identified Gobbler processes. A real local backup restored successfully; the user's 230 items, 226 connected calendar events, saved recovery hash and zero duplicate UIDs were verified after restart. Reboot, physical sleep/resume and elapsed 24-hour rotation were not observed; see LOCAL_USE.md.
 
 - TypeScript strict type-check and Vite production build pass.

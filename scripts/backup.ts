@@ -15,6 +15,7 @@ const tables = [
   "preferences",
   "sessions",
   "api_tokens",
+  "actions",
 ];
 export function findDatabase(root: string) {
   const candidates = fs
@@ -66,6 +67,7 @@ export async function verifyBackup(directory: string) {
     );
     assert.deepEqual(db.prepare("PRAGMA foreign_key_check").all(), []);
     for (const table of tables) {
+      if (table === "actions" && !(table in manifest.counts)) continue;
       assert.equal(
         db.prepare("SELECT COUNT(*) AS n FROM " + table).get()!.n,
         manifest.counts[table],
@@ -108,10 +110,20 @@ export async function createBackup(
     let counts;
     try {
       counts = Object.fromEntries(
-        tables.map((table) => [
-          table,
-          snapshot.prepare("SELECT COUNT(*) AS n FROM " + table).get()!.n,
-        ]),
+        tables
+          .filter(
+            (table) =>
+              table !== "actions" ||
+              !!snapshot
+                .prepare(
+                  "SELECT name FROM sqlite_master WHERE type='table' AND name='actions'",
+                )
+                .get(),
+          )
+          .map((table) => [
+            table,
+            snapshot.prepare("SELECT COUNT(*) AS n FROM " + table).get()!.n,
+          ]),
       );
     } finally {
       snapshot.close();

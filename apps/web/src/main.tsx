@@ -46,6 +46,7 @@ import {
   type DocumentPage,
 } from "../../../packages/core/deadlines";
 import { messages } from "./i18n";
+import { Actions } from "./Actions";
 import "./styles.css";
 
 async function api<T = Record<string, any>>(
@@ -751,6 +752,26 @@ function App() {
                         verification state.
                       </div>
                     </section>
+                    {!isDemo && (
+                      <Actions
+                        actions={data.actions ?? []}
+                        courses={data.courses}
+                        busy={busy}
+                        save={async (method, id, value) => {
+                          setBusy(true);
+                          try {
+                            await api(
+                              "/actions" + (id ? "/" + id : ""),
+                              method,
+                              value,
+                            );
+                            await load();
+                          } finally {
+                            setBusy(false);
+                          }
+                        }}
+                      />
+                    )}
                     <section className="schedule-section">
                       <div className="section-heading">
                         <h2>{t.schedule}</h2>

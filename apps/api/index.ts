@@ -11,6 +11,7 @@ import {
   defaultPreferences,
   parseCalendar,
   itemChangeKind,
+  actionInput,
 } from "../../packages/core/index";
 import { hash, passwordHash, equal, crypt } from "./security";
 import { acquireSource, ingest, syncFeed, checkSources } from "./sync";
@@ -279,7 +280,7 @@ app.post("/api/logout", async (c) => {
 app.get("/api/data", async (c) => {
   const user = c.get("user"),
     db = c.env.DB;
-  const [courses, items, sources, changes, prefs] = await Promise.all([
+  const [courses, items, sources, changes, prefs, actions] = await Promise.all([
     db
       .prepare(
         "SELECT id,name,code,color FROM courses WHERE user_id=? ORDER BY name",
@@ -314,8 +315,15 @@ app.get("/api/data", async (c) => {
         quiet_start: number;
         quiet_end: number;
       }>(),
+    db
+      .prepare(
+        "SELECT id,course_id,title,notes,source_url,status,created_at FROM actions WHERE user_id=? ORDER BY status DESC,created_at,id",
+      )
+      .bind(user)
+      .all(),
   ]);
   return c.json({
+    actions: actions.results,
     courses: courses.results,
     items: items.results.map((i) => ({ ...i, all_day: !!i.all_day })),
     sources: sources.results,
@@ -324,6 +332,70 @@ app.get("/api/data", async (c) => {
       ? { ...prefs, reminders: !!prefs.reminders }
       : defaultPreferences,
   });
+});
+app.post("/api/actions", async (c) => {
+  const value = actionInput.parse(await c.req.json()),
+    user = c.get("user");
+  if (
+    value.course_id &&
+    !(await c.env.DB.prepare("SELECT id FROM courses WHERE id=? AND user_id=?")
+      .bind(value.course_id, user)
+      .first())
+  )
+    return c.json({ error: "Course not found" }, 400);
+  const id = crypto.randomUUID();
+  await c.env.DB.prepare(
+    "INSERT INTO actions (id,user_id,course_id,title,notes,source_url,status,created_at) VALUES (?,?,?,?,?,?,?,?)",
+  )
+    .bind(
+      id,
+      user,
+      value.course_id,
+      value.title,
+      value.notes,
+      value.source_url,
+      value.status,
+      new Date().toISOString(),
+    )
+    .run();
+  return c.json({ id }, 201);
+});
+app.put("/api/actions/:id", async (c) => {
+  const value = actionInput.parse(await c.req.json()),
+    user = c.get("user");
+  if (
+    value.course_id &&
+    !(await c.env.DB.prepare("SELECT id FROM courses WHERE id=? AND user_id=?")
+      .bind(value.course_id, user)
+      .first())
+  )
+    return c.json({ error: "Course not found" }, 400);
+  const result = await c.env.DB.prepare(
+    "UPDATE actions SET course_id=?,title=?,notes=?,source_url=?,status=? WHERE id=? AND user_id=?",
+  )
+    .bind(
+      value.course_id,
+      value.title,
+      value.notes,
+      value.source_url,
+      value.status,
+      c.req.param("id"),
+      user,
+    )
+    .run();
+  return result.meta.changes
+    ? c.json({ ok: true })
+    : c.json({ error: "Action not found" }, 404);
+});
+app.delete("/api/actions/:id", async (c) => {
+  const result = await c.env.DB.prepare(
+    "DELETE FROM actions WHERE id=? AND user_id=?",
+  )
+    .bind(c.req.param("id"), c.get("user"))
+    .run();
+  return result.meta.changes
+    ? c.json({ ok: true })
+    : c.json({ error: "Action not found" }, 404);
 });
 app.put("/api/preferences", async (c) => {
   const p = preferencesInput.parse(await c.req.json());

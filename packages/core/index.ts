@@ -66,6 +66,17 @@ export const preferencesInput = z.object({
   quiet_start: z.number().int().min(0).max(23),
   quiet_end: z.number().int().min(0).max(23),
 });
+export const actionInput = z.object({
+  title: z.string().trim().min(1).max(250),
+  course_id: z.string().max(100).nullable().default(null),
+  notes: z.string().max(3000).default(""),
+  source_url: itemInput.shape.source_url,
+  status: z.enum(["open", "done"]).default("open"),
+});
+export type Action = z.infer<typeof actionInput> & {
+  id: string;
+  created_at: string;
+};
 export type Course = z.infer<typeof courseInput> & { id: string };
 export type Item = z.infer<typeof itemInput> & {
   id: string;
@@ -96,6 +107,7 @@ export type Change = {
   next_all_day?: boolean | number | null;
 };
 export type Snapshot = {
+  actions?: Action[];
   courses: Course[];
   items: Item[];
   sources: Source[];

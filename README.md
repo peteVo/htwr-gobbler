@@ -30,6 +30,7 @@ For daily Windows use, the installed local runner starts the app at Windows sign
 ## What works
 
 - Responsive Today dashboard, course management, task/event CRUD, completion and dismissal, source URLs, evidence and verification states.
+- Module-linked next-action checklists for setup and course reviews without a known deadline. Original instructions and coverage notes stay visible; completion/reopening is separate from dated assignments and never performs a university registration or submission.
 - Assignments are the default Tasks view. Moodle calendar categories identify modules automatically; those modules appear with tasks and calendar deadlines. Ordinary Übung sessions are tutorials, while “ist fällig” entries are assignments. Times remain the exported instants.
 - Persistent account-scoped D1 records; another browser/device sees the same records when connected to the same deployed backend. Visible signed-in views refresh every minute and on focus/connectivity return. Local development is intentionally loopback-only.
 - One-use account recovery keys generated after password confirmation in Settings. Recovery preserves records and revokes old sessions and MCP tokens. Operators can close registration for a private pilot.
@@ -42,7 +43,7 @@ For daily Windows use, the installed local runner starts the app at Windows sign
 - EN/DE/VI navigation and primary labels; light/dark/system theme with account preferences. Detailed help and some forms remain English.
 - Foreground browser reminders, permission handling, Berlin quiet hours and per-browser duplicate suppression. **No background Web Push yet.**
 - PWA manifest, PNG installation icons, service worker and offline app shell. **Private records are not cached for offline reading.**
-- Ten official-SDK MCP tools reading the same API with revocable, expiring, read-only tokens.
+- Eleven official-SDK MCP tools reading the same API, including undated next actions, with revocable, expiring, read-only tokens.
 
 Completing a task here **does not submit it to Moodle**.
 

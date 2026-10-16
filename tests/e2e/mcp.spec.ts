@@ -37,6 +37,10 @@ test("read-only MCP queries the same persisted academic records", async ({
   const { token } = await (
     await request.post("/api/mcp-token", { headers })
   ).json();
+  await request.post("/api/actions", {
+    headers,
+    data: { title: "MCP setup action", course_id, notes: "No known deadline" },
+  });
   const transport = new StdioClientTransport({
     command: process.execPath,
     args: [
@@ -58,7 +62,7 @@ test("read-only MCP queries the same persisted academic records", async ({
   try {
     await client.connect(transport);
     const tools = await client.listTools();
-    expect(tools.tools).toHaveLength(10);
+    expect(tools.tools).toHaveLength(11);
     expect(tools.tools.every((t) => t.annotations?.readOnlyHint)).toBe(true);
     const result = await client.callTool({
       name: "get_upcoming_deadlines",
@@ -69,6 +73,17 @@ test("read-only MCP queries the same persisted academic records", async ({
       "MCP evidenced deadline",
     );
     expect(JSON.stringify(result.structuredContent)).toContain(
+      "MCP test module",
+    );
+    const actions = await client.callTool({
+      name: "get_next_actions",
+      arguments: { limit: 10 },
+    });
+    expect(actions.isError).not.toBe(true);
+    expect(JSON.stringify(actions.structuredContent)).toContain(
+      "MCP setup action",
+    );
+    expect(JSON.stringify(actions.structuredContent)).toContain(
       "MCP test module",
     );
   } finally {

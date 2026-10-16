@@ -14,7 +14,7 @@ Open http://127.0.0.1:5173/. The Windows startup action runs the local app, cale
 
 Before the first automatic check, then every 24 hours of elapsed time while running, an online SQLite snapshot is created under `.wrangler/local/backups`. Each completed folder contains:
 
-- `workspace.sqlite`: a consistent full local database, including all local accounts, record IDs, modules, completion, password/recovery hashes and session/token hashes.
+- `workspace.sqlite`: a consistent full local database, including all local accounts, record IDs, modules, dated items, undated next actions, completion, password/recovery hashes and session/token hashes.
 - `secrets.json`: the matching local session and feed encryption secrets. It contains no plaintext account password or recovery key. The feed secret is necessary to restore connected subscriptions.
 - `manifest.json`: creation time, table counts and a SHA-256 database checksum.
 
@@ -53,3 +53,5 @@ Removal does not delete records/backups or stop an already running process. Loca
 The installed hidden startup action was launched, corrected and verified to remain active. A second launch retained the same runner. The first real snapshot passed restoration checks, and the real Moodle feed remained connected: 226 calendar events, 230 personal records and zero duplicate UIDs; the saved recovery hash remained present. Folder permissions were inspected. All 51 unit/API/backup checks and 14 browser scenarios passed, with strict type-check and production build.
 
 A cold-start check stopped only the identified Gobbler runner and dev-server process trees, then launched the installed startup action. It recreated both loopback servers successfully, reported a fresh heartbeat and preserved all personal records and recovery configuration. A complete Windows sign-out/reboot, 24-hour timed backup rotation and physical sleep/resume have not been observed. Rotation and corruption/incorrect-key handling are covered by controlled tests.
+
+On 16 October, the student reported shutdown/startup and short sleep/wake tests. Fresh startup processes, responding servers, advancing heartbeats and the same personal records/recovery configuration were verified. A controlled 31-minute clock advance tests overdue-feed eligibility without replaying missed intervals. A physical sleep spanning a due check and a real 24-hour backup interval remain unobserved. The next-action migration is additive; new backup manifests count actions, and older snapshots without that table remain verifiable.

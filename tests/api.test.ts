@@ -92,6 +92,75 @@ const item = {
   starts_at: "2026-10-20T14:00:00.000Z",
 };
 describe("account-scoped API and persistence", () => {
+  it("keeps undated actions private, checks module ownership and preserves actions when a module is removed", async () => {
+    const a = await account(),
+      b = await account("action-other@example.test");
+    const course = (await (
+      await request("/courses", "POST", { name: "Action module" }, a)
+    ).json()) as any;
+    expect(
+      (
+        await request(
+          "/actions",
+          "POST",
+          { title: "Foreign", course_id: course.id },
+          b,
+        )
+      ).status,
+    ).toBe(400);
+    expect(
+      (
+        await request(
+          "/actions",
+          "POST",
+          { title: "Unsafe", source_url: "javascript:alert(1)" },
+          a,
+        )
+      ).status,
+    ).toBe(400);
+    const result = await request(
+      "/actions",
+      "POST",
+      { title: "Setup MFA", course_id: course.id, notes: "No deadline stated" },
+      a,
+    );
+    expect(result.status).toBe(201);
+    const { id } = (await result.json()) as any;
+    expect(
+      (await request("/actions/" + id, "PUT", { title: "Changed" }, b)).status,
+    ).toBe(404);
+    expect(
+      (await request("/actions/" + id, "DELETE", undefined, b)).status,
+    ).toBe(404);
+    expect(
+      ((await (await request("/data", "GET", undefined, b)).json()) as any)
+        .actions,
+    ).toEqual([]);
+    expect(
+      (
+        await request(
+          "/actions/" + id,
+          "PUT",
+          { title: "Setup MFA", course_id: course.id, status: "done" },
+          a,
+        )
+      ).status,
+    ).toBe(200);
+    await request("/courses/" + course.id, "DELETE", undefined, a);
+    const data = (await (
+      await request("/data", "GET", undefined, a)
+    ).json()) as any;
+    expect(data.actions[0]).toMatchObject({
+      id,
+      status: "done",
+      course_id: null,
+    });
+    expect(data.actions[0]).not.toHaveProperty("starts_at");
+    expect(data.items).toHaveLength(0);
+    expect(
+      (await request("/actions/" + id, "DELETE", undefined, a)).status,
+    ).toBe(200);
+  });
   it("automatic checks skip fresh feeds and other local workspaces, then record failure without losing records", async () => {
     const a = await account();
     const user = (sqlite.prepare("SELECT id FROM users").get() as any).id;
@@ -127,6 +196,13 @@ describe("account-scoped API and persistence", () => {
         attempted: 0,
         failed: 0,
       });
+      vi.useFakeTimers({ toFake: ["Date"] });
+      vi.setSystemTime(Date.now() + 31 * 60000);
+      expect(await checkSources(db, env().FEED_SECRET, user)).toEqual({
+        attempted: 2,
+        failed: 2,
+      });
+      expect(fetcher).toHaveBeenCalledTimes(6);
       expect(
         sqlite.prepare("SELECT status FROM sources WHERE id='due'").get()!
           .status,
@@ -140,6 +216,7 @@ describe("account-scoped API and persistence", () => {
         1,
       );
     } finally {
+      vi.useRealTimers();
       vi.unstubAllGlobals();
     }
   });

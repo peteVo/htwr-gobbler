@@ -22,6 +22,7 @@ export const server = new McpServer({
 });
 const tools = [
   "get_courses",
+  "get_next_actions",
   "get_upcoming_deadlines",
   "get_today_schedule",
   "get_week_schedule",
@@ -72,6 +73,9 @@ for (const name of tools)
           case "get_courses":
             records = data.courses;
             break;
+          case "get_next_actions":
+            records = data.actions ?? [];
+            break;
           case "get_recent_changes":
             records = data.changes;
             break;
@@ -108,7 +112,7 @@ for (const name of tools)
             );
             break;
           default:
-            records = [...data.items, ...data.courses];
+            records = [...data.items, ...data.courses, ...(data.actions ?? [])];
         }
         records = records.map((record) =>
           record && typeof record === "object" && "course_id" in record
