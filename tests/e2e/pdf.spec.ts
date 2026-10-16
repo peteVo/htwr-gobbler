@@ -1,31 +1,20 @@
 import { test, expect } from "@playwright/test";
 test("PDF dates are read locally with page evidence and saved as needing review", async ({
   page,
-  request,
 }) => {
   const email = `pdf-${Date.now()}@example.test`,
     password = "a-local-test-password-123";
-  await request.post("/api/auth/register", {
+  await page.request.post("/api/auth/register", {
     headers: { Origin: "http://127.0.0.1:5173" },
     data: { email, password },
   });
   const course = await (
-    await request.post("/api/courses", {
+    await page.request.post("/api/courses", {
       headers: { Origin: "http://127.0.0.1:5173" },
       data: { name: "PDF Module" },
     })
   ).json();
   await page.goto("/");
-  await page
-    .locator(".demo-strip")
-    .getByRole("button", { name: "Sign in" })
-    .click();
-  await page.getByLabel("Email", { exact: true }).fill(email);
-  await page.getByLabel("Password · at least 12 characters").fill(password);
-  await page
-    .getByRole("dialog")
-    .getByRole("button", { name: "Sign in", exact: true })
-    .click();
   await expect(
     page.getByText("PERSONAL WORKSPACE", { exact: true }),
   ).toBeVisible();
