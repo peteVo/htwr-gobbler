@@ -92,6 +92,46 @@ const item = {
   starts_at: "2026-10-20T14:00:00.000Z",
 };
 describe("account-scoped API and persistence", () => {
+  it("persists validated reminder preferences per account and supports older preference payloads", async () => {
+    const a = await account(),
+      b = await account("preferences-other@example.test");
+    const prefs = {
+      language: "en",
+      theme: "light",
+      reminders: true,
+      quiet_start: 22,
+      quiet_end: 7,
+      reminder_hours: 6,
+      deadline_changes: false,
+    };
+    expect((await request("/preferences", "PUT", prefs, a)).status).toBe(200);
+    const read = async (cookie: string) =>
+      ((await (await request("/data", "GET", undefined, cookie)).json()) as any)
+        .preferences;
+    expect(await read(a)).toEqual(prefs);
+    expect(await read(b)).toMatchObject({
+      reminders: false,
+      reminder_hours: 24,
+      deadline_changes: true,
+    });
+    for (const invalid of [
+      { reminder_hours: 2 },
+      { reminder_hours: "6" },
+      { deadline_changes: "false" },
+      { quiet_start: 25 },
+    ])
+      expect(
+        (await request("/preferences", "PUT", { ...prefs, ...invalid }, a))
+          .status,
+      ).toBe(400);
+    expect(await read(a)).toEqual(prefs);
+    const { reminder_hours, deadline_changes, ...old } = prefs;
+    expect((await request("/preferences", "PUT", old, a)).status).toBe(200);
+    expect(await read(a)).toMatchObject({
+      reminder_hours: 24,
+      deadline_changes: true,
+    });
+  });
   it("keeps undated actions private, checks module ownership and preserves actions when a module is removed", async () => {
     const a = await account(),
       b = await account("action-other@example.test");

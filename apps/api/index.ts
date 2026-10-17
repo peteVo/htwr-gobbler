@@ -305,13 +305,15 @@ app.get("/api/data", async (c) => {
       .all(),
     db
       .prepare(
-        "SELECT language,theme,reminders,quiet_start,quiet_end FROM preferences WHERE user_id=?",
+        "SELECT language,theme,reminders,reminder_hours,deadline_changes,quiet_start,quiet_end FROM preferences WHERE user_id=?",
       )
       .bind(user)
       .first<{
         language: string;
         theme: string;
         reminders: number;
+        reminder_hours: number;
+        deadline_changes: number;
         quiet_start: number;
         quiet_end: number;
       }>(),
@@ -329,7 +331,11 @@ app.get("/api/data", async (c) => {
     sources: sources.results,
     changes: changes.results,
     preferences: prefs
-      ? { ...prefs, reminders: !!prefs.reminders }
+      ? {
+          ...prefs,
+          reminders: !!prefs.reminders,
+          deadline_changes: !!prefs.deadline_changes,
+        }
       : defaultPreferences,
   });
 });
@@ -400,7 +406,7 @@ app.delete("/api/actions/:id", async (c) => {
 app.put("/api/preferences", async (c) => {
   const p = preferencesInput.parse(await c.req.json());
   await c.env.DB.prepare(
-    "INSERT INTO preferences (user_id,language,theme,reminders,quiet_start,quiet_end) VALUES (?,?,?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET language=excluded.language,theme=excluded.theme,reminders=excluded.reminders,quiet_start=excluded.quiet_start,quiet_end=excluded.quiet_end",
+    "INSERT INTO preferences (user_id,language,theme,reminders,quiet_start,quiet_end,reminder_hours,deadline_changes) VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET language=excluded.language,theme=excluded.theme,reminders=excluded.reminders,quiet_start=excluded.quiet_start,quiet_end=excluded.quiet_end,reminder_hours=excluded.reminder_hours,deadline_changes=excluded.deadline_changes",
   )
     .bind(
       c.get("user"),
@@ -409,6 +415,8 @@ app.put("/api/preferences", async (c) => {
       Number(p.reminders),
       p.quiet_start,
       p.quiet_end,
+      p.reminder_hours,
+      Number(p.deadline_changes),
     )
     .run();
   return c.json({ ok: true });

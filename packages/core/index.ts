@@ -63,6 +63,15 @@ export const preferencesInput = z.object({
   language: z.enum(["en", "de", "vi"]),
   theme: z.enum(["light", "dark", "system"]),
   reminders: z.boolean(),
+  reminder_hours: z
+    .number()
+    .int()
+    .refine(
+      (v) => [1, 6, 24, 48, 168].includes(v),
+      "Choose a supported reminder lead time",
+    )
+    .default(24),
+  deadline_changes: z.boolean().default(true),
   quiet_start: z.number().int().min(0).max(23),
   quiet_end: z.number().int().min(0).max(23),
 });
@@ -129,6 +138,8 @@ export const defaultPreferences: Preferences = {
   language: "en",
   theme: "system",
   reminders: false,
+  reminder_hours: 24,
+  deadline_changes: true,
   quiet_start: 22,
   quiet_end: 7,
 };

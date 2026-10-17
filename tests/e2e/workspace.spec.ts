@@ -127,8 +127,20 @@ test("personal workspace persists tasks, imports, completion and preferences", a
     .getByRole("combobox", { name: "Appearance", exact: true })
     .selectOption("dark");
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await page.getByLabel("Remind me before a deadline").selectOption("48");
+  await expect(page.getByLabel("Remind me before a deadline")).toHaveValue(
+    "48",
+  );
+  await page.getByLabel("Deadline-change alerts").selectOption("false");
+  await expect(page.getByLabel("Deadline-change alerts")).toHaveValue("false");
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  const savedPreferences = (await (await page.request.get("/api/data")).json())
+    .preferences;
+  expect(savedPreferences).toMatchObject({
+    reminder_hours: 48,
+    deadline_changes: false,
+  });
 });
 for (const width of [320, 375, 414, 768, 1280])
   test(`demo layout and navigation at ${width}px`, async ({ page }) => {

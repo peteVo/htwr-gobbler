@@ -4,6 +4,8 @@ Open http://127.0.0.1:5173/. The Windows startup action runs the local app, cale
 
 ## Installed behavior
 
+Reminder timing and deadline-change options are in Settings → Reminders. Enable browser permission and use Send test notification to verify visible delivery. The local runner checks sources while the browser is closed, but notifications still need Gobbler open; see [reminders](REMINDERS.md). The reminder preference migration is additive and preserves existing accounts' 1-day lead time.
+
 - The current user's Startup folder contains `Gobbler.lnk`, pointing to a hidden launcher in this checkout's ignored `.wrangler/local` folder. It runs `pnpm local`'s equivalent with the installed Node executable. It requires this checkout and its dependencies to remain in place; reinstall startup after moving the checkout or changing Node's installation path.
 - Servers bind to loopback only at ports 5173 and 8787. Existing matching local servers are reused. A PID lock prevents duplicate runners; restarting the startup action does not start another copy.
 - Only the configured personal workspace's connected subscriptions are checked. Synthetic browser-test accounts are excluded. File uploads are not polled. A due-feed scan runs every minute; each feed is eligible every 30 minutes. After sleep, overdue checks run when execution resumes. Missed intervals are not replayed as a burst.

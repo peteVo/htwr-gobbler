@@ -32,7 +32,6 @@ import {
   berlinDay,
   briefing,
   defaultPreferences,
-  quietHour,
   type Course,
   type Item,
   type Snapshot,
@@ -48,6 +47,8 @@ import {
 import { messages } from "./i18n";
 import { Actions } from "./Actions";
 import { SearchResults } from "./SearchResults";
+import { ReminderSettings } from "./ReminderSettings";
+import { useReminders } from "./reminders";
 import "./styles.css";
 
 async function api<T = Record<string, any>>(
@@ -118,6 +119,7 @@ function App() {
   const prefs = data.preferences,
     t = messages[prefs.language],
     locale = { en: "en-GB", de: "de-DE", vi: "vi-VN" }[prefs.language];
+  const reminderError = useReminders(email, data);
   const urgentChange = (change: Change) =>
     Number(
       change.kind === "deadline_earlier" &&
@@ -234,46 +236,23 @@ function App() {
     }
   }, [modal]);
   useEffect(() => {
-    if (
-      !email ||
-      !prefs.reminders ||
-      !("Notification" in window) ||
-      Notification.permission !== "granted"
-    )
-      return;
-    const check = () => {
-      const now = Date.now(),
-        hour = Number(
-          new Intl.DateTimeFormat("en-GB", {
-            hour: "numeric",
-            hourCycle: "h23",
-            timeZone: "Europe/Berlin",
-          }).format(now),
-        );
-      if (quietHour(hour, prefs.quiet_start, prefs.quiet_end)) return;
-      for (const i of data.items) {
-        const due = new Date(i.starts_at).getTime(),
-          key = `reminded:${email}:${i.id}:${i.starts_at}`;
-        if (
-          i.kind === "assignment" &&
-          i.status === "open" &&
-          i.verification === "confirmed" &&
-          !i.all_day &&
-          due > now &&
-          due - now < 86400000 &&
-          !localStorage.getItem(key)
-        ) {
-          new Notification("htwr-gobbler · Deadline approaching", {
-            body: `${i.title} · ${stamp(i.starts_at)}`,
-          });
-          localStorage.setItem(key, "1");
-        }
-      }
+    if (!email || loading || modal === "auth") return;
+    const openNotificationItem = () => {
+      if (!location.hash.startsWith("#item/")) return;
+      const item = data.items.find(
+        (i) => "#item/" + encodeURIComponent(i.id) === location.hash,
+      );
+      history.replaceState(null, "", location.pathname + location.search);
+      if (item) {
+        setEditing(item);
+        setModal("item");
+      } else
+        setError("This notification's item is no longer in your workspace.");
     };
-    check();
-    const timer = setInterval(check, 60000);
-    return () => clearInterval(timer);
-  }, [email, data.items, prefs]);
+    openNotificationItem();
+    window.addEventListener("hashchange", openNotificationItem);
+    return () => window.removeEventListener("hashchange", openNotificationItem);
+  }, [email, loading, data.items, modal]);
   const summary = briefing(data.items, data.sources, clock),
     course = (id: string | null) => data.courses.find((c) => c.id === id),
     isDemo = !email;
@@ -612,6 +591,11 @@ function App() {
               <button aria-label="Dismiss error" onClick={() => setError("")}>
                 <X size={16} />
               </button>
+            </div>
+          )}
+          {reminderError && (
+            <div className="alert error" role="alert">
+              {reminderError}
             </div>
           )}
           {notice && (
@@ -1320,69 +1304,13 @@ function App() {
                       ["127.0.0.1", "localhost", "[::1]"].includes(
                         location.hostname,
                       ) && <LocalStatus />}
-                    <h2>Reminders, with boundaries</h2>
-                    <p className="muted">
-                      Reminders work while this app is open. Background push
-                      delivery is not implemented. Only confirmed deadlines with
-                      a known time trigger reminders.
-                    </p>
-                    <button
-                      className="secondary"
-                      disabled={busy}
-                      onClick={async () => {
-                        if (needAccount()) return;
-                        if (!("Notification" in window)) {
-                          setError(
-                            "This browser does not support notifications.",
-                          );
-                          return;
-                        }
-                        if (
-                          !prefs.reminders &&
-                          (await Notification.requestPermission()) !== "granted"
-                        ) {
-                          setError(
-                            "Notification permission was denied. Your deadlines are still visible here.",
-                          );
-                          return;
-                        }
-                        changePrefs({ ...prefs, reminders: !prefs.reminders });
-                      }}
-                    >
-                      {prefs.reminders
-                        ? "Disable reminders"
-                        : "Enable foreground reminders"}
-                    </button>
-                    <div className="field-row">
-                      <label>
-                        Quiet from (Berlin)
-                        <input
-                          type="number"
-                          min="0"
-                          max="23"
-                          value={prefs.quiet_start}
-                          onChange={(e) => {
-                            const v = Number(e.target.value);
-                            if (v >= 0 && v <= 23)
-                              changePrefs({ ...prefs, quiet_start: v });
-                          }}
-                        />
-                      </label>
-                      <label>
-                        Until
-                        <input
-                          type="number"
-                          min="0"
-                          max="23"
-                          value={prefs.quiet_end}
-                          onChange={(e) => {
-                            const v = Number(e.target.value);
-                            if (v >= 0 && v <= 23)
-                              changePrefs({ ...prefs, quiet_end: v });
-                          }}
-                        />
-                      </label>
-                    </div>
+                    <ReminderSettings
+                      email={email}
+                      prefs={prefs}
+                      busy={busy}
+                      needAccount={needAccount}
+                      save={changePrefs}
+                    />
                   </section>
                   <section>
                     <h2>Optional AI assistance</h2>

@@ -41,7 +41,7 @@ For daily Windows use, the installed local runner starts the app at Windows sign
 - Today prioritizes recent earlier deadlines for open tasks and shows the module and previous/new dates. Date-only tasks remain due today throughout their Berlin calendar day; an unknown cutoff stays explicit.
 - Optional, consent-gated OpenAI extraction of pasted/extracted text. An exact source quotation is required. No live provider request was made during development.
 - EN/DE/VI navigation and primary labels; light/dark/system theme with account preferences. Detailed help and some forms remain English.
-- Foreground browser reminders, permission handling, Berlin quiet hours and per-browser duplicate suppression. **No background Web Push yet.**
+- Configurable foreground reminders (1 hour to 1 week), deadline-change alerts with old/new dates, EN/DE/VI notification text, explicit permission/failure status, immediate test alerts, Berlin quiet hours and per-browser duplicate suppression with two-tab coordination where supported. Clicking an alert opens its item. See [reminder behavior](docs/REMINDERS.md). **Keep Gobbler open; no background Web Push yet.**
 - PWA manifest, PNG installation icons, service worker and offline app shell. **Private records are not cached for offline reading.**
 - Eleven official-SDK MCP tools reading the same API, including undated next actions, with revocable, expiring, read-only tokens.
 

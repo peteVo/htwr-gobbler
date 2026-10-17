@@ -40,6 +40,9 @@ test("online backups restore data and feed credentials, reject corruption and re
       "INSERT INTO actions (id,user_id,title,created_at) VALUES ('a','u','Setup MFA','2026-10-16T00:00:00.000Z')",
     ).run();
     expect(findDatabase(root)).toBe(file);
+    db.prepare(
+      "INSERT INTO preferences (user_id,reminder_hours,deadline_changes) VALUES ('u',48,0)",
+    ).run();
     for (let day = 1; day <= 8; day++)
       await createBackup(
         file,
@@ -61,6 +64,11 @@ test("online backups restore data and feed credentials, reject corruption and re
     expect(
       restored.prepare("SELECT recovery_hash FROM users").get()!.recovery_hash,
     ).toBe("recovery-hash");
+    expect(
+      restored
+        .prepare("SELECT reminder_hours,deadline_changes FROM preferences")
+        .get(),
+    ).toMatchObject({ reminder_hours: 48, deadline_changes: 0 });
     restored.close();
     await expect(
       createBackup(

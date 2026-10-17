@@ -13,7 +13,7 @@ The objective is a complete academic assistant experience. Course registration a
 - Windows sign-in startup, 30-minute source checks, visible runner health and seven verified daily SQLite backups.
 - Read-only MCP access to the same stored workspace.
 
-## Current milestone: find and open records
+## Completed: find and open records
 
 - Global search includes every item type and status, next actions, module names/codes and source records.
 - Search matches saved descriptions, action notes, extracted date evidence and document names. Words may appear in different fields; German and Vietnamese diacritics do not prevent a match.
@@ -23,11 +23,16 @@ The objective is a complete academic assistant experience. Course registration a
 
 ## Next implementation milestones
 
-1. **Daily attention and reminders:** configurable reminder timing and useful deadline-change alerts; verify delivery permissions and quiet hours. Browser reminders currently require an open browser. Background delivery needs a separately verified local mechanism or later hosted infrastructure.
-2. **Complete language coverage:** translate forms, validation/help text, status messages and new components beyond the existing EN/DE/VI navigation; check long translations and localized dates on small screens.
-3. **Release and recovery experience:** user-facing backup/restore guidance and controls, a repeatable local update/recovery flow, installation checks and production-serving readiness. Automatic backup verification already exists; do not confuse same-disk copies with off-device protection.
-4. **Broader ingestion:** implement approved course/material/announcement discovery when Gobbler has its own supported university integration. Until then, improve user-provided document/export workflows without implying automatic Moodle coverage.
-5. **Cross-device release:** choose and approve hosting, then migrate and verify shared records, phone access and background push. This remains deferred while the app is local only.
+1. **Complete language coverage:** translate forms, validation/help text, status messages and new components beyond the existing EN/DE/VI navigation; check long translations and localized dates on small screens.
+2. **Release and recovery experience:** user-facing backup/restore guidance and controls, a repeatable local update/recovery flow, installation checks and production-serving readiness. Automatic backup verification already exists; do not confuse same-disk copies with off-device protection.
+3. **Broader ingestion:** implement approved course/material/announcement discovery when Gobbler has its own supported university integration. Until then, improve user-provided document/export workflows without implying automatic Moodle coverage.
+4. **Cross-device release:** choose and approve hosting, then migrate and verify shared records, phone access and background push. This remains deferred while the app is local only.
+
+## Completed: configurable foreground reminders
+
+Account preferences now include reminder lead time and optional deadline-change alerts. Browser permission/status, immediate test delivery, Berlin quiet hours, old/new dates, uncertainty/source warnings, delivery retry and two-tab duplicate suppression are implemented. Clicking an alert opens its item. The additive local migration was backed up and verified with personal record counts unchanged. See REMINDERS.md for exact behavior and limits.
+
+The remaining user check is **Settings → Reminders → Enable foreground reminders → Send test notification** in the chosen browser. Automated tests verify acceptance/rejection paths, not visible OS banners. Closed-browser delivery still requires a separately verified local notifier or later hosted infrastructure; no background delivery is claimed.
 
 ## Validation and remaining gates
 

@@ -62,3 +62,26 @@ self.addEventListener("fetch", (event) => {
       ),
     );
 });
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  event.waitUntil(
+    (async () => {
+      const url = new URL("/", self.location.origin);
+      const itemId = event.notification.data?.itemId;
+      if (typeof itemId === "string")
+        url.hash = "item/" + encodeURIComponent(itemId);
+      const windows = await self.clients.matchAll({
+        type: "window",
+        includeUncontrolled: true,
+      });
+      const existing = windows.find(
+        (client) => new URL(client.url).origin === self.location.origin,
+      );
+      if (existing) {
+        await existing.navigate(url.href);
+        return existing.focus();
+      }
+      return self.clients.openWindow(url.href);
+    })(),
+  );
+});
