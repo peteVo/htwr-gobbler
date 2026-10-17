@@ -1236,3 +1236,115 @@ describe("account-scoped API and persistence", () => {
     expect(source.error).not.toContain("private");
   });
 });
+
+it("stores module material once, isolates owners, and asks local AI only with owned excerpts", async () => {
+  const one = await account(),
+    two = await account("two@example.test");
+  const c = (await (
+    await request("/courses", "POST", { name: "Networks" }, one)
+  ).json()) as { id: string };
+  const material = {
+    course_id: c.id,
+    name: "TCP notes",
+    source_url: "https://example.test/course",
+    pages: [
+      {
+        page: 3,
+        text: "TCP uses acknowledgements and retransmission to provide reliable delivery.",
+      },
+    ],
+  };
+  const created = await request("/materials", "POST", material, one);
+  expect(created.status).toBe(201);
+  const id = ((await created.json()) as { id: string }).id;
+  expect((await request("/materials", "POST", material, two)).status).toBe(404);
+  expect(
+    (
+      (await (await request("/materials", "POST", material, one)).json()) as {
+        existing: boolean;
+      }
+    ).existing,
+  ).toBe(true);
+  expect(
+    await (await request("/materials", "GET", undefined, two)).json(),
+  ).toEqual([]);
+  await request("/materials/" + id, "DELETE", undefined, two);
+  expect(
+    (
+      (await (
+        await request("/materials", "GET", undefined, one)
+      ).json()) as unknown[]
+    ).length,
+  ).toBe(1);
+  expect(
+    (
+      await request(
+        "/assistant/ask",
+        "POST",
+        { course_id: c.id, question: "TCP?" },
+        two,
+      )
+    ).status,
+  ).toBe(404);
+  expect(
+    (
+      await request(
+        "/assistant/ask",
+        "POST",
+        { course_id: c.id, question: "TCP?" },
+        one,
+      )
+    ).status,
+  ).toBe(503);
+  const provider = vi.fn(async (url: string, init?: RequestInit) => {
+    expect(url).toBe("http://127.0.0.1:11434/api/chat");
+    expect(JSON.parse(String(init?.body)).messages[1].content).toContain(
+      "TCP uses acknowledgements",
+    );
+    return Response.json({
+      done: true,
+      done_reason: "stop",
+      message: {
+        content: JSON.stringify({
+          answer: "TCP retransmits data [1].",
+          supported: true,
+          citations: [
+            { id: "1", quote: "TCP uses acknowledgements and retransmission" },
+          ],
+        }),
+      },
+    });
+  });
+  vi.stubGlobal("fetch", provider);
+  try {
+    const response = await app.request(
+      "http://localhost:8787/api/assistant/ask",
+      {
+        method: "POST",
+        headers: {
+          Origin: "http://localhost:5173",
+          Cookie: one,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          course_id: c.id,
+          question: "How does TCP provide reliable delivery?",
+          language: "de",
+        }),
+      },
+      { ...env(), LOCAL_AI_MODEL: "test-local" },
+    );
+    expect(response.status).toBe(200);
+    expect(((await response.json()) as any).citations[0]).toMatchObject({
+      page: 3,
+      name: "TCP notes",
+    });
+    expect(provider).toHaveBeenCalledTimes(1);
+  } finally {
+    vi.unstubAllGlobals();
+  }
+  await request("/courses/" + c.id, "DELETE", undefined, one);
+  expect(
+    await (await request("/materials", "GET", undefined, one)).json(),
+  ).toEqual([]);
+});

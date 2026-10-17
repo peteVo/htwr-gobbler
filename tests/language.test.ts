@@ -46,6 +46,7 @@ it("routes visible app text through the catalogue and checks literal translation
     "SearchResults.tsx",
     "ReminderSettings.tsx",
     "Restore.tsx",
+    "Assistant.tsx",
   ]) {
     const file = ts.createSourceFile(
       name,

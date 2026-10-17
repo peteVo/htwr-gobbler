@@ -6,6 +6,11 @@ test("finished build serves app assets and the service worker without exposing c
   const response = await request.get("/");
   expect(response.headers()["x-gobbler-build"]).toBe("production");
   expect(response.headers()["cache-control"]).toBe("no-store");
+  expect(response.headers()["content-security-policy"]).toContain(
+    "frame-ancestors 'none'",
+  );
+  expect(response.headers()["x-frame-options"]).toBe("DENY");
+  expect(response.headers()["x-content-type-options"]).toBe("nosniff");
   const html = await response.text();
   expect(html).not.toContain("/@vite/client");
   const script = html.match(/src="(\/assets\/[^\"]+\.js)"/)?.[1];

@@ -39,6 +39,12 @@ test("online backups restore data and feed credentials, reject corruption and re
     db.prepare(
       "INSERT INTO actions (id,user_id,title,created_at) VALUES ('a','u','Setup MFA','2026-10-16T00:00:00.000Z')",
     ).run();
+    db.prepare(
+      "INSERT INTO courses (id,user_id,name,code,color) VALUES ('c','u','Networks','','sage')",
+    ).run();
+    db.prepare(
+      "INSERT INTO materials (id,user_id,course_id,name,pages,content_hash,created_at) VALUES ('m','u','c','Notes',?,'hash','2026-10-17')",
+    ).run(JSON.stringify([{ page: 3, text: "TCP uses acknowledgements." }]));
     expect(findDatabase(root)).toBe(file);
     db.prepare(
       "INSERT INTO preferences (user_id,reminder_hours,deadline_changes) VALUES ('u',48,0)",
@@ -55,6 +61,7 @@ test("online backups restore data and feed credentials, reject corruption and re
     const latest = path.join(copies, names.at(-1)!);
     expect((await verifyBackup(latest)).counts.items).toBe(1);
     expect((await verifyBackup(latest)).counts.actions).toBe(1);
+    expect((await verifyBackup(latest)).counts.materials).toBe(1);
     const restored = new DatabaseSync(path.join(latest, "workspace.sqlite"), {
       readOnly: true,
     });
@@ -69,6 +76,9 @@ test("online backups restore data and feed credentials, reject corruption and re
         .prepare("SELECT reminder_hours,deadline_changes FROM preferences")
         .get(),
     ).toMatchObject({ reminder_hours: 48, deadline_changes: 0 });
+    expect(
+      restored.prepare("SELECT pages FROM materials").get()!.pages,
+    ).toContain("acknowledgements");
     restored.close();
     await expect(
       createBackup(

@@ -29,6 +29,8 @@ For daily Windows use, the installed local runner serves the finished build at W
 
 ## What works
 
+- Local course Q&A in Assistant: save a module's PDF text or pasted material, ask questions through Ollama and inspect supporting quotations/page references. Account/module isolation, duplicate uploads, explicit unsupported answers and engine failures are handled. No AI API charge or automatic Moodle material discovery. See [local assistant setup and limits](docs/ASSISTANT.md).
+
 - Responsive Today dashboard, course management, task/event CRUD, completion and dismissal, source URLs, evidence and verification states.
 - Module-linked next-action checklists for setup and course reviews without a known deadline. Original instructions and coverage notes stay visible; completion/reopening is separate from dated assignments and never performs a university registration or submission.
 - Assignments are the default Tasks view. Moodle calendar categories identify modules automatically; those modules appear with tasks and calendar deadlines. Ordinary Übung sessions are tutorials, while “ist fällig” entries are assignments. Times remain the exported instants.

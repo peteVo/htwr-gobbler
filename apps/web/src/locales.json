@@ -1502,5 +1502,169 @@
   "Restore failed. Your existing records were retained. Try again after checking the file and connection.": {
     "de": "Wiederherstellung fehlgeschlagen. Vorhandene Einträge bleiben erhalten. Prüfe Datei und Verbindung und versuche es erneut.",
     "vi": "Khôi phục thất bại. Dữ liệu hiện có được giữ nguyên. Kiểm tra tệp và kết nối rồi thử lại."
+  },
+  "Sign in to save course material and use the local assistant.": {
+    "de": "Melde dich an, um Kursmaterial zu speichern und den lokalen Assistenten zu nutzen.",
+    "vi": "Đăng nhập để lưu tài liệu môn học và dùng trợ lý cục bộ."
+  },
+  "Ask your course material": {
+    "de": "Fragen zum Kursmaterial",
+    "vi": "Hỏi về tài liệu môn học"
+  },
+  "Answers use selected excerpts from material you saved for this module. Check the quotations; the AI can still make mistakes. Moodle is not read automatically.": {
+    "de": "Antworten nutzen ausgewählte Auszüge aus deinem gespeicherten Material für dieses Modul. Prüfe die Zitate; die KI kann Fehler machen. Moodle wird nicht automatisch gelesen.",
+    "vi": "Câu trả lời dựa trên các đoạn trích từ tài liệu bạn đã lưu cho môn này. Hãy kiểm tra trích dẫn; AI vẫn có thể sai. Moodle không được đọc tự động."
+  },
+  "Module": {
+    "de": "Modul",
+    "vi": "Môn học"
+  },
+  "Checking local AI…": {
+    "de": "Lokale KI wird geprüft…",
+    "vi": "Đang kiểm tra AI cục bộ…"
+  },
+  "Local AI is ready. Course text stays on this laptop.": {
+    "de": "Lokale KI ist bereit. Kurstexte bleiben auf diesem Laptop.",
+    "vi": "AI cục bộ đã sẵn sàng. Nội dung môn học được giữ trên máy này."
+  },
+  "Local AI is not ready. Start Ollama and install the configured model, then retry.": {
+    "de": "Lokale KI ist nicht bereit. Starte Ollama und installiere das konfigurierte Modell. Versuche es dann erneut.",
+    "vi": "AI cục bộ chưa sẵn sàng. Hãy mở Ollama, cài mô hình đã cấu hình rồi thử lại."
+  },
+  "Check local AI": {
+    "de": "Lokale KI prüfen",
+    "vi": "Kiểm tra AI cục bộ"
+  },
+  "Your question": {
+    "de": "Deine Frage",
+    "vi": "Câu hỏi của bạn"
+  },
+  "Reading your material…": {
+    "de": "Kursmaterial wird gelesen…",
+    "vi": "Đang đọc tài liệu…"
+  },
+  "Ask local AI": {
+    "de": "Lokale KI fragen",
+    "vi": "Hỏi AI cục bộ"
+  },
+  "The first answer may take a minute while the model loads.": {
+    "de": "Die erste Antwort kann beim Laden des Modells etwa eine Minute dauern.",
+    "vi": "Câu trả lời đầu tiên có thể mất một phút khi mô hình đang tải."
+  },
+  "Course answer": {
+    "de": "Antwort zum Kurs",
+    "vi": "Câu trả lời về môn học"
+  },
+  "Answer": {
+    "de": "Antwort",
+    "vi": "Câu trả lời"
+  },
+  "The supplied excerpts do not establish an answer. Add relevant material or ask a more specific question.": {
+    "de": "Die bereitgestellten Auszüge belegen keine Antwort. Ergänze passendes Material oder stelle eine genauere Frage.",
+    "vi": "Các đoạn trích hiện có chưa đủ để trả lời. Hãy thêm tài liệu liên quan hoặc đặt câu hỏi cụ thể hơn."
+  },
+  " · Page {0}": {
+    "de": " · Seite {0}",
+    "vi": " · Trang {0}"
+  },
+  " · Pasted text": {
+    "de": " · Eingefügter Text",
+    "vi": " · Văn bản đã dán"
+  },
+  "Open original source": {
+    "de": "Originalquelle öffnen",
+    "vi": "Mở nguồn gốc"
+  },
+  "This answer does not change your tasks, deadlines or submissions. Answers are not saved between visits.": {
+    "de": "Diese Antwort ändert keine Aufgaben, Fristen oder Abgaben. Antworten werden nicht für spätere Besuche gespeichert.",
+    "vi": "Câu trả lời không thay đổi bài tập, hạn nộp hay bài đã nộp. Câu trả lời không được lưu giữa các lần truy cập."
+  },
+  "Course material": {
+    "de": "Kursmaterial",
+    "vi": "Tài liệu môn học"
+  },
+  "Choose a module to add or read its material.": {
+    "de": "Wähle ein Modul, um Material hinzuzufügen oder zu lesen.",
+    "vi": "Chọn môn học để thêm hoặc đọc tài liệu."
+  },
+  "No material saved for this module. Add a PDF or paste course text to ask questions.": {
+    "de": "Für dieses Modul ist kein Material gespeichert. Füge eine PDF hinzu oder füge Kurstext ein, um Fragen zu stellen.",
+    "vi": "Môn này chưa có tài liệu. Thêm PDF hoặc dán nội dung môn học để đặt câu hỏi."
+  },
+  "Remove material {0}": {
+    "de": "Material {0} entfernen",
+    "vi": "Xóa tài liệu {0}"
+  },
+  "Remove": {
+    "de": "Entfernen",
+    "vi": "Xóa"
+  },
+  "Add course material": {
+    "de": "Kursmaterial hinzufügen",
+    "vi": "Thêm tài liệu môn học"
+  },
+  "PDF text is read on this device and saved in your local Gobbler account. Up to 200 pages, 10 MB and 500,000 text characters per document. Scanned images need OCR, which is not included.": {
+    "de": "PDF-Text wird auf diesem Gerät gelesen und im lokalen Gobbler-Konto gespeichert. Bis zu 200 Seiten, 10 MB und 500.000 Textzeichen pro Dokument. Gescannte Bilder benötigen OCR; dies ist nicht enthalten.",
+    "vi": "PDF được đọc trên thiết bị này và lưu trong tài khoản Gobbler cục bộ. Mỗi tài liệu tối đa 200 trang, 10 MB và 500.000 ký tự. Bản quét cần OCR, hiện chưa được hỗ trợ."
+  },
+  "Course PDF": {
+    "de": "Kurs-PDF",
+    "vi": "PDF môn học"
+  },
+  "Material title": {
+    "de": "Materialtitel",
+    "vi": "Tên tài liệu"
+  },
+  "Review or paste course text": {
+    "de": "Kurstext prüfen oder einfügen",
+    "vi": "Kiểm tra hoặc dán nội dung môn học"
+  },
+  "Editing extracted text removes PDF page references. The original PDF file is not stored.": {
+    "de": "Beim Bearbeiten des extrahierten Textes gehen PDF-Seitenverweise verloren. Die ursprüngliche PDF-Datei wird nicht gespeichert.",
+    "vi": "Chỉnh sửa văn bản đã trích xuất sẽ xóa tham chiếu trang PDF. Tệp PDF gốc không được lưu."
+  },
+  "Save material": {
+    "de": "Material speichern",
+    "vi": "Lưu tài liệu"
+  },
+  "Could not load course materials. Try again.": {
+    "de": "Kursmaterial konnte nicht geladen werden. Versuche es erneut.",
+    "vi": "Không tải được tài liệu môn học. Vui lòng thử lại."
+  },
+  "Material removed from the assistant library.": {
+    "de": "Material aus der Assistentenbibliothek entfernt.",
+    "vi": "Đã xóa tài liệu khỏi thư viện trợ lý."
+  },
+  "Material saved for this module.": {
+    "de": "Material für dieses Modul gespeichert.",
+    "vi": "Đã lưu tài liệu cho môn học này."
+  },
+  "This material was already saved. No duplicate was added.": {
+    "de": "Dieses Material ist bereits gespeichert. Es wurde kein Duplikat hinzugefügt.",
+    "vi": "Tài liệu này đã được lưu. Không tạo bản trùng lặp."
+  },
+  "Material library is full or the document was already saved. Refresh the library before trying again.": {
+    "de": "Die Materialbibliothek ist voll oder das Dokument ist bereits gespeichert. Lade die Bibliothek neu, bevor du es erneut versuchst.",
+    "vi": "Thư viện đã đầy hoặc tài liệu đã được lưu. Hãy tải lại thư viện trước khi thử lại."
+  },
+  "Local AI could not produce a complete answer with valid source quotations. Check Ollama and try a more specific question.": {
+    "de": "Die lokale KI konnte keine vollständige Antwort mit gültigen Quellenzitaten erstellen. Prüfe Ollama und stelle eine genauere Frage.",
+    "vi": "AI cục bộ chưa tạo được câu trả lời hoàn chỉnh với trích dẫn hợp lệ. Kiểm tra Ollama và thử câu hỏi cụ thể hơn."
+  },
+  "Choose a PDF with at most 200 pages. Nothing has been analyzed.": {
+    "de": "Wähle eine PDF mit höchstens 200 Seiten. Es wurde nichts analysiert.",
+    "vi": "Chọn PDF tối đa 200 trang. Chưa có nội dung nào được phân tích."
+  },
+  "This PDF contains over 500,000 characters. Choose a smaller document.": {
+    "de": "Diese PDF enthält über 500.000 Zeichen. Wähle ein kleineres Dokument.",
+    "vi": "PDF này có hơn 500.000 ký tự. Hãy chọn tài liệu nhỏ hơn."
+  },
+  "Skip to content": {
+    "de": "Zum Inhalt springen",
+    "vi": "Chuyển đến nội dung"
+  },
+  "Download your stored academic records as JSON. Feed credentials and account secrets are excluded. Course material text is not included; keep your original documents.": {
+    "de": "Lade deine gespeicherten Studienunterlagen als JSON herunter. Feed-Zugangsdaten und Kontogeheimnisse sind ausgeschlossen. Kursmaterialtexte sind nicht enthalten; bewahre die Originaldokumente auf.",
+    "vi": "Tải các mục học tập đã lưu dưới dạng JSON. Không bao gồm thông tin đăng nhập nguồn lịch và bí mật tài khoản. Văn bản tài liệu môn học không được xuất; hãy giữ tài liệu gốc."
   }
 }

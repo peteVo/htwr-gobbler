@@ -23,7 +23,7 @@ The objective is a complete academic assistant experience. Course registration a
 
 ## Next implementation milestones
 
-1. **Release readiness:** off-device encrypted full-backup handling and an independent accessibility/security review. Finished-build serving and the installation/update support matrix are implemented. Do not confuse same-disk copies with off-device protection.
+1. **Core experience:** validate local course Q&A with representative real material and questions, improve retrieval where those checks reveal gaps, and keep approaching deadlines/reminders reliable. The user declined encrypted backup work in favor of these core jobs. Finished-build serving and the installation/update support matrix are implemented; a focused internal accessibility/security review accompanies the local assistant. Full independent security and assistive-technology audits are not claimed.
 2. **Broader ingestion:** implement approved course/material/announcement discovery when Gobbler has its own supported university integration. Until then, improve user-provided document/export workflows without implying automatic Moodle coverage.
 3. **Cross-device release:** choose and approve hosting, then migrate and verify shared records, phone access and background push. This remains deferred while the app is local only.
 

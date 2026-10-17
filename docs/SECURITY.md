@@ -18,6 +18,10 @@
 
 ## Still required for public release
 
+The local course assistant uses only the fixed loopback Ollama endpoint and operator-configured local model. Material writes, listing and question context require the current account; course ownership is checked. Uploads are bounded and duplicate text is not stored twice in the same module. Material URLs remain validated HTTP(S) links and are never fetched by the assistant. Source text is untrusted model input; the assistant has no tools, mutable actions or automatic university access. Generated quotations must exactly occur in the selected excerpts and citation identifiers must match. This does not prove a generated interpretation is correct. See ASSISTANT.md for storage, retrieval and recovery limits.
+
+A focused internal local-pilot review checked ownership, input limits, source handling, browser headers, keyboard navigation and dependency advisories. The production dependency audit reported zero known advisories on 17 October 2026. Skip navigation, dialog naming, navigation state and mobile Escape handling were improved. This is not independent penetration testing or a complete screen-reader audit.
+
 Email ownership verification, secure account/data deletion, deployed resource/abuse limits beyond login, operational alerts, remote backups/restore, a review of dependency vulnerabilities, and independent penetration/security testing. Account creation currently does not verify email ownership. Lost passwords without a previously saved recovery key have no self-service recovery path. The app is a tested development MVP, not a completed identity service.
 
 The university remains authoritative for deadlines and submission receipts. Calendar-only coverage, explicit date extraction, stale sources, and unsupported recurrence are surfaced as limitations rather than hidden.

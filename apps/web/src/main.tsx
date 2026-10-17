@@ -25,6 +25,7 @@ import {
   ShieldCheck,
   Unplug,
   X,
+  MessageSquare,
 } from "lucide-react";
 import {
   calendarDates,
@@ -51,6 +52,7 @@ import { SearchResults } from "./SearchResults";
 import { ReminderSettings } from "./ReminderSettings";
 import { useReminders } from "./reminders";
 import { Restore } from "./Restore";
+import { Assistant } from "./Assistant";
 import "./styles.css";
 
 async function api<T = Record<string, any>>(
@@ -67,13 +69,21 @@ async function api<T = Record<string, any>>(
   if (!response.ok) throw new Error(value.error || "Request failed");
   return value as T;
 }
-type Page = "today" | "tasks" | "calendar" | "courses" | "sources" | "settings";
+type Page =
+  | "today"
+  | "tasks"
+  | "calendar"
+  | "courses"
+  | "sources"
+  | "assistant"
+  | "settings";
 const navigation = [
   ["today", LayoutDashboard],
   ["tasks", ListTodo],
   ["calendar", CalendarDays],
   ["courses", BookOpen],
   ["sources", Unplug],
+  ["assistant", MessageSquare],
   ["settings", Settings2],
 ] as const;
 const blank = {
@@ -443,7 +453,19 @@ function App() {
   return (
     <LanguageContext.Provider value={prefs.language}>
       <div className="app-shell">
-        <aside className={`sidebar ${mobile ? "mobile-open" : ""}`}>
+        <a className="skip-link" href="#main">
+          {tx("Skip to content")}
+        </a>
+        <aside
+          id="workspace-navigation"
+          className={`sidebar ${mobile ? "mobile-open" : ""}`}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              setMobile(false);
+              document.getElementById("navigation-toggle")?.focus();
+            }
+          }}
+        >
           <a href="#today" className="brand" onClick={() => setPage("today")}>
             <img src="/icon.svg" width="35" height="35" alt="" />
             <span>
@@ -470,6 +492,7 @@ function App() {
             {navigation.map(([key, Icon]) => (
               <button
                 key={key}
+                aria-current={page === key ? "page" : undefined}
                 className={page === key ? "active" : ""}
                 onClick={() => {
                   setPage(key);
@@ -478,6 +501,9 @@ function App() {
                   setSelectedAction("");
                   setCourseFilter("");
                   setTypeFilter("assignment");
+                  requestAnimationFrame(() =>
+                    document.getElementById("main")?.focus(),
+                  );
                 }}
               >
                 <Icon size={19} />
@@ -538,6 +564,9 @@ function App() {
           <header className="topbar">
             <button
               className="mobile-toggle icon-button"
+              id="navigation-toggle"
+              aria-expanded={mobile}
+              aria-controls="workspace-navigation"
               aria-label={tx("Open navigation")}
               onClick={() => setMobile(true)}
             >
@@ -568,7 +597,7 @@ function App() {
             </label>
             <span className="timezone">Europe / Berlin</span>
           </header>
-          <main id="main">
+          <main id="main" tabIndex={-1}>
             <div className="demo-strip">
               {isDemo ? (
                 <>
@@ -661,29 +690,31 @@ function App() {
                           : tx("One place for the details of your semester.")}
                 </p>
               </div>
-              <button
-                className="primary"
-                disabled={loading}
-                onClick={() =>
-                  searching
-                    ? setSearch("")
+              {page !== "assistant" && (
+                <button
+                  className="primary"
+                  disabled={loading}
+                  onClick={() =>
+                    searching
+                      ? setSearch("")
+                      : page === "sources"
+                        ? needAccount() || setModal("import")
+                        : page === "courses"
+                          ? needAccount() ||
+                            (setEditingCourse(null), setModal("course"))
+                          : edit()
+                  }
+                >
+                  {searching ? <X size={17} /> : <Plus size={17} />}
+                  {searching
+                    ? t.clearSearch
                     : page === "sources"
-                      ? needAccount() || setModal("import")
+                      ? t.import
                       : page === "courses"
-                        ? needAccount() ||
-                          (setEditingCourse(null), setModal("course"))
-                        : edit()
-                }
-              >
-                {searching ? <X size={17} /> : <Plus size={17} />}
-                {searching
-                  ? t.clearSearch
-                  : page === "sources"
-                    ? t.import
-                    : page === "courses"
-                      ? t.newcourse
-                      : t.add}
-              </button>
+                        ? t.newcourse
+                        : t.add}
+                </button>
+              )}
             </div>
             {loading ? (
               <div className="empty">
@@ -1334,6 +1365,14 @@ function App() {
                     ))}
                   </>
                 )}
+                {page === "assistant" && (
+                  <Assistant
+                    courses={data.courses}
+                    signedIn={!!email}
+                    language={prefs.language}
+                    request={api}
+                  />
+                )}
                 {page === "settings" && (
                   <div className="settings-layout">
                     <section>
@@ -1472,7 +1511,7 @@ function App() {
                       <h2>{tx("Your data")}</h2>
                       <p className="muted">
                         {tx(
-                          "Download your stored academic records as JSON. Feed credentials and account secrets are excluded.",
+                          "Download your stored academic records as JSON. Feed credentials and account secrets are excluded. Course material text is not included; keep your original documents.",
                         )}
                       </p>
                       <button
@@ -1535,13 +1574,14 @@ function App() {
         </div>
         <dialog
           ref={dialog}
+          aria-labelledby="modal-title"
           onCancel={() => setModal(null)}
           onClick={(e) => {
             if (e.target === dialog.current) setModal(null);
           }}
         >
           <div className="modal-heading">
-            <h2>
+            <h2 id="modal-title">
               {modal === "auth"
                 ? tx("Your academic space")
                 : modal === "item"

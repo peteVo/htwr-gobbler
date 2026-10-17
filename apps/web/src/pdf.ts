@@ -2,7 +2,10 @@ import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import type { DocumentPage } from "../../../packages/core/deadlines";
 GlobalWorkerOptions.workerSrc = workerUrl;
-export async function readPdf(file: File): Promise<DocumentPage[]> {
+export async function readPdf(
+  file: File,
+  limits = { pages: 20, characters: 20000 },
+): Promise<DocumentPage[]> {
   if (file.size > 10_000_000) throw new Error("Choose a PDF under 10 MB.");
   const task = getDocument({
     data: new Uint8Array(await file.arrayBuffer()),
@@ -10,9 +13,11 @@ export async function readPdf(file: File): Promise<DocumentPage[]> {
   });
   try {
     const pdf = await task.promise;
-    if (pdf.numPages > 20)
+    if (pdf.numPages > limits.pages)
       throw new Error(
-        "Choose a PDF with at most 20 pages. Nothing has been analyzed.",
+        limits.pages === 20
+          ? "Choose a PDF with at most 20 pages. Nothing has been analyzed."
+          : "Choose a PDF with at most 200 pages. Nothing has been analyzed.",
       );
     const pages: DocumentPage[] = [];
     let length = 0;
@@ -26,9 +31,11 @@ export async function readPdf(file: File): Promise<DocumentPage[]> {
         )
         .join("");
       length += text.length;
-      if (length > 20000)
+      if (length > limits.characters)
         throw new Error(
-          "This PDF contains over 20,000 characters. Paste a relevant excerpt instead.",
+          limits.characters === 20000
+            ? "This PDF contains over 20,000 characters. Paste a relevant excerpt instead."
+            : "This PDF contains over 500,000 characters. Choose a smaller document.",
         );
       pages.push({ page, text });
     }

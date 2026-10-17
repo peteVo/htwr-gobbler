@@ -4,3 +4,5 @@ FEED_SECRET=replace-with-a-different-32-character-secret
 # Optional, never required for calendar/task functionality:
 # OPENAI_API_KEY=
 # OPENAI_MODEL=
+# Optional local course assistant (Ollama on 127.0.0.1:11434):
+# LOCAL_AI_MODEL=qwen3:4b-instruct

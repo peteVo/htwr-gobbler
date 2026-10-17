@@ -16,6 +16,13 @@ import {
 import { hash, passwordHash, equal, crypt } from "./security";
 import { acquireSource, ingest, syncFeed, checkSources } from "./sync";
 import { restoreRecords } from "./restore";
+import { answerCourse } from "./assistant";
+import {
+  materialInput,
+  answerInput,
+  selectPassages,
+  type Material,
+} from "../../packages/core/materials";
 
 type Env = {
   DB: D1Database;
@@ -25,6 +32,7 @@ type Env = {
   FEED_SECRET: string;
   OPENAI_API_KEY?: string;
   OPENAI_MODEL?: string;
+  LOCAL_AI_MODEL?: string;
   AUTH_LIMIT?: RateLimit;
   REGISTRATION_OPEN?: string;
 };
@@ -697,6 +705,131 @@ app.delete("/api/sources/:id", async (c) => {
     .bind(c.req.param("id"), c.get("user"))
     .run();
   return c.json({ ok: true });
+});
+app.get("/api/materials", async (c) => {
+  const rows = await c.env.DB.prepare(
+    "SELECT id,course_id,name,source_url,created_at FROM materials WHERE user_id=? ORDER BY created_at DESC,id",
+  )
+    .bind(c.get("user"))
+    .all();
+  return c.json(rows.results);
+});
+app.post("/api/materials", async (c) => {
+  const v = materialInput.parse(await c.req.json()),
+    user = c.get("user");
+  if (
+    !(await c.env.DB.prepare("SELECT id FROM courses WHERE id=? AND user_id=?")
+      .bind(v.course_id, user)
+      .first())
+  )
+    return c.json({ error: "Course not found" }, 404);
+  const content_hash = await hash(JSON.stringify(v.pages));
+  const existing = await c.env.DB.prepare(
+    "SELECT id FROM materials WHERE user_id=? AND course_id=? AND content_hash=?",
+  )
+    .bind(user, v.course_id, content_hash)
+    .first();
+  if (existing) return c.json({ id: existing.id, existing: true });
+  const pages = JSON.stringify(v.pages),
+    id = crypto.randomUUID();
+  const result = await c.env.DB.prepare(
+    "INSERT INTO materials (id,user_id,course_id,name,source_url,pages,content_hash,created_at) SELECT ?,?,?,?,?,?,?,? WHERE (SELECT COUNT(*) FROM materials WHERE user_id=?)<100 AND (SELECT COALESCE(SUM(length(pages)),0) FROM materials WHERE user_id=?) + length(?)<=5000000 ON CONFLICT(user_id,course_id,content_hash) DO NOTHING",
+  )
+    .bind(
+      id,
+      user,
+      v.course_id,
+      v.name,
+      v.source_url,
+      pages,
+      content_hash,
+      new Date().toISOString(),
+      user,
+      user,
+      pages,
+    )
+    .run();
+  if (!result.meta.changes)
+    return c.json(
+      {
+        error:
+          "Material library is full or the document was already saved. Refresh the library before trying again.",
+      },
+      409,
+    );
+  return c.json({ id, existing: false }, 201);
+});
+app.delete("/api/materials/:id", async (c) => {
+  await c.env.DB.prepare("DELETE FROM materials WHERE id=? AND user_id=?")
+    .bind(c.req.param("id"), c.get("user"))
+    .run();
+  return c.json({ ok: true });
+});
+app.get("/api/assistant/status", async (c) => {
+  if (!c.env.LOCAL_AI_MODEL) return c.json({ ready: false });
+  try {
+    const r = await fetch("http://127.0.0.1:11434/api/tags", {
+      redirect: "error",
+      signal: AbortSignal.timeout(3000),
+    });
+    if (!r.ok) return c.json({ ready: false });
+    const data = z
+      .object({ models: z.array(z.object({ name: z.string() })) })
+      .parse(await r.json());
+    return c.json({
+      ready: data.models.some((m) => m.name === c.env.LOCAL_AI_MODEL),
+      model: c.env.LOCAL_AI_MODEL,
+    });
+  } catch {
+    return c.json({ ready: false });
+  }
+});
+app.post("/api/assistant/ask", async (c) => {
+  const v = answerInput.parse(await c.req.json()),
+    user = c.get("user");
+  if (
+    !(await c.env.DB.prepare("SELECT id FROM courses WHERE id=? AND user_id=?")
+      .bind(v.course_id, user)
+      .first())
+  )
+    return c.json({ error: "Course not found" }, 404);
+  const rows = await c.env.DB.prepare(
+    "SELECT id,course_id,name,source_url,pages,created_at FROM materials WHERE user_id=? AND course_id=? ORDER BY created_at,id",
+  )
+    .bind(user, v.course_id)
+    .all<Omit<Material, "pages"> & { pages: string }>();
+  const passages = selectPassages(
+    rows.results.map((r) => ({ ...r, pages: JSON.parse(r.pages) })),
+    v.question,
+  );
+  if (!passages.length)
+    return c.json({ answer: "", supported: false, citations: [] });
+  if (!c.env.LOCAL_AI_MODEL)
+    return c.json(
+      {
+        error:
+          "Local AI is not ready. Start Ollama and install the configured model, then retry.",
+      },
+      503,
+    );
+  try {
+    return c.json(
+      await answerCourse(
+        c.env.LOCAL_AI_MODEL,
+        v.question,
+        v.language,
+        passages,
+      ),
+    );
+  } catch {
+    return c.json(
+      {
+        error:
+          "Local AI could not produce a complete answer with valid source quotations. Check Ollama and try a more specific question.",
+      },
+      502,
+    );
+  }
 });
 app.post("/api/ai/extract", async (c) => {
   const { text, consent } = z
