@@ -86,6 +86,15 @@ test("read-only MCP queries the same persisted academic records", async ({
     expect(JSON.stringify(actions.structuredContent)).toContain(
       "MCP test module",
     );
+    const search = await client.callTool({
+      name: "search_academic_data",
+      arguments: { query: "module setup", limit: 10 },
+    });
+    expect(search.isError).not.toBe(true);
+    expect(JSON.stringify(search.structuredContent)).toContain(
+      "MCP setup action",
+    );
+    expect((search.structuredContent as { total: number }).total).toBe(1);
   } finally {
     await client.close();
   }

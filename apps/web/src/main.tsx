@@ -47,6 +47,7 @@ import {
 } from "../../../packages/core/deadlines";
 import { messages } from "./i18n";
 import { Actions } from "./Actions";
+import { SearchResults } from "./SearchResults";
 import "./styles.css";
 
 async function api<T = Record<string, any>>(
@@ -109,6 +110,9 @@ function App() {
     [online, setOnline] = useState(navigator.onLine),
     [install, setInstall] = useState<any>(null),
     [mcpToken, setMcpToken] = useState("");
+  const [selectedAction, setSelectedAction] = useState("");
+  const [selectedSource, setSelectedSource] = useState("");
+  const searching = Boolean(search.trim());
   const dialog = useRef<HTMLDialogElement>(null),
     previousFocus = useRef<HTMLElement | null>(null);
   const prefs = data.preferences,
@@ -212,6 +216,15 @@ function App() {
     document.documentElement.dataset.theme = prefs.theme;
   }, [prefs]);
   useEffect(() => {
+    if (page !== "today") setSelectedAction("");
+  }, [page]);
+  useEffect(() => {
+    if (page === "sources" && !searching && selectedSource) {
+      document.getElementById("source-" + selectedSource)?.focus();
+      setSelectedSource("");
+    }
+  }, [page, searching, selectedSource]);
+  useEffect(() => {
     if (modal) {
       previousFocus.current = document.activeElement as HTMLElement;
       dialog.current?.showModal();
@@ -266,10 +279,6 @@ function App() {
     isDemo = !email;
   const items = data.items.filter(
     (i) =>
-      (!search ||
-        `${i.title} ${i.description} ${course(i.course_id)?.name || ""}`
-          .toLowerCase()
-          .includes(search.toLowerCase())) &&
       (!courseFilter || i.course_id === courseFilter) &&
       (page !== "tasks" || !typeFilter || i.kind === typeFilter),
   );
@@ -479,6 +488,7 @@ function App() {
                 setPage(key);
                 setMobile(false);
                 setSearch("");
+                setSelectedAction("");
                 setCourseFilter("");
                 setTypeFilter("assignment");
               }}
@@ -545,20 +555,22 @@ function App() {
           </button>
           <div className="breadcrumb">
             Workspace <span>/</span>
-            <strong>{t[page]}</strong>
+            <strong>{searching ? t.results : t[page]}</strong>
           </div>
           <label className="search">
             <Search size={17} />
             <input
               aria-label={t.search}
               placeholder={t.search}
+              type="search"
+              maxLength={200}
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
-                if (e.target.value) {
-                  setPage("tasks");
-                  setTypeFilter("");
-                }
+                setSelectedAction("");
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") setSearch("");
               }}
             />
             <kbd>/</kbd>
@@ -620,41 +632,78 @@ function App() {
                     }).format(new Date())
                   : "YOUR ACADEMIC SPACE"}
               </p>
-              <h1>{page === "today" ? t.headline : t[page]}</h1>
+              <h1>
+                {searching
+                  ? t.results
+                  : page === "today"
+                    ? t.headline
+                    : t[page]}
+              </h1>
               <p>
-                {page === "today"
-                  ? t.sub
-                  : page === "tasks"
-                    ? "Keep track here. Submit through your course system."
-                    : page === "sources"
-                      ? "Know what was checked, and what still needs your attention."
-                      : "One place for the details of your semester."}
+                {searching
+                  ? `“${search.trim()}”`
+                  : page === "today"
+                    ? t.sub
+                    : page === "tasks"
+                      ? "Keep track here. Submit through your course system."
+                      : page === "sources"
+                        ? "Know what was checked, and what still needs your attention."
+                        : "One place for the details of your semester."}
               </p>
             </div>
             <button
               className="primary"
               disabled={loading}
               onClick={() =>
-                page === "sources"
-                  ? needAccount() || setModal("import")
-                  : page === "courses"
-                    ? needAccount() ||
-                      (setEditingCourse(null), setModal("course"))
-                    : edit()
+                searching
+                  ? setSearch("")
+                  : page === "sources"
+                    ? needAccount() || setModal("import")
+                    : page === "courses"
+                      ? needAccount() ||
+                        (setEditingCourse(null), setModal("course"))
+                      : edit()
               }
             >
-              <Plus size={17} />
-              {page === "sources"
-                ? t.import
-                : page === "courses"
-                  ? t.newcourse
-                  : t.add}
+              {searching ? <X size={17} /> : <Plus size={17} />}
+              {searching
+                ? t.clearSearch
+                : page === "sources"
+                  ? t.import
+                  : page === "courses"
+                    ? t.newcourse
+                    : t.add}
             </button>
           </div>
           {loading ? (
             <div className="empty">
               <LoaderCircle className="spin" /> Opening your workspace…
             </div>
+          ) : searching ? (
+            <SearchResults
+              data={data}
+              query={search}
+              stamp={stamp}
+              open={(result) => {
+                if (result.type === "item") {
+                  edit(result.record);
+                  return;
+                }
+                setSearch("");
+                if (result.type === "action") {
+                  setSelectedAction(result.record.id);
+                  setPage("today");
+                } else if (result.type === "course") {
+                  setCourseFilter(result.record.id);
+                  setTypeFilter("");
+                  setFilter("all");
+                  setPage("tasks");
+                } else {
+                  setSelectedSource(result.record.id);
+                  setPage("sources");
+                }
+              }}
+            />
           ) : (
             <>
               {page === "today" && (
@@ -754,6 +803,10 @@ function App() {
                     </section>
                     {!isDemo && (
                       <Actions
+                        key={selectedAction || "actions"}
+                        initialAction={data.actions?.find(
+                          (a) => a.id === selectedAction,
+                        )}
                         actions={data.actions ?? []}
                         courses={data.courses}
                         busy={busy}
@@ -989,6 +1042,8 @@ function App() {
                             className="text-button"
                             onClick={() => {
                               setCourseFilter(c.id);
+                              setTypeFilter("");
+                              setFilter("all");
                               setPage("tasks");
                             }}
                           >
@@ -1169,7 +1224,12 @@ function App() {
                     </button>
                   </div>
                   {data.sources.map((s) => (
-                    <article className="source-detail" key={s.id}>
+                    <article
+                      className="source-detail"
+                      key={s.id}
+                      id={"source-" + s.id}
+                      tabIndex={-1}
+                    >
                       <div>
                         <h3>{s.name}</h3>
                         <p>

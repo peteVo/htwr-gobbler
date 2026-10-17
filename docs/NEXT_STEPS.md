@@ -1,29 +1,40 @@
-# Next steps · local pilot · 16 October 2026
+# App completion roadmap · local pilot · 17 October 2026
 
-The current objective is dependable daily coursework on this PC. Hosting, phone push and paid infrastructure are deferred by the user's choice.
+The objective is a complete academic assistant experience. Course registration and university account setup are personal coursework tasks, not app development milestones. Local operation remains the chosen deployment scope.
 
-## Completed
+## Working foundation
 
-1. Calendar reliability: an encrypted personal Moodle feed, stable event IDs, file-to-feed conversion, module context, completion preservation and duplicate protection. The real workspace retains 230 dated records and 226 feed events, with no duplicate calendar UIDs.
-2. Daily workflow: assignment-first Tasks, sourced/verified deadlines, old/new deadline changes, review-required document dates, repeat/revision protection and Berlin date-only boundaries.
-3. Local operation: Windows sign-in startup, per-account 30-minute checks, visible health/failure status, automatic view refresh and seven verified daily online SQLite backups. Cold startup and the user's shutdown/startup and short sleep/wake checks passed. A simulated 31-minute gap confirms overdue checks resume without replaying a burst. A physical sleep spanning a scheduled interval and a full 24-hour backup interval remain unobserved.
-4. Account safety: saved one-use recovery key, session/token revocation and tenant-scoped API access. Real backup copies restore with feed credentials intact; corruption and incorrect keys are rejected.
-5. Next actions: module-linked undated checklists on Today, with source URLs, notes, completion/reopening/editing/deletion and read-only MCP access. These do not fabricate due dates or university registration/submission outcomes. Five personal prerequisites/review actions were populated from the existing private audit; the existing dated registration task was retained rather than duplicated. Backup manifests now include actions while older snapshots remain verifiable.
+- Personal accounts, recovery keys, session/token revocation and tenant-scoped records.
+- Persistent modules, dated tasks/events and undated next actions, with edit, completion and reopening.
+- Dashboard, day/week/month calendar, themes, EN/DE/VI navigation and installable responsive PWA shell.
+- Calendar files and encrypted Moodle subscriptions, stable event IDs, duplicate protection, module context and preserved completion.
+- Source health and explicit coverage limits, deadline change history, Berlin dates and date-only cutoff uncertainty.
+- Local PDF date review with page evidence, repeat/revision protection and optional consent-gated OpenAI extraction.
+- Windows sign-in startup, 30-minute source checks, visible runner health and seven verified daily SQLite backups.
+- Read-only MCP access to the same stored workspace.
 
-Validation for this local milestone: 52 unit/API/backup checks, 16 Windows browser scenarios, strict TypeScript and production build. Source changes remain in the draft PR; hosted CI is reported separately.
+## Current milestone: find and open records
 
-## Next student actions
+- Global search includes every item type and status, next actions, module names/codes and source records.
+- Search matches saved descriptions, action notes, extracted date evidence and document names. Words may appear in different fields; German and Vietnamese diacritics do not prevent a match.
+- Results open the matching editor, course's full coursework or source details. Completed/dismissed work is searchable independently of task filters.
+- Search reads the current account's loaded snapshot. It does not persist another private index or make university requests. Full PDF contents are not stored or searchable.
+- The MCP search tool uses the same matcher. Other focused MCP tools retain their existing filters.
 
-1. Finish the separate exercise-group registration already shown in Tasks. Confirm its cutoff against the university system; a date-only deadline does not imply midnight. Gobbler cannot complete registration by checking a box.
-2. Follow the HPC account/service-password, MFA/access test and course-group-email actions in Today, in that order. These require the student's university login/MFA. No email was sent and no university account/registration was changed by the assistant.
-3. After allocation, review the separate exercise-group course and its first released sheet. Review the other module's first published materials when available. The in-app actions retain the audited publication guidance, source links and uncertainty. Enter only explicit submission deadlines, with module and page evidence; publication/discussion dates remain distinct.
+## Next implementation milestones
 
-Personal course details, enrollment status, course links and quotations stay in the local database/private audit, outside Git. The audited sample had no currently released submission sheet. A future sheet cannot be validated before it exists or before authorized access is available.
+1. **Daily attention and reminders:** configurable reminder timing and useful deadline-change alerts; verify delivery permissions and quiet hours. Browser reminders currently require an open browser. Background delivery needs a separately verified local mechanism or later hosted infrastructure.
+2. **Complete language coverage:** translate forms, validation/help text, status messages and new components beyond the existing EN/DE/VI navigation; check long translations and localized dates on small screens.
+3. **Release and recovery experience:** user-facing backup/restore guidance and controls, a repeatable local update/recovery flow, installation checks and production-serving readiness. Automatic backup verification already exists; do not confuse same-disk copies with off-device protection.
+4. **Broader ingestion:** implement approved course/material/announcement discovery when Gobbler has its own supported university integration. Until then, improve user-provided document/export workflows without implying automatic Moodle coverage.
+5. **Cross-device release:** choose and approve hosting, then migrate and verify shared records, phone access and background push. This remains deferred while the app is local only.
 
-## Remaining integration boundary
+## Validation and remaining gates
 
-Automatic course/material discovery requires Gobbler's own approved RWTH OAuth client registration and current API capabilities/rate limits. The identified university proxy establishes course/file access in another registered app, not complete assignment/announcement coverage for Gobbler. Obtain that registration/documentation before implementation; do not borrow application IDs, copy browser cookies or bypass SSO/MFA. See INTEGRATIONS.md.
+Use unit/API tests for parsing, matching, ownership and data preservation; browser scenarios for real workflows, keyboard access and 320/375/414/768 px layouts; strict TypeScript and a production build. Keep test accounts separate from personal records.
 
-## Deferred
+Physical sleep spanning a scheduled check and a real 24-hour backup interval have not been directly observed. Simulated elapsed-time tests, cold startup, shutdown/startup and short sleep/wake checks passed previously. Detailed forms remain mostly English. Private records are not cached for offline reading; an offline shell does not imply fresh data or successful monitoring.
 
-Cloud migration, remote phone access and Web Push; university email/Dynexite/Google Calendar writes; OCR, broad recurrence and additional AI providers. The synthetic Cloudflare staging deployment remains closed to registration with cron disabled and no personal data. Free-hosting research is in FREE_HOSTING.md; it does not authorize another deployment.
+Approved university OAuth registration and API capabilities are still prerequisites for automatic course discovery. Do not borrow another app's client ID, copy browser cookies, bypass SSO/MFA or collect university passwords. See INTEGRATIONS.md.
+
+No paid resources, cloud migration, personal-data upload or university email sending is authorized by this roadmap. Synthetic Cloudflare staging stays closed to registration with cron disabled; free-hosting research in FREE_HOSTING.md is informational.

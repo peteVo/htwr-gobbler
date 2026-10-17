@@ -2,6 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { berlinDay, isPastDue, type Snapshot } from "../../packages/core/index";
+import { searchWorkspace } from "../../packages/core/search";
 
 const base = new URL(process.env.GOBBLER_URL || "http://127.0.0.1:8787");
 if (
@@ -112,7 +113,9 @@ for (const name of tools)
             );
             break;
           default:
-            records = [...data.items, ...data.courses, ...(data.actions ?? [])];
+            records = searchWorkspace(data, query ?? "").map(
+              (result) => result.record,
+            );
         }
         records = records.map((record) =>
           record && typeof record === "object" && "course_id" in record
@@ -124,7 +127,7 @@ for (const name of tools)
               }
             : record,
         );
-        if (query)
+        if (query && name !== "search_academic_data")
           records = records.filter((r) =>
             JSON.stringify(r).toLowerCase().includes(query.toLowerCase()),
           );

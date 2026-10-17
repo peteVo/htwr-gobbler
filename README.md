@@ -34,7 +34,7 @@ For daily Windows use, the installed local runner starts the app at Windows sign
 - Assignments are the default Tasks view. Moodle calendar categories identify modules automatically; those modules appear with tasks and calendar deadlines. Ordinary Übung sessions are tutorials, while “ist fällig” entries are assignments. Times remain the exported instants.
 - Persistent account-scoped D1 records; another browser/device sees the same records when connected to the same deployed backend. Visible signed-in views refresh every minute and on focus/connectivity return. Local development is intentionally loopback-only.
 - One-use account recovery keys generated after password confirmation in Settings. Recovery preserves records and revokes old sessions and MCP tokens. Operators can close registration for a private pilot.
-- Day/week/month calendars, course/type filters and search of stored academic entries; Berlin display and DST-aware calendar boundaries.
+- Day/week/month calendars and course/type filters; Berlin display and DST-aware calendar boundaries. Global search finds all item statuses/types, next actions, modules and sources, with module codes, saved notes and date evidence. Results open the correct editor or detail view; German/Vietnamese diacritics do not block matches.
 - `.ics` import/reimport with stable UID deduplication, automatic recognition of repeated file calendars, content-hash updates, meaningful change history, cancellation handling, and retained records when a check fails.
 - Allowlisted RWTHmoodle calendar subscription, encrypted URLs, manual checks, bounded retry, source locks and a scheduled Worker handler. Local cron requires an explicit trigger; deployed cron selects the 10 oldest-attempted feeds every 30 minutes.
 - Local PDF text extraction with module selection and page evidence, numeric/German month-name dates and explicit date-only candidates. Re-reading the same document date reopens its task; revised documents can update a selected task while retaining its identity and completion state. Every new or revised candidate starts as **needs review**.
@@ -68,7 +68,7 @@ pnpm exec playwright install chromium
 
 On Windows with Edge installed, run `pnpm test:e2e`. On Linux or when using the downloaded browser, set `PLAYWRIGHT_CHANNEL=chromium` before running `pnpm test:e2e`. Tests start local servers if necessary. Browser tests create synthetic accounts and records in the local development database; use a separate checkout if you want isolated test storage. CI runs unit/API tests, build, and Chromium browser/MCP checks.
 
-See [validation](docs/VALIDATION.md), [integration research](docs/INTEGRATIONS.md), [deployment](docs/DEPLOYMENT.md), [security](docs/SECURITY.md), [MCP setup](docs/MCP.md), and [implementation plan](docs/IMPLEMENTATION_PLAN.md).
+See [app completion roadmap](docs/NEXT_STEPS.md), [validation](docs/VALIDATION.md), [integration research](docs/INTEGRATIONS.md), [deployment](docs/DEPLOYMENT.md), [security](docs/SECURITY.md), [MCP setup](docs/MCP.md), and [implementation plan](docs/IMPLEMENTATION_PLAN.md).
 
 ## Known limits and next work
 

@@ -6,7 +6,7 @@ test("personal workspace persists tasks, imports, completion and preferences", a
   await page.goto("/");
   await page.keyboard.press("/");
   await expect(
-    page.getByRole("textbox", { name: "Search your academic space" }),
+    page.getByRole("searchbox", { name: "Search your academic space" }),
   ).toBeFocused();
   await expect(page.getByText("DEMO WORKSPACE", { exact: true })).toBeVisible();
   await page
@@ -105,13 +105,11 @@ test("personal workspace persists tasks, imports, completion and preferences", a
   await page
     .getByLabel("Source name", { exact: true })
     .fill("Same calendar with a different name");
-  await page
-    .getByLabel("Calendar file", { exact: true })
-    .setInputFiles({
-      name: "fixture-again.ics",
-      mimeType: "text/calendar",
-      buffer: readFileSync("tests/fixtures/calendar.ics"),
-    });
+  await page.getByLabel("Calendar file", { exact: true }).setInputFiles({
+    name: "fixture-again.ics",
+    mimeType: "text/calendar",
+    buffer: readFileSync("tests/fixtures/calendar.ics"),
+  });
   await page
     .getByRole("dialog")
     .getByRole("button", { name: "Import calendar", exact: true })

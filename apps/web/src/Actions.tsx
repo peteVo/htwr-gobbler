@@ -8,17 +8,21 @@ export function Actions({
   courses,
   busy,
   save,
+  initialAction,
 }: {
   actions: Action[];
   courses: Course[];
   busy: boolean;
+  initialAction?: Action;
   save: (
     method: "POST" | "PUT" | "DELETE",
     id: string,
     value?: unknown,
   ) => Promise<void>;
 }) {
-  const [editing, setEditing] = useState<Action | "new" | null>(null);
+  const [editing, setEditing] = useState<Action | "new" | null>(
+    initialAction ?? null,
+  );
   const [error, setError] = useState(""),
     [notice, setNotice] = useState("");
   async function mutate(
@@ -141,6 +145,7 @@ export function Actions({
             Action title
             <input
               name="title"
+              autoFocus={Boolean(initialAction)}
               defaultValue={value?.title || ""}
               required
               maxLength={250}
