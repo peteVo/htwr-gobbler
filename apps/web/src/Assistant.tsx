@@ -77,30 +77,29 @@ export function Assistant({
             "Answers use selected excerpts from material you saved for this module. Check the quotations; the AI can still make mistakes. Moodle is not read automatically.",
           )}
         </p>
-        <label>
-          {tx("Module")}
-          <select
-            value={course}
-            disabled={!!busy}
-            onChange={(e) => {
-              setCourse(e.target.value);
-              setText("");
-              setPages([]);
-              setName("");
-              setUrl("");
-              setAnswer(null);
-              setError("");
-              setNotice("");
-            }}
-          >
-            <option value="">{tx("Choose a module")}</option>
-            {courses.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        <label htmlFor="assistant-module">{tx("Module")}</label>
+        <select
+          id="assistant-module"
+          value={course}
+          disabled={!!busy}
+          onChange={(e) => {
+            setCourse(e.target.value);
+            setText("");
+            setPages([]);
+            setName("");
+            setUrl("");
+            setAnswer(null);
+            setError("");
+            setNotice("");
+          }}
+        >
+          <option value="">{tx("Choose a module")}</option>
+          {courses.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
         <p role="status" className="small muted">
           {checking
             ? tx("Checking local AI…")

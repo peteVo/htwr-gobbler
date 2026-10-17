@@ -1768,3 +1768,9 @@ nav button {
     height: 44px;
   }
 }
+.sidebar {
+  overflow-y: auto;
+}
+.sidebar > * {
+  flex-shrink: 0;
+}
