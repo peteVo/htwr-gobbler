@@ -30,3 +30,42 @@ test("finished build serves app assets and the service worker without exposing c
   }
   expect((await request.get("/api/auth/options")).ok()).toBe(true);
 });
+
+test("installed service worker reloads the offline shell without caching private API responses", async ({
+  page,
+  context,
+}) => {
+  await page.goto("/");
+  await page.evaluate(() =>
+    navigator.serviceWorker.ready.then(() => undefined),
+  );
+  await page.reload();
+  await expect(page.getByText("DEMO WORKSPACE", { exact: true })).toBeVisible();
+  expect(await page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(
+    true,
+  );
+  const cached = await page.evaluate(async () => {
+    const stores = await Promise.all(
+      (await caches.keys()).map((name) => caches.open(name)),
+    );
+    return (await Promise.all(stores.map((store) => store.keys())))
+      .flat()
+      .map((request) => new URL(request.url).pathname);
+  });
+  expect(cached.some((url) => url.startsWith("/assets/"))).toBe(true);
+  expect(
+    cached.some((url) => url.startsWith("/api/") || url === "/local-status"),
+  ).toBe(false);
+  try {
+    await context.setOffline(true);
+    await page.reload();
+    await expect(
+      page.getByText("DEMO WORKSPACE", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByText("You’re offline.", { exact: false }),
+    ).toBeVisible();
+  } finally {
+    await context.setOffline(false);
+  }
+});

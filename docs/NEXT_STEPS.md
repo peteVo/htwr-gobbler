@@ -27,6 +27,10 @@ The objective is a complete academic assistant experience. Course registration a
 2. **Broader ingestion:** implement approved course/material/announcement discovery when Gobbler has its own supported university integration. Until then, improve user-provided document/export workflows without implying automatic Moodle coverage.
 3. **Cross-device release:** choose and approve hosting, then migrate and verify shared records, phone access and background push. This remains deferred while the app is local only.
 
+## Completed: finished-build local serving
+
+The daily runner now serves the compiled frontend through the same loopback address, using the existing Wrangler runtime for built assets and the API. Monitoring, cookies and browser permission origin remain intact. The Windows update procedure checks the finished-build gateway before reporting readiness; browser tests now run against the compiled app and verify the offline shell without caching private API data. The actual installed update/restart and workspace preservation checks passed on 17 October. See LOCAL_USE.md for the support matrix and VALIDATION.md for evidence and remaining hardware checks.
+
 ## Completed: languages, missing-record recovery and local maintenance
 
 The EN/DE/VI catalogue covers app-owned forms, help, errors, statuses, search metadata and accessibility labels. Original course names, notes and source quotations stay unchanged. Typed control values remain the server's stable values even when their labels are translated; locale-aware dates and parameterized messages are checked. Native browser/third-party diagnostics may remain in their original language.
