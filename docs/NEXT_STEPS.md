@@ -32,7 +32,7 @@ The objective is a complete academic assistant experience. Course registration a
 
 Account preferences now include reminder lead time and optional deadline-change alerts. Browser permission/status, immediate test delivery, Berlin quiet hours, old/new dates, uncertainty/source warnings, delivery retry and two-tab duplicate suppression are implemented. Clicking an alert opens its item. The additive local migration was backed up and verified with personal record counts unchanged. See REMINDERS.md for exact behavior and limits.
 
-The remaining user check is **Settings → Reminders → Enable foreground reminders → Send test notification** in the chosen browser. Automated tests verify acceptance/rejection paths, not visible OS banners. Closed-browser delivery still requires a separately verified local notifier or later hosted infrastructure; no background delivery is claimed.
+On 17 October, the user completed **Settings → Reminders → Enable foreground reminders → Send test notification** and confirmed the test notification was visible on this PC. Automated tests verify acceptance/rejection paths; this user report confirms visible manual test delivery in the chosen browser. Closed-browser delivery still requires a separately verified local notifier or later hosted infrastructure; no background delivery is claimed.
 
 ## Validation and remaining gates
 
