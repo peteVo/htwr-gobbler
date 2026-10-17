@@ -159,7 +159,7 @@ export async function syncFeed(
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
         response = await fetch(url, {
-          redirect: "error",
+          redirect: "manual",
           signal: AbortSignal.timeout(15000),
           headers: { Accept: "text/calendar" },
         });

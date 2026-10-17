@@ -10,7 +10,7 @@ export async function answerCourse(
   if (!passages.length) return { answer: "", supported: false, citations: [] };
   const response = await fetch("http://127.0.0.1:11434/api/chat", {
     method: "POST",
-    redirect: "error",
+    redirect: "manual",
     signal: AbortSignal.timeout(90000),
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

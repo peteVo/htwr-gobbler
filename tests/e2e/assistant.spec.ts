@@ -129,6 +129,32 @@ test("keyboard users can skip navigation, identify dialogs and dismiss mobile na
   await expect(
     page.getByRole("dialog", { name: "Your academic space" }),
   ).toBeVisible();
+  for (const theme of ["light", "dark"]) {
+    const contrast = await page
+      .getByLabel("Email", { exact: true })
+      .evaluate((input, theme) => {
+        document.documentElement.dataset.theme = theme;
+        const style = getComputedStyle(input);
+        const lum = (color: string) => {
+          const rgb = color
+            .match(/[\d.]+/g)!
+            .slice(0, 3)
+            .map(Number)
+            .map((v) => {
+              const s = v / 255;
+              return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+            });
+          return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
+        };
+        const a = lum(style.borderTopColor),
+          b = lum(style.backgroundColor);
+        return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+      }, theme);
+    expect(contrast).toBeGreaterThanOrEqual(3);
+  }
+  await page.evaluate(() => {
+    document.documentElement.dataset.theme = "light";
+  });
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).not.toBeVisible();
   await page.setViewportSize({ width: 375, height: 900 });

@@ -62,6 +62,7 @@ test("local assistant accepts only complete answers with matching quotations and
   let reason = "stop";
   const provider = vi.fn(async (url: string, init: RequestInit) => {
     expect(url).toBe("http://127.0.0.1:11434/api/chat");
+    expect(init.redirect).toBe("manual");
     const body = JSON.parse(String(init.body));
     expect(body.stream).toBe(false);
     expect(body.model).toBe("test-local");

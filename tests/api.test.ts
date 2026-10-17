@@ -1021,6 +1021,26 @@ describe("account-scoped API and persistence", () => {
         ),
       ).toEqual({ imported: 2, changed: 2 });
       expect(fetcher).toHaveBeenCalledTimes(2);
+      expect(fetcher.mock.calls[0][1].redirect).toBe("manual");
+      fetcher
+        .mockReset()
+        .mockResolvedValue(
+          new Response("", {
+            status: 302,
+            headers: { Location: "https://untrusted.invalid/" },
+          }),
+        );
+      await expect(
+        syncFeed(
+          db,
+          { id: "feed", user_id: user, feed_cipher: cipher },
+          env().FEED_SECRET,
+        ),
+      ).rejects.toThrow();
+      expect(fetcher).toHaveBeenCalledTimes(1);
+      expect(sqlite.prepare("SELECT COUNT(*) AS n FROM items").get()!.n).toBe(
+        2,
+      );
     } finally {
       vi.unstubAllGlobals();
     }
@@ -1297,6 +1317,9 @@ it("stores module material once, isolates owners, and asks local AI only with ow
     ).status,
   ).toBe(503);
   const provider = vi.fn(async (url: string, init?: RequestInit) => {
+    expect(init?.redirect).toBe("manual");
+    if (url.endsWith("/api/tags"))
+      return Response.json({ models: [{ name: "test-local" }] });
     expect(url).toBe("http://127.0.0.1:11434/api/chat");
     expect(JSON.parse(String(init?.body)).messages[1].content).toContain(
       "TCP uses acknowledgements",
@@ -1339,7 +1362,13 @@ it("stores module material once, isolates owners, and asks local AI only with ow
       page: 3,
       name: "TCP notes",
     });
-    expect(provider).toHaveBeenCalledTimes(1);
+    const status = await app.request(
+      "http://localhost:8787/api/assistant/status",
+      { headers: { Cookie: one } },
+      { ...env(), LOCAL_AI_MODEL: "test-local" },
+    );
+    expect(await status.json()).toEqual({ ready: true, model: "test-local" });
+    expect(provider).toHaveBeenCalledTimes(2);
   } finally {
     vi.unstubAllGlobals();
   }

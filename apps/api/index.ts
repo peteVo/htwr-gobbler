@@ -769,7 +769,7 @@ app.get("/api/assistant/status", async (c) => {
   if (!c.env.LOCAL_AI_MODEL) return c.json({ ready: false });
   try {
     const r = await fetch("http://127.0.0.1:11434/api/tags", {
-      redirect: "error",
+      redirect: "manual",
       signal: AbortSignal.timeout(3000),
     });
     if (!r.ok) return c.json({ ready: false });

@@ -1774,3 +1774,11 @@ nav button {
 .sidebar > * {
   flex-shrink: 0;
 }
+input:not([type="checkbox"]),
+select,
+textarea {
+  border-color: var(--muted);
+}
+.assistant-layout button {
+  min-height: 44px;
+}

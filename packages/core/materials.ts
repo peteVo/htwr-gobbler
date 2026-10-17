@@ -5,7 +5,7 @@ export const materialInput = z
   .object({
     course_id: z.string().min(1).max(100),
     name: z.string().trim().min(1).max(250),
-    source_url: itemInput.shape.source_url,
+    source_url: itemInput.shape.source_url.refine((v) => v.length <= 4000),
     pages: z
       .array(
         z.object({
