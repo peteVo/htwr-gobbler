@@ -9,6 +9,29 @@ import { createBackup, findDatabase, verifyBackup } from "./backup";
 const root = path.resolve(import.meta.dirname, ".."),
   local = path.join(root, ".wrangler", "local");
 process.chdir(root);
+if (process.argv[2] === "--backup") {
+  const proxy = await getPlatformProxy<{
+    DB: D1Database;
+    SESSION_SECRET: string;
+    FEED_SECRET: string;
+  }>({ remoteBindings: false });
+  try {
+    const result = await createBackup(
+      findDatabase(path.join(root, ".wrangler/state/v3/d1")),
+      path.join(local, "backups"),
+      {
+        SESSION_SECRET: proxy.env.SESSION_SECRET,
+        FEED_SECRET: proxy.env.FEED_SECRET,
+      },
+    );
+    console.log(
+      JSON.stringify({ verified: true, created_at: result.created_at }),
+    );
+  } finally {
+    await proxy.dispose();
+  }
+  process.exit(0);
+}
 if (process.argv[2] === "--verify") {
   const result = await verifyBackup(path.resolve(process.argv[3]));
   console.log(

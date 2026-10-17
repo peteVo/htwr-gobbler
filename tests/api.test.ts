@@ -92,6 +92,138 @@ const item = {
   starts_at: "2026-10-20T14:00:00.000Z",
 };
 describe("account-scoped API and persistence", () => {
+  it("restores missing records without overwriting newer data or crossing account boundaries, and reimports idempotently", async () => {
+    const a = await account(),
+      b = await account("restore-other@example.test");
+    const { id: course_id } = (await (
+      await request("/courses", "POST", { name: "Original course" }, a)
+    ).json()) as any;
+    const { id } = (await (
+      await request(
+        "/items",
+        "POST",
+        { ...item, course_id, description: "Original notes", status: "done" },
+        a,
+      )
+    ).json()) as any;
+    await request(
+      "/actions",
+      "POST",
+      { title: "Review instructions", course_id },
+      a,
+    );
+    const exported = (await (
+      await request("/data", "GET", undefined, a)
+    ).json()) as any;
+    await request(
+      "/items/" + id,
+      "PUT",
+      { ...item, title: "Newer title", course_id },
+      a,
+    );
+    const restoredA = (await (
+      await request("/restore", "POST", exported, a)
+    ).json()) as any;
+    expect(restoredA.added.items).toBe(0);
+    expect(
+      ((await (await request("/data", "GET", undefined, a)).json()) as any)
+        .items[0].title,
+    ).toBe("Newer title");
+    const restoredB = (await (
+      await request("/restore", "POST", exported, b)
+    ).json()) as any;
+    expect(restoredB.added).toEqual({
+      courses: 1,
+      items: 1,
+      actions: 1,
+      sources: 0,
+    });
+    const snapshotB = (await (
+      await request("/data", "GET", undefined, b)
+    ).json()) as any;
+    expect(snapshotB.items[0]).toMatchObject({
+      title: "Proof sheet",
+      description: "Original notes",
+      status: "done",
+      verification: "needs_review",
+      last_verified: null,
+    });
+    expect(snapshotB.items[0].id).not.toBe(id);
+    expect(snapshotB.items[0].course_id).toBe(snapshotB.courses[0].id);
+    expect(
+      ((await (await request("/restore", "POST", exported, b)).json()) as any)
+        .added.items,
+    ).toBe(0);
+    for (const invalid of [
+      { ...exported, courses: [] },
+      { ...exported, items: [...exported.items, ...exported.items] },
+      {
+        ...exported,
+        items: [{ ...exported.items[0], source_url: "javascript:alert(1)" }],
+      },
+    ])
+      expect((await request("/restore", "POST", invalid, b)).status).toBe(400);
+    expect(
+      ((await (await request("/data", "GET", undefined, b)).json()) as any)
+        .items,
+    ).toHaveLength(1);
+  });
+  it("restores calendar UIDs as unchecked file sources and preserves deduplication when reconnecting a feed", async () => {
+    const a = await account(),
+      b = await account("restore-feed@example.test");
+    const text = readFileSync("tests/fixtures/calendar.ics", "utf8");
+    await request("/import", "POST", { name: "Calendar export", text }, a);
+    const exported = (await (
+      await request("/data", "GET", undefined, a)
+    ).json()) as any;
+    const restored = await request("/restore", "POST", exported, b);
+    expect(restored.status).toBe(200);
+    const before = (await (
+      await request("/data", "GET", undefined, b)
+    ).json()) as any;
+    expect(before.sources[0]).toMatchObject({
+      kind: "file",
+      status: "not_configured",
+      last_success: null,
+    });
+    const sourceId = before.sources[0].id;
+    expect(
+      (
+        await request(
+          "/sources",
+          "POST",
+          {
+            name: "Reconnected",
+            url: "https://moodle.rwth-aachen.de/calendar/export_execute.php?token=test",
+            source_id: sourceId,
+          },
+          b,
+        )
+      ).status,
+    ).toBe(200);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(text)),
+    );
+    try {
+      expect(
+        (await request("/sources/" + sourceId + "/sync", "POST", undefined, b))
+          .status,
+      ).toBe(200);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+    const after = (await (
+      await request("/data", "GET", undefined, b)
+    ).json()) as any;
+    expect(after.items.map((i: any) => i.id).sort()).toEqual(
+      before.items.map((i: any) => i.id).sort(),
+    );
+    expect(after.items.every((i: any) => i.verification === "confirmed")).toBe(
+      true,
+    );
+    expect(after.sources[0].status).toBe("connected");
+  });
   it("persists validated reminder preferences per account and supports older preference payloads", async () => {
     const a = await account(),
       b = await account("preferences-other@example.test");

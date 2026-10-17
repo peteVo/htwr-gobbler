@@ -34,6 +34,8 @@ The command reports verification/counts only and removes its temporary restored 
 
 ## Operator setup and removal
 
+For manual verified backups, record restoration and the repeatable local update command, see [recovery and updates](RECOVERY_AND_UPDATES.md). The JSON restore in Settings preserves current records and excludes account/feed secrets; it is separate from full database rollback.
+
 For another Windows checkout, install dependencies, create separate strong `.dev.vars` secrets, apply all migrations and create the account/feed first. Run this once with that account's UUID:
 
 ```powershell

@@ -15,6 +15,7 @@ import {
 } from "../../packages/core/index";
 import { hash, passwordHash, equal, crypt } from "./security";
 import { acquireSource, ingest, syncFeed, checkSources } from "./sync";
+import { restoreRecords } from "./restore";
 
 type Env = {
   DB: D1Database;
@@ -403,6 +404,9 @@ app.delete("/api/actions/:id", async (c) => {
     ? c.json({ ok: true })
     : c.json({ error: "Action not found" }, 404);
 });
+app.post("/api/restore", async (c) =>
+  c.json(await restoreRecords(c.env.DB, c.get("user"), await c.req.json())),
+);
 app.put("/api/preferences", async (c) => {
   const p = preferencesInput.parse(await c.req.json());
   await c.env.DB.prepare(

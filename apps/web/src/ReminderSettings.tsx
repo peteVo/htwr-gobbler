@@ -1,3 +1,4 @@
+import { useText } from "./text";
 /* Hallmark · component critique: P4 H4 E4 S5 R5 V4 · existing settings controls */
 import { useEffect, useState } from "react";
 import type { Preferences } from "../../../packages/core/index";
@@ -19,6 +20,7 @@ export function ReminderSettings({
   needAccount: () => boolean;
   save: (prefs: Preferences) => Promise<void>;
 }) {
+  const tx = useText();
   const [allowed, setAllowed] = useState(permission),
     [error, setError] = useState(""),
     [notice, setNotice] = useState(""),
@@ -29,30 +31,35 @@ export function ReminderSettings({
     return () => window.removeEventListener("focus", refresh);
   }, []);
   return (
-    <section aria-label="Reminder settings">
-      <h2>Reminders</h2>
+    <section aria-label={tx("Reminder settings")}>
+      <h2>{tx("Reminders")}</h2>
       <p className="muted">
-        Keep Gobbler open for reminders. Approaching alerts cover open,
-        confirmed assignments with a known time. Date-only deadlines stay
-        visible in Tasks. Click an alert to open its item.
+        {tx(
+          "Keep Gobbler open for reminders. Approaching alerts cover open, confirmed assignments with a known time. Date-only deadlines stay visible in Tasks. Click an alert to open its item.",
+        )}
       </p>
       <p className="small muted" role="status">
         {allowed === "unsupported"
-          ? "This browser does not support notifications."
+          ? tx("This browser does not support notifications.")
           : allowed === "denied"
-            ? "Notifications are blocked in this browser. Allow them in site settings to receive alerts."
+            ? tx(
+                "Notifications are blocked in this browser. Allow them in site settings to receive alerts.",
+              )
             : allowed === "granted"
-              ? `Browser permission granted. Reminders ${prefs.reminders ? "enabled" : "disabled"}.`
-              : "Browser permission has not been granted yet."}
+              ? tx(
+                  "Browser permission granted. Reminders {0}.",
+                  tx(prefs.reminders ? "enabled" : "disabled"),
+                )
+              : tx("Browser permission has not been granted yet.")}
       </p>
       {error && (
         <p className="alert error" role="alert">
-          {error}
+          {tx(error)}
         </p>
       )}
       {notice && (
         <p className="small muted" role="status">
-          {notice}
+          {tx(notice)}
         </p>
       )}
       <button
@@ -85,10 +92,12 @@ export function ReminderSettings({
           }
         }}
       >
-        {prefs.reminders ? "Disable reminders" : "Enable foreground reminders"}
+        {prefs.reminders
+          ? tx("Disable reminders")
+          : tx("Enable foreground reminders")}
       </button>
       <label>
-        Remind me before a deadline
+        {tx("Remind me before a deadline")}
         <select
           value={prefs.reminder_hours ?? 24}
           disabled={busy || testing}
@@ -97,15 +106,15 @@ export function ReminderSettings({
               void save({ ...prefs, reminder_hours: Number(e.target.value) });
           }}
         >
-          <option value={1}>1 hour</option>
-          <option value={6}>6 hours</option>
-          <option value={24}>1 day</option>
-          <option value={48}>2 days</option>
-          <option value={168}>1 week</option>
+          <option value={1}>{tx("1 hour")}</option>
+          <option value={6}>{tx("6 hours")}</option>
+          <option value={24}>{tx("1 day")}</option>
+          <option value={48}>{tx("2 days")}</option>
+          <option value={168}>{tx("1 week")}</option>
         </select>
       </label>
       <label>
-        Deadline-change alerts
+        {tx("Deadline-change alerts")}
         <select
           value={String(prefs.deadline_changes ?? true)}
           disabled={busy || testing}
@@ -117,21 +126,20 @@ export function ReminderSettings({
               });
           }}
         >
-          <option value="true">Notify when a deadline moves</option>
-          <option value="false">Off</option>
+          <option value="true">{tx("Notify when a deadline moves")}</option>
+          <option value="false">{tx("Off")}</option>
         </select>
       </label>
       <p className="small muted">
-        Changes since reminders were enabled in this browser are eligible for
-        seven days. Alerts show old and new dates, including review warnings.
-        Quiet hours delay alerts; missed or completed deadlines do not trigger
-        approaching reminders.
+        {tx(
+          "Changes since reminders were enabled in this browser are eligible for seven days. Alerts show old and new dates, including review warnings. Quiet hours delay alerts; missed or completed deadlines do not trigger approaching reminders.",
+        )}
       </p>
       <div className="field-row">
         {(
           [
-            ["quiet_start", "Quiet from (Berlin)"],
-            ["quiet_end", "Until (Berlin)"],
+            ["quiet_start", tx("Quiet from (Berlin)")],
+            ["quiet_end", tx("Until (Berlin)")],
           ] as const
         ).map(([key, label]) => (
           <label key={key}>
@@ -154,9 +162,9 @@ export function ReminderSettings({
         ))}
       </div>
       <p className="small muted">
-        Equal quiet-hour times pause all automatic alerts. Choices are saved to
-        your account; browser permission and duplicate suppression are specific
-        to this browser.
+        {tx(
+          "Equal quiet-hour times pause all automatic alerts. Choices are saved to your account; browser permission and duplicate suppression are specific to this browser.",
+        )}
       </p>
       <button
         className="secondary"
@@ -168,8 +176,10 @@ export function ReminderSettings({
           setNotice("");
           try {
             await showNotification(
-              "htwr-gobbler · Test notification",
-              "Your browser accepted this test. Automatic reminders require Gobbler to stay open.",
+              tx("htwr-gobbler · Test notification"),
+              tx(
+                "Your browser accepted this test. Automatic reminders require Gobbler to stay open.",
+              ),
               "gobbler-test",
             );
             setNotice(
@@ -182,13 +192,12 @@ export function ReminderSettings({
           }
         }}
       >
-        {testing ? "Sending…" : "Send test notification"}
+        {testing ? tx("Sending…") : tx("Send test notification")}
       </button>
       <p className="small muted">
-        Tests are sent immediately, including during quiet hours. Device
-        settings can silence or hide browser notifications. Closing Gobbler
-        stops automatic reminders; scheduled source checks alone do not send
-        alerts.
+        {tx(
+          "Tests are sent immediately, including during quiet hours. Device settings can silence or hide browser notifications. Closing Gobbler stops automatic reminders; scheduled source checks alone do not send alerts.",
+        )}
       </p>
     </section>
   );

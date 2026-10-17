@@ -1,3 +1,4 @@
+import { useText } from "./text";
 /* Hallmark · component critique: P4 H4 E4 S5 R5 V4 · existing workbench tokens */
 import { useState } from "react";
 import { Check, Plus } from "lucide-react";
@@ -20,6 +21,7 @@ export function Actions({
     value?: unknown,
   ) => Promise<void>;
 }) {
+  const tx = useText();
   const [editing, setEditing] = useState<Action | "new" | null>(
     initialAction ?? null,
   );
@@ -37,8 +39,10 @@ export function Actions({
       setEditing(null);
       setNotice(
         method === "DELETE"
-          ? "Action removed."
-          : "Action saved. Completion here does not register or submit anything to the university.",
+          ? tx("Action removed.")
+          : tx(
+              "Action saved. Completion here does not register or submit anything to the university.",
+            ),
       );
     } catch (e) {
       setError((e as Error).message);
@@ -52,7 +56,7 @@ export function Actions({
       <button
         className="check-button"
         disabled={busy}
-        aria-label={`${action.status === "done" ? "Reopen" : "Complete"} ${action.title}`}
+        aria-label={`${action.status === "done" ? tx("Reopen") : tx("Complete")} ${action.title}`}
         onClick={() =>
           void mutate("PUT", action.id, {
             ...action,
@@ -76,8 +80,8 @@ export function Actions({
         </button>
         <span className="course-label">
           {courses.find((c) => c.id === action.course_id)?.name ||
-            "No module assigned"}{" "}
-          · No date assigned
+            tx("No module assigned")}{" "}
+          {tx("· No date assigned")}
         </span>
         {action.notes && <p className="small muted">{action.notes}</p>}
         {action.source_url && (
@@ -87,7 +91,7 @@ export function Actions({
             rel="noreferrer"
             className="small"
           >
-            Open original instructions
+            {tx("Open original instructions")}
           </a>
         )}
       </div>
@@ -95,9 +99,9 @@ export function Actions({
   );
   const value = editing && editing !== "new" ? editing : null;
   return (
-    <section aria-label="Next actions" className="deadline-section">
+    <section aria-label={tx("Next actions")} className="deadline-section">
       <div className="section-heading">
-        <h2>Next actions</h2>
+        <h2>{tx("Next actions")}</h2>
         <button
           className="text-button"
           disabled={busy}
@@ -108,22 +112,22 @@ export function Actions({
           }}
         >
           <Plus size={14} />
-          Add action
+          {tx("Add action")}
         </button>
       </div>
       <p className="small muted">
-        Setup, registrations and course reviews without a known deadline. Dated
-        obligations stay in Tasks. This checklist does not automatically check
-        Moodle materials.
+        {tx(
+          "Setup, registrations and course reviews without a known deadline. Dated obligations stay in Tasks. This checklist does not automatically check Moodle materials.",
+        )}
       </p>
       {error && (
         <p role="alert" className="alert error">
-          {error}
+          {tx(error)}
         </p>
       )}
       {notice && (
         <p role="status" className="small muted">
-          {notice}
+          {tx(notice)}
         </p>
       )}
       {editing && (
@@ -142,7 +146,7 @@ export function Actions({
           }}
         >
           <label>
-            Action title
+            {tx("Action title")}
             <input
               name="title"
               autoFocus={Boolean(initialAction)}
@@ -152,9 +156,9 @@ export function Actions({
             />
           </label>
           <label>
-            Action module
+            {tx("Action module")}
             <select name="course_id" defaultValue={value?.course_id || ""}>
-              <option value="">No module assigned</option>
+              <option value="">{tx("No module assigned")}</option>
               {courses.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -163,7 +167,7 @@ export function Actions({
             </select>
           </label>
           <label>
-            Instructions and coverage notes
+            {tx("Instructions and coverage notes")}
             <textarea
               name="notes"
               defaultValue={value?.notes || ""}
@@ -172,7 +176,7 @@ export function Actions({
             />
           </label>
           <label>
-            Original instructions URL
+            {tx("Original instructions URL")}
             <input
               type="url"
               name="source_url"
@@ -181,7 +185,7 @@ export function Actions({
           </label>
           <div className="modal-actions">
             <button disabled={busy} className="primary">
-              {busy ? "Saving…" : "Save action"}
+              {busy ? tx("Saving…") : tx("Save action")}
             </button>
             <button
               className="secondary"
@@ -189,7 +193,7 @@ export function Actions({
               disabled={busy}
               onClick={() => setEditing(null)}
             >
-              Cancel
+              {tx("Cancel")}
             </button>
             {value && (
               <button
@@ -198,7 +202,7 @@ export function Actions({
                 disabled={busy}
                 onClick={() => void mutate("DELETE", value.id)}
               >
-                Delete action
+                {tx("Delete action")}
               </button>
             )}
           </div>
@@ -207,14 +211,15 @@ export function Actions({
       {actions.filter((a) => a.status === "open").map(row)}
       {!actions.some((a) => a.status === "open") && (
         <p className="small muted">
-          No open next actions recorded. This does not establish complete course
-          coverage.
+          {tx(
+            "No open next actions recorded. This does not establish complete course coverage.",
+          )}
         </p>
       )}
       {actions.some((a) => a.status === "done") && (
         <details>
           <summary>
-            Completed actions (
+            {tx("Completed actions (")}
             {actions.filter((a) => a.status === "done").length})
           </summary>
           {actions.filter((a) => a.status === "done").map(row)}

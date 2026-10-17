@@ -23,10 +23,15 @@ The objective is a complete academic assistant experience. Course registration a
 
 ## Next implementation milestones
 
-1. **Complete language coverage:** translate forms, validation/help text, status messages and new components beyond the existing EN/DE/VI navigation; check long translations and localized dates on small screens.
-2. **Release and recovery experience:** user-facing backup/restore guidance and controls, a repeatable local update/recovery flow, installation checks and production-serving readiness. Automatic backup verification already exists; do not confuse same-disk copies with off-device protection.
-3. **Broader ingestion:** implement approved course/material/announcement discovery when Gobbler has its own supported university integration. Until then, improve user-provided document/export workflows without implying automatic Moodle coverage.
-4. **Cross-device release:** choose and approve hosting, then migrate and verify shared records, phone access and background push. This remains deferred while the app is local only.
+1. **Release readiness:** production serving in the local runner, an installation/update support matrix, off-device encrypted full-backup handling and an independent accessibility/security review. Do not confuse same-disk copies with off-device protection.
+2. **Broader ingestion:** implement approved course/material/announcement discovery when Gobbler has its own supported university integration. Until then, improve user-provided document/export workflows without implying automatic Moodle coverage.
+3. **Cross-device release:** choose and approve hosting, then migrate and verify shared records, phone access and background push. This remains deferred while the app is local only.
+
+## Completed: languages, missing-record recovery and local maintenance
+
+The EN/DE/VI catalogue covers app-owned forms, help, errors, statuses, search metadata and accessibility labels. Original course names, notes and source quotations stay unchanged. Typed control values remain the server's stable values even when their labels are translated; locale-aware dates and parameterized messages are checked. Native browser/third-party diagnostics may remain in their original language.
+
+Settings now validates and previews Gobbler JSON exports, then restores missing courses/items/actions/calendar identities without overwriting current records. Restored dates need review; disconnected calendars must be reconnected. This does not recover account secrets or perform a full database rollback. `pnpm local --backup` verifies a complete local snapshot; the Windows update script backs up, checks/builds/migrates and restarts the identified runner. See RECOVERY_AND_UPDATES.md.
 
 ## Completed: configurable foreground reminders
 
@@ -38,7 +43,7 @@ On 17 October, the user completed **Settings → Reminders → Enable foreground
 
 Use unit/API tests for parsing, matching, ownership and data preservation; browser scenarios for real workflows, keyboard access and 320/375/414/768 px layouts; strict TypeScript and a production build. Keep test accounts separate from personal records.
 
-Physical sleep spanning a scheduled check and a real 24-hour backup interval have not been directly observed. Simulated elapsed-time tests, cold startup, shutdown/startup and short sleep/wake checks passed previously. Detailed forms remain mostly English. Private records are not cached for offline reading; an offline shell does not imply fresh data or successful monitoring.
+Physical sleep spanning a scheduled check and a real 24-hour backup interval have not been directly observed. Simulated elapsed-time tests, cold startup, shutdown/startup and short sleep/wake checks passed previously. Private records are not cached for offline reading; an offline shell does not imply fresh data or successful monitoring.
 
 Approved university OAuth registration and API capabilities are still prerequisites for automatic course discovery. Do not borrow another app's client ID, copy browser cookies, bypass SSO/MFA or collect university passwords. See INTEGRATIONS.md.
 

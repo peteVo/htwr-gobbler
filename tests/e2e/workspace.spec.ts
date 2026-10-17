@@ -135,12 +135,35 @@ test("personal workspace persists tasks, imports, completion and preferences", a
   await expect(page.getByLabel("Deadline-change alerts")).toHaveValue("false");
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
-  const savedPreferences = (await (await page.request.get("/api/data")).json())
-    .preferences;
+  const exported = await (await page.request.get("/api/data")).json();
+  const savedPreferences = exported.preferences;
   expect(savedPreferences).toMatchObject({
     reminder_hours: 48,
     deadline_changes: false,
   });
+  await page
+    .getByRole("navigation")
+    .getByRole("button", { name: "Settings", exact: true })
+    .click();
+  const restore = page.getByRole("region", {
+    name: "Restore records",
+    exact: true,
+  });
+  await restore
+    .getByLabel("Gobbler export file")
+    .setInputFiles({
+      name: "saved-export.json",
+      mimeType: "application/json",
+      buffer: Buffer.from(JSON.stringify(exported)),
+    });
+  await restore
+    .getByRole("button", { name: "Restore missing records", exact: true })
+    .click();
+  await expect(restore.getByRole("status")).toContainText(
+    "Restored 0 courses, 0 items",
+  );
+  const unchanged = await (await page.request.get("/api/data")).json();
+  expect(unchanged.items).toEqual(exported.items);
 });
 for (const width of [320, 375, 414, 768, 1280])
   test(`demo layout and navigation at ${width}px`, async ({ page }) => {

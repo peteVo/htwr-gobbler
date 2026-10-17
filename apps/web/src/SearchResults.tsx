@@ -1,3 +1,4 @@
+import { useText } from "./text";
 /* Hallmark · component critique: P4 H4 E4 S5 R5 V4 · existing workbench tokens */
 import type { Snapshot } from "../../../packages/core/index";
 import {
@@ -16,27 +17,37 @@ export function SearchResults({
   stamp: (value: string, options?: Intl.DateTimeFormatOptions) => string;
   open: (result: SearchResult) => void;
 }) {
+  const tx = useText();
   const results = searchWorkspace(data, query);
   const groups = [
-    ["item", "Tasks, events & saved materials"],
-    ["action", "Next actions"],
-    ["course", "Courses"],
-    ["source", "Sources"],
+    ["item", tx("Tasks, events & saved materials")],
+    ["action", tx("Next actions")],
+    ["course", tx("Courses")],
+    ["source", tx("Sources")],
   ] as const;
   return (
     <div className="workspace-search">
       <p className="small muted" role="status">
-        {results.length} matching record{results.length === 1 ? "" : "s"}.
-        Includes completed and dismissed records, across all courses and types.
+        {tx(
+          results.length === 1
+            ? "{0} matching record."
+            : "{0} matching records.",
+          results.length,
+        )}{" "}
+        {tx(
+          "Includes completed and dismissed records, across all courses and types.",
+        )}
       </p>
       <p className="small muted">
-        Search covers stored records and extracted date evidence. It does not
-        search full PDF contents or check Moodle live.
+        {tx(
+          "Search covers stored records and extracted date evidence. It does not search full PDF contents or check Moodle live.",
+        )}
       </p>
       {!results.length && (
         <div className="empty">
-          No matching records. Try a title, module name or code, or words from
-          saved notes.
+          {tx(
+            "No matching records. Try a title, module name or code, or words from saved notes.",
+          )}
         </div>
       )}
       {groups.map(([type, label]) => {
@@ -85,12 +96,15 @@ export function SearchResults({
                     <span className="course-label">
                       {course?.name && `${course.name} · `}
                       {result.type === "item"
-                        ? `${result.record.kind} · ${result.record.status} · ${stamp(result.record.starts_at, result.record.all_day ? { dateStyle: "medium" } : undefined)}${result.record.all_day ? " · date only" : ""} · ${outdated ? "Source outdated" : result.record.verification === "needs_review" ? "Needs review" : "Confirmed"}`
+                        ? `${tx(result.record.kind)} · ${tx(result.record.status)} · ${stamp(result.record.starts_at, result.record.all_day ? { dateStyle: "medium" } : undefined)}${result.record.all_day ? tx(" · date only") : ""} · ${outdated ? tx("Source outdated") : result.record.verification === "needs_review" ? tx("Needs review") : tx("Confirmed")}`
                         : result.type === "action"
-                          ? `${result.record.status} · No date assigned`
+                          ? tx(
+                              "{0} · No date assigned",
+                              tx(result.record.status),
+                            )
                           : result.type === "course"
-                            ? result.record.code || "No module code"
-                            : `${result.record.kind} · ${outdated && result.record.status === "connected" ? "Check outdated" : result.record.status} · ${result.record.last_success ? `Last success ${stamp(result.record.last_success)}` : "Never checked"}`}
+                            ? result.record.code || tx("No module code")
+                            : `${tx(result.record.kind)} · ${outdated && result.record.status === "connected" ? tx("Check outdated") : tx(result.record.status)} · ${result.record.last_success ? tx("Last success {0}", stamp(result.record.last_success)) : tx("Never checked")}`}
                     </span>
                     {detail && <span className="search-excerpt">{detail}</span>}
                   </button>

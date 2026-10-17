@@ -40,12 +40,14 @@ For daily Windows use, the installed local runner starts the app at Windows sign
 - Local PDF text extraction with module selection and page evidence, numeric/German month-name dates and explicit date-only candidates. Re-reading the same document date reopens its task; revised documents can update a selected task while retaining its identity and completion state. Every new or revised candidate starts as **needs review**.
 - Today prioritizes recent earlier deadlines for open tasks and shows the module and previous/new dates. Date-only tasks remain due today throughout their Berlin calendar day; an unknown cutoff stays explicit.
 - Optional, consent-gated OpenAI extraction of pasted/extracted text. An exact source quotation is required. No live provider request was made during development.
-- EN/DE/VI navigation and primary labels; light/dark/system theme with account preferences. Detailed help and some forms remain English.
+- English/German/Vietnamese interface, forms, help, status/error messages, search metadata, reminders and accessibility labels; light/dark/system theme with account preferences. Original course content and quotations remain unchanged. Native browser controls and third-party diagnostics can retain their original language.
 - Configurable foreground reminders (1 hour to 1 week), deadline-change alerts with old/new dates, EN/DE/VI notification text, explicit permission/failure status, immediate test alerts, Berlin quiet hours and per-browser duplicate suppression with two-tab coordination where supported. Clicking an alert opens its item. See [reminder behavior](docs/REMINDERS.md). **Keep Gobbler open; no background Web Push yet.**
 - PWA manifest, PNG installation icons, service worker and offline app shell. **Private records are not cached for offline reading.**
 - Eleven official-SDK MCP tools reading the same API, including undated next actions, with revocable, expiring, read-only tokens.
 
 Completing a task here **does not submit it to Moodle**.
+
+Settings also provides a validated, previewed restore of missing records from a Gobbler JSON export. Existing records remain unchanged; calendar identities survive reconnection and new dates require review. Verified full backups and the repeatable Windows update procedure are documented in [recovery and updates](docs/RECOVERY_AND_UPDATES.md).
 
 ## Try the import pipeline
 
