@@ -1,0 +1,1670 @@
+{
+  " · Page ": {
+    "de": " · Seite ",
+    "vi": " · Trang "
+  },
+  " · all day": {
+    "de": " · ganztägig",
+    "vi": " · cả ngày"
+  },
+  " · cutoff time unknown": {
+    "de": " · genaue Frist unbekannt",
+    "vi": " · chưa rõ giờ hết hạn"
+  },
+  " · date only": {
+    "de": " · nur Datum",
+    "vi": " · chỉ có ngày"
+  },
+  " · date only; verify cutoff": {
+    "de": " · nur Datum; Uhrzeit prüfen",
+    "vi": " · chỉ có ngày; kiểm tra giờ hết hạn"
+  },
+  " · page {0}": {
+    "de": " · Seite {0}",
+    "vi": " · trang {0}"
+  },
+  ". Includes completed and dismissed records, across all courses and types.": {
+    "de": ". Einschließlich erledigter und ausgeblendeter Einträge aller Kurse und Typen.",
+    "vi": ". Bao gồm các mục đã hoàn thành và đã ẩn, thuộc mọi môn và loại."
+  },
+  "1 day": {
+    "de": "1 Tag",
+    "vi": "1 ngày"
+  },
+  "1 hour": {
+    "de": "1 Stunde",
+    "vi": "1 giờ"
+  },
+  "1 week": {
+    "de": "1 Woche",
+    "vi": "1 tuần"
+  },
+  "2 days": {
+    "de": "2 Tage",
+    "vi": "2 ngày"
+  },
+  "6 hours": {
+    "de": "6 Stunden",
+    "vi": "6 giờ"
+  },
+  "A clearer head.": {
+    "de": "Ein klarer Kopf.",
+    "vi": "Đầu óc nhẹ nhàng hơn."
+  },
+  "A little more headspace.": {
+    "de": "Etwas mehr Freiraum.",
+    "vi": "Thêm chút thảnh thơi."
+  },
+  "A little room to plan ahead.": {
+    "de": "Etwas Zeit zum Vorausplanen.",
+    "vi": "Có thêm thời gian để lên kế hoạch."
+  },
+  "A reminder could not be sent or recorded. Check browser notifications and site storage; Gobbler will retry while open.": {
+    "de": "Eine Erinnerung konnte nicht gesendet oder gespeichert werden. Prüfe Benachrichtigungen und Website-Speicher; Gobbler versucht es erneut, solange die App geöffnet ist.",
+    "vi": "Không thể gửi hoặc ghi nhận lời nhắc. Kiểm tra quyền thông báo và bộ nhớ trang; Gobbler sẽ thử lại khi ứng dụng còn mở."
+  },
+  "A successful calendar check only verifies published calendar events. Review Moodle for exercise PDFs, announcements and submission receipts.": {
+    "de": "Eine erfolgreiche Kalenderprüfung bestätigt nur veröffentlichte Kalendereinträge. Prüfe Moodle auf Übungsblätter, Ankündigungen und Abgabebestätigungen.",
+    "vi": "Kiểm tra lịch thành công chỉ xác minh các sự kiện đã đăng. Hãy xem Moodle để tìm tài liệu bài tập, thông báo và biên nhận nộp bài."
+  },
+  "Account recovered. Previous sessions and MCP tokens were revoked. Save a new recovery key in Settings.": {
+    "de": "Konto wiederhergestellt. Alte Sitzungen und MCP-Tokens wurden widerrufen. Speichere in den Einstellungen einen neuen Wiederherstellungsschlüssel.",
+    "vi": "Đã khôi phục tài khoản và thu hồi các phiên cùng mã MCP cũ. Hãy lưu khóa khôi phục mới trong Cài đặt."
+  },
+  "Account recovery": {
+    "de": "Kontowiederherstellung",
+    "vi": "Khôi phục tài khoản"
+  },
+  "Action module": {
+    "de": "Modul der Aktion",
+    "vi": "Môn học của việc cần làm"
+  },
+  "Action removed.": {
+    "de": "Aktion entfernt.",
+    "vi": "Đã xóa việc cần làm."
+  },
+  "Action saved. Completion here does not register or submit anything to the university.": {
+    "de": "Aktion gespeichert. Das Abhaken meldet dich weder an noch reicht es etwas bei der Hochschule ein.",
+    "vi": "Đã lưu việc cần làm. Đánh dấu hoàn thành ở đây không đăng ký hoặc nộp bài cho trường."
+  },
+  "Action title": {
+    "de": "Titel der Aktion",
+    "vi": "Tên việc cần làm"
+  },
+  "Add a course": {
+    "de": "Kurs hinzufügen",
+    "vi": "Thêm môn học"
+  },
+  "Add a course before saving document deadlines.": {
+    "de": "Füge einen Kurs hinzu, bevor du Dokumentfristen speicherst.",
+    "vi": "Thêm môn học trước khi lưu hạn từ tài liệu."
+  },
+  "Add action": {
+    "de": "Aktion hinzufügen",
+    "vi": "Thêm việc cần làm"
+  },
+  "Add an academic item": {
+    "de": "Studieneintrag hinzufügen",
+    "vi": "Thêm mục học tập"
+  },
+  "Add your first course to organize tasks.": {
+    "de": "Füge deinen ersten Kurs hinzu, um Aufgaben zu ordnen.",
+    "vi": "Thêm môn học đầu tiên để sắp xếp bài tập."
+  },
+  "Added to your workspace": {
+    "de": "Zum Arbeitsbereich hinzugefügt",
+    "vi": "Đã thêm vào không gian học tập"
+  },
+  "All courses": {
+    "de": "Alle Kurse",
+    "vi": "Tất cả môn học"
+  },
+  "All day": {
+    "de": "Ganztägig",
+    "vi": "Cả ngày"
+  },
+  "All read-only tokens revoked": {
+    "de": "Alle Lesetokens widerrufen",
+    "vi": "Đã thu hồi mọi mã chỉ đọc"
+  },
+  "All times Europe/Berlin. Calendar imports may have incomplete coverage.": {
+    "de": "Alle Zeiten in Europe/Berlin. Kalenderimporte können unvollständig sein.",
+    "vi": "Mọi giờ hiển thị theo Europe/Berlin. Lịch nhập có thể chưa đầy đủ."
+  },
+  "All types": {
+    "de": "Alle Typen",
+    "vi": "Tất cả loại"
+  },
+  "All-day event": {
+    "de": "Ganztägiger Termin",
+    "vi": "Sự kiện cả ngày"
+  },
+  "Automatic backup failed. Check free disk space and restart the local runner; the previous backup is retained.": {
+    "de": "Automatische Sicherung fehlgeschlagen. Prüfe den freien Speicherplatz und starte den lokalen Dienst neu; die vorherige Sicherung bleibt erhalten.",
+    "vi": "Sao lưu tự động thất bại. Kiểm tra dung lượng trống và khởi động lại dịch vụ cục bộ; bản sao lưu trước vẫn được giữ."
+  },
+  "Automatic calendar checks are active while this PC is awake and you are signed in to Windows. Connected feeds are checked every 30 minutes; overdue checks resume after sleep.": {
+    "de": "Automatische Kalenderprüfungen laufen, solange dieser PC wach und Windows angemeldet ist. Verbundene Kalender werden alle 30 Minuten geprüft; überfällige Prüfungen werden nach dem Ruhezustand fortgesetzt.",
+    "vi": "Lịch được kiểm tra tự động khi máy đang thức và bạn đã đăng nhập Windows. Các nguồn được kiểm tra mỗi 30 phút; lần kiểm tra bị lỡ sẽ tiếp tục sau khi máy thức dậy."
+  },
+  "Automatic local checks are not running. Use the Gobbler startup shortcut, or Check now for a manual update.": {
+    "de": "Automatische lokale Prüfungen laufen nicht. Starte die Gobbler-Verknüpfung oder nutze Jetzt prüfen für eine manuelle Aktualisierung.",
+    "vi": "Kiểm tra tự động cục bộ đang dừng. Mở lối tắt khởi động Gobbler hoặc chọn Kiểm tra ngay để cập nhật thủ công."
+  },
+  "Browser permission granted. Reminders {0}.": {
+    "de": "Browserberechtigung erteilt. Erinnerungen {0}.",
+    "vi": "Trình duyệt đã cấp quyền. Lời nhắc {0}."
+  },
+  "Browser permission has not been granted yet.": {
+    "de": "Die Browserberechtigung wurde noch nicht erteilt.",
+    "vi": "Trình duyệt chưa cấp quyền thông báo."
+  },
+  "Built for your semester.": {
+    "de": "Für dein Semester gemacht.",
+    "vi": "Dành cho học kỳ của bạn."
+  },
+  "Calendar checked": {
+    "de": "Kalender geprüft",
+    "vi": "Đã kiểm tra lịch"
+  },
+  "Calendar connected. Use Check now for the first sync.": {
+    "de": "Kalender verbunden. Nutze Jetzt prüfen für den ersten Abgleich.",
+    "vi": "Đã kết nối lịch. Chọn Kiểm tra ngay để đồng bộ lần đầu."
+  },
+  "Calendar course": {
+    "de": "Kalenderkurs",
+    "vi": "Môn học trong lịch"
+  },
+  "Calendar coverage only. PDFs, announcements and submissions have not been checked.": {
+    "de": "Nur Kalenderabdeckung. PDFs, Ankündigungen und Abgaben wurden nicht geprüft.",
+    "vi": "Chỉ bao gồm lịch. PDF, thông báo và bài nộp chưa được kiểm tra."
+  },
+  "Calendar export URL": {
+    "de": "Kalender-Export-URL",
+    "vi": "Đường dẫn xuất lịch"
+  },
+  "Calendar file": {
+    "de": "Kalenderdatei",
+    "vi": "Tệp lịch"
+  },
+  "Calendar imported. Check Sources for coverage.": {
+    "de": "Kalender importiert. Prüfe die Abdeckung unter Quellen.",
+    "vi": "Đã nhập lịch. Xem phạm vi dữ liệu trong Nguồn dữ liệu."
+  },
+  "Calendar imports cover published events, not every university instruction.": {
+    "de": "Kalenderimporte enthalten veröffentlichte Termine, nicht alle Hochschulanweisungen.",
+    "vi": "Lịch nhập chứa các sự kiện đã đăng, chưa bao gồm mọi hướng dẫn của trường."
+  },
+  "Calendar subscription · scheduled checks every 30 minutes for up to 10 feeds per run": {
+    "de": "Kalenderabonnement · Prüfung alle 30 Minuten, bis zu 10 Kalender je Durchlauf",
+    "vi": "Lịch đăng ký · kiểm tra mỗi 30 phút, tối đa 10 nguồn mỗi lượt"
+  },
+  "Calendar to update": {
+    "de": "Zu aktualisierender Kalender",
+    "vi": "Lịch cần cập nhật"
+  },
+  "Cancel": {
+    "de": "Abbrechen",
+    "vi": "Hủy"
+  },
+  "Changes since reminders were enabled in this browser are eligible for seven days. Alerts show old and new dates, including review warnings. Quiet hours delay alerts; missed or completed deadlines do not trigger approaching reminders.": {
+    "de": "Änderungen seit dem Aktivieren in diesem Browser sind sieben Tage lang relevant. Meldungen zeigen alte und neue Daten samt Prüfhinweisen. Ruhezeiten verzögern Meldungen; abgelaufene oder erledigte Fristen lösen keine bevorstehende Erinnerung aus.",
+    "vi": "Thay đổi kể từ lúc bật lời nhắc trên trình duyệt này có thể được báo trong bảy ngày. Thông báo hiển thị ngày cũ, ngày mới và lưu ý kiểm tra. Giờ yên lặng hoãn thông báo; hạn đã qua hoặc đã hoàn thành không kích hoạt nhắc sắp đến hạn."
+  },
+  "Changes will appear here after your first import.": {
+    "de": "Änderungen erscheinen nach dem ersten Import.",
+    "vi": "Thay đổi sẽ xuất hiện sau lần nhập đầu tiên."
+  },
+  "Check now": {
+    "de": "Jetzt prüfen",
+    "vi": "Kiểm tra ngay"
+  },
+  "Check outdated": {
+    "de": "Prüfung veraltet",
+    "vi": "Lần kiểm tra đã cũ"
+  },
+  "Choose a PDF under 10 MB.": {
+    "de": "Wähle eine PDF unter 10 MB.",
+    "vi": "Chọn PDF dưới 10 MB."
+  },
+  "Choose a PDF with at most 20 pages. Nothing has been analyzed.": {
+    "de": "Wähle eine PDF mit höchstens 20 Seiten. Es wurde nichts analysiert.",
+    "vi": "Chọn PDF tối đa 20 trang. Chưa có nội dung nào được phân tích."
+  },
+  "Choose a file under 2 MB.": {
+    "de": "Wähle eine Datei unter 2 MB.",
+    "vi": "Chọn tệp dưới 2 MB."
+  },
+  "Choose a module": {
+    "de": "Modul auswählen",
+    "vi": "Chọn môn học"
+  },
+  "Close dialog": {
+    "de": "Dialog schließen",
+    "vi": "Đóng hộp thoại"
+  },
+  "Close navigation": {
+    "de": "Navigation schließen",
+    "vi": "Đóng điều hướng"
+  },
+  "Color": {
+    "de": "Farbe",
+    "vi": "Màu sắc"
+  },
+  "Complete": {
+    "de": "Erledigen",
+    "vi": "Hoàn thành"
+  },
+  "Completed actions (": {
+    "de": "Erledigte Aktionen (",
+    "vi": "Việc đã hoàn thành ("
+  },
+  "Confirmed": {
+    "de": "Bestätigt",
+    "vi": "Đã xác nhận"
+  },
+  "Confirmed by me / original source": {
+    "de": "Von mir / anhand des Originals bestätigt",
+    "vi": "Tôi đã xác nhận theo nguồn gốc"
+  },
+  "Connect Moodle calendar": {
+    "de": "Moodle-Kalender verbinden",
+    "vi": "Kết nối lịch Moodle"
+  },
+  "Connect a calendar to check its published events.": {
+    "de": "Verbinde einen Kalender, um seine veröffentlichten Termine zu prüfen.",
+    "vi": "Kết nối lịch để kiểm tra các sự kiện đã đăng."
+  },
+  "Connect a separate calendar": {
+    "de": "Separaten Kalender verbinden",
+    "vi": "Kết nối lịch riêng"
+  },
+  "Connect calendar": {
+    "de": "Kalender verbinden",
+    "vi": "Kết nối lịch"
+  },
+  "Copy now · shown once": {
+    "de": "Jetzt kopieren · nur einmal sichtbar",
+    "vi": "Sao chép ngay · chỉ hiện một lần"
+  },
+  "Could not prepare document evidence. Nothing was saved.": {
+    "de": "Dokumentbeleg konnte nicht vorbereitet werden. Es wurde nichts gespeichert.",
+    "vi": "Không thể chuẩn bị dẫn chứng tài liệu. Chưa lưu gì."
+  },
+  "Could not read PDF. The document has not been checked.": {
+    "de": "PDF konnte nicht gelesen werden. Das Dokument wurde nicht geprüft.",
+    "vi": "Không đọc được PDF. Tài liệu chưa được kiểm tra."
+  },
+  "Could not refresh your workspace. Displayed source checks may be outdated.": {
+    "de": "Arbeitsbereich konnte nicht aktualisiert werden. Angezeigte Quellenprüfungen können veraltet sein.",
+    "vi": "Không thể cập nhật không gian học tập. Thông tin kiểm tra nguồn đang hiển thị có thể đã cũ."
+  },
+  "Course": {
+    "de": "Kurs",
+    "vi": "Môn học"
+  },
+  "Course code": {
+    "de": "Kurscode",
+    "vi": "Mã môn học"
+  },
+  "Course deleted": {
+    "de": "Kurs gelöscht",
+    "vi": "Đã xóa môn học"
+  },
+  "Course name": {
+    "de": "Kursname",
+    "vi": "Tên môn học"
+  },
+  "Courses": {
+    "de": "Kurse",
+    "vi": "Môn học"
+  },
+  "Create a new task, or reopen an identical saved date": {
+    "de": "Neue Aufgabe erstellen oder identisches gespeichertes Datum öffnen",
+    "vi": "Tạo bài tập mới hoặc mở lại ngày trùng đã lưu"
+  },
+  "Create account": {
+    "de": "Konto erstellen",
+    "vi": "Tạo tài khoản"
+  },
+  "Create an account": {
+    "de": "Konto erstellen",
+    "vi": "Tạo tài khoản"
+  },
+  "Create an account for your own courses and calendars. Never use your RWTH password here.": {
+    "de": "Erstelle ein Konto für deine Kurse und Kalender. Verwende hier niemals dein RWTH-Passwort.",
+    "vi": "Tạo tài khoản cho môn học và lịch của bạn. Không dùng mật khẩu RWTH ở đây."
+  },
+  "Current password": {
+    "de": "Aktuelles Passwort",
+    "vi": "Mật khẩu hiện tại"
+  },
+  "DEMO WORKSPACE": {
+    "de": "DEMO-ARBEITSBEREICH",
+    "vi": "KHÔNG GIAN MẪU"
+  },
+  "Dark": {
+    "de": "Dunkel",
+    "vi": "Tối"
+  },
+  "Date & time (this device’s timezone)": {
+    "de": "Datum & Uhrzeit (Zeitzone dieses Geräts)",
+    "vi": "Ngày và giờ (múi giờ thiết bị này)"
+  },
+  "Dates keep their source and verification state.": {
+    "de": "Daten behalten Quelle und Prüfstatus.",
+    "vi": "Ngày hạn giữ nguyên nguồn và trạng thái xác minh."
+  },
+  "Deadline moved earlier": {
+    "de": "Frist vorgezogen",
+    "vi": "Hạn nộp chuyển sớm hơn"
+  },
+  "Deadline moved later": {
+    "de": "Frist nach hinten verschoben",
+    "vi": "Hạn nộp chuyển muộn hơn"
+  },
+  "Deadline-change alerts": {
+    "de": "Meldungen zu Friständerungen",
+    "vi": "Thông báo thay đổi hạn nộp"
+  },
+  "Delete action": {
+    "de": "Aktion löschen",
+    "vi": "Xóa việc cần làm"
+  },
+  "Delete course": {
+    "de": "Kurs löschen",
+    "vi": "Xóa môn học"
+  },
+  "Delete course? Its tasks will remain without a course.": {
+    "de": "Kurs löschen? Die Aufgaben bleiben ohne Kurszuordnung erhalten.",
+    "vi": "Xóa môn học? Các bài tập vẫn được giữ nhưng không còn gắn với môn."
+  },
+  "Delete item": {
+    "de": "Eintrag löschen",
+    "vi": "Xóa mục"
+  },
+  "Delete this item?": {
+    "de": "Diesen Eintrag löschen?",
+    "vi": "Xóa mục này?"
+  },
+  "Demo verified": {
+    "de": "Demo bestätigt",
+    "vi": "Đã xác minh trong bản mẫu"
+  },
+  "Details": {
+    "de": "Details",
+    "vi": "Chi tiết"
+  },
+  "Detect automatically": {
+    "de": "Automatisch erkennen",
+    "vi": "Tự động nhận diện"
+  },
+  "Disable reminders": {
+    "de": "Erinnerungen deaktivieren",
+    "vi": "Tắt lời nhắc"
+  },
+  "Disconnect": {
+    "de": "Trennen",
+    "vi": "Ngắt kết nối"
+  },
+  "Disconnect this source? Stored academic entries will be retained.": {
+    "de": "Diese Quelle trennen? Gespeicherte Studieneinträge bleiben erhalten.",
+    "vi": "Ngắt nguồn này? Các mục học tập đã lưu vẫn được giữ."
+  },
+  "Dismiss error": {
+    "de": "Fehler schließen",
+    "vi": "Đóng thông báo lỗi"
+  },
+  "Dismiss notice": {
+    "de": "Hinweis schließen",
+    "vi": "Đóng thông báo"
+  },
+  "Dismissed": {
+    "de": "Ausgeblendet",
+    "vi": "Đã ẩn"
+  },
+  "Document text": {
+    "de": "Dokumenttext",
+    "vi": "Nội dung tài liệu"
+  },
+  "Done · not a submission receipt": {
+    "de": "Erledigt · keine Abgabebestätigung",
+    "vi": "Hoàn thành · không phải biên nhận nộp bài"
+  },
+  "Download your stored academic records as JSON. Feed credentials and account secrets are excluded.": {
+    "de": "Lade deine gespeicherten Studieneinträge als JSON herunter. Kalender-Zugangsdaten und Kontogeheimnisse sind nicht enthalten.",
+    "vi": "Tải các mục học tập đã lưu dưới dạng JSON. Không bao gồm thông tin truy cập lịch hoặc bí mật tài khoản."
+  },
+  "Edit": {
+    "de": "Bearbeiten",
+    "vi": "Chỉnh sửa"
+  },
+  "Edit course": {
+    "de": "Kurs bearbeiten",
+    "vi": "Chỉnh sửa môn học"
+  },
+  "Edit item": {
+    "de": "Eintrag bearbeiten",
+    "vi": "Chỉnh sửa mục"
+  },
+  "Email": {
+    "de": "E-Mail",
+    "vi": "Email"
+  },
+  "Enable foreground reminders": {
+    "de": "Erinnerungen bei geöffneter App aktivieren",
+    "vi": "Bật lời nhắc khi ứng dụng mở"
+  },
+  "End date & time (optional)": {
+    "de": "Enddatum & Uhrzeit (optional)",
+    "vi": "Ngày và giờ kết thúc (tùy chọn)"
+  },
+  "Equal quiet-hour times pause all automatic alerts. Choices are saved to your account; browser permission and duplicate suppression are specific to this browser.": {
+    "de": "Gleiche Anfangs- und Endzeit pausieren alle automatischen Meldungen. Die Auswahl wird im Konto gespeichert; Browserberechtigung und Wiederholschutz gelten nur für diesen Browser.",
+    "vi": "Đặt giờ bắt đầu và kết thúc giống nhau để tạm dừng mọi thông báo tự động. Lựa chọn được lưu vào tài khoản; quyền thông báo và chống gửi trùng chỉ áp dụng trên trình duyệt này."
+  },
+  "Evidence / source quotation": {
+    "de": "Beleg / Quellenzitat",
+    "vi": "Dẫn chứng / trích dẫn nguồn"
+  },
+  "Exercise PDF · up to 20 pages, 10 MB": {
+    "de": "Übungs-PDF · höchstens 20 Seiten, 10 MB",
+    "vi": "PDF bài tập · tối đa 20 trang, 10 MB"
+  },
+  "Existing calendar": {
+    "de": "Vorhandener Kalender",
+    "vi": "Lịch hiện có"
+  },
+  "Explore the demo": {
+    "de": "Demo erkunden",
+    "vi": "Khám phá bản mẫu"
+  },
+  "Export an .ics calendar from Moodle or RWTHonline. Recurring calendars currently require an export of individual events.": {
+    "de": "Exportiere einen .ics-Kalender aus Moodle oder RWTHonline. Wiederkehrende Termine müssen derzeit einzeln exportiert werden.",
+    "vi": "Xuất lịch .ics từ Moodle hoặc RWTHonline. Sự kiện lặp hiện cần được xuất thành từng sự kiện riêng."
+  },
+  "Export my records": {
+    "de": "Meine Einträge exportieren",
+    "vi": "Xuất dữ liệu của tôi"
+  },
+  "Filter course": {
+    "de": "Kurs filtern",
+    "vi": "Lọc môn học"
+  },
+  "Filter type": {
+    "de": "Typ filtern",
+    "vi": "Lọc loại"
+  },
+  "Find explicit dates in PDF text locally, with page evidence. Optional AI requires consent. All candidates require review.": {
+    "de": "Finde explizite Fristen lokal im PDF-Text samt Seitenbelegen. Optionale KI erfordert Zustimmung. Alle Vorschläge müssen geprüft werden.",
+    "vi": "Tìm hạn ghi rõ trong PDF ngay trên thiết bị, kèm dẫn chứng trang. AI tùy chọn cần sự đồng ý. Mọi kết quả đều cần kiểm tra."
+  },
+  "Find explicit dates locally": {
+    "de": "Explizite Daten lokal finden",
+    "vi": "Tìm ngày ghi rõ trên thiết bị"
+  },
+  "Generate a token for the included MCP server. It can read your records for 30 days; keep it private.": {
+    "de": "Erstelle ein Token für den enthaltenen MCP-Server. Es kann deine Einträge 30 Tage lang lesen; halte es geheim.",
+    "vi": "Tạo mã truy cập cho máy chủ MCP đi kèm. Mã cho phép đọc dữ liệu trong 30 ngày; hãy giữ kín."
+  },
+  "Generate read-only token": {
+    "de": "Lesetoken erstellen",
+    "vi": "Tạo mã chỉ đọc"
+  },
+  "Generate recovery key": {
+    "de": "Wiederherstellungsschlüssel erstellen",
+    "vi": "Tạo khóa khôi phục"
+  },
+  "I already have an account": {
+    "de": "Ich habe bereits ein Konto",
+    "vi": "Tôi đã có tài khoản"
+  },
+  "I consent to sending this text to the configured OpenAI API provider. API usage may incur charges.": {
+    "de": "Ich stimme zu, diesen Text an den konfigurierten OpenAI-API-Anbieter zu senden. Die API-Nutzung kann Kosten verursachen.",
+    "vi": "Tôi đồng ý gửi văn bản này đến API OpenAI đã cấu hình. Việc sử dụng API có thể mất phí."
+  },
+  "I saved my key · hide it": {
+    "de": "Schlüssel gespeichert · ausblenden",
+    "vi": "Tôi đã lưu khóa · ẩn đi"
+  },
+  "If you already uploaded this calendar, replace that file import to preserve its events, modules and completion states. Overlapping calendars are rejected during checks.": {
+    "de": "Falls du diesen Kalender bereits importiert hast, ersetze den Dateiimport, damit Termine, Module und Erledigungsstatus erhalten bleiben. Überlappende Kalender werden bei der Prüfung abgelehnt.",
+    "vi": "Nếu đã nhập lịch này, hãy thay thế lần nhập tệp để giữ sự kiện, môn học và trạng thái hoàn thành. Các lịch chồng lặp sẽ bị từ chối khi kiểm tra."
+  },
+  "Import a calendar": {
+    "de": "Kalender importieren",
+    "vi": "Nhập lịch"
+  },
+  "In your Moodle calendar, choose Import and export → Export calendar. Paste your personal HTTPS export URL. Treat it like a password.": {
+    "de": "Wähle im Moodle-Kalender Import und Export → Kalender exportieren. Füge deine persönliche HTTPS-Export-URL ein. Behandle sie wie ein Passwort.",
+    "vi": "Trong lịch Moodle, chọn Nhập và xuất → Xuất lịch. Dán đường dẫn xuất HTTPS cá nhân. Giữ kín như mật khẩu."
+  },
+  "Information updated": {
+    "de": "Information aktualisiert",
+    "vi": "Đã cập nhật thông tin"
+  },
+  "Install from your browser menu on Windows, Linux or Android. Offline mode stores the app shell only; private records are not cached.": {
+    "de": "Installiere Gobbler über das Browsermenü auf Windows, Linux oder Android. Offline wird nur die App-Oberfläche gespeichert, keine privaten Einträge.",
+    "vi": "Cài Gobbler từ menu trình duyệt trên Windows, Linux hoặc Android. Chế độ ngoại tuyến chỉ lưu giao diện ứng dụng, không lưu dữ liệu riêng tư."
+  },
+  "Install gobbler": {
+    "de": "Gobbler installieren",
+    "vi": "Cài đặt Gobbler"
+  },
+  "Instructions and coverage notes": {
+    "de": "Anweisungen und Abdeckungshinweise",
+    "vi": "Hướng dẫn và lưu ý phạm vi dữ liệu"
+  },
+  "Item deleted": {
+    "de": "Eintrag gelöscht",
+    "vi": "Đã xóa mục"
+  },
+  "Keep Gobbler open for reminders. Approaching alerts cover open, confirmed assignments with a known time. Date-only deadlines stay visible in Tasks. Click an alert to open its item.": {
+    "de": "Lass Gobbler für Erinnerungen geöffnet. Bevorstehende Fristen werden nur für offene, bestätigte Aufgaben mit bekannter Uhrzeit gemeldet. Reine Datumsfristen bleiben unter Aufgaben sichtbar. Ein Klick öffnet den Eintrag.",
+    "vi": "Giữ Gobbler mở để nhận lời nhắc. Nhắc sắp đến hạn chỉ áp dụng cho bài tập chưa xong, đã xác nhận và có giờ rõ ràng. Hạn chỉ có ngày vẫn hiển thị trong Bài tập. Nhấp thông báo để mở mục."
+  },
+  "Keep track here. Submit through your course system.": {
+    "de": "Hier verwalten. Im Kurssystem abgeben.",
+    "vi": "Theo dõi tại đây. Nộp bài qua hệ thống môn học."
+  },
+  "Know what was checked, and what still needs your attention.": {
+    "de": "Erkenne, was geprüft wurde und was noch Aufmerksamkeit braucht.",
+    "vi": "Biết điều gì đã được kiểm tra và điều gì cần chú ý."
+  },
+  "Last automatic check:": {
+    "de": "Letzte automatische Prüfung:",
+    "vi": "Lần kiểm tra tự động gần nhất:"
+  },
+  "Last success ": {
+    "de": "Letzter Erfolg ",
+    "vi": "Thành công gần nhất "
+  },
+  "Last success {0}": {
+    "de": "Letzter Erfolg {0}",
+    "vi": "Thành công gần nhất {0}"
+  },
+  "Last verified local backup: {0}. Seven daily copies are retained on this PC.": {
+    "de": "Letzte geprüfte lokale Sicherung: {0}. Sieben tägliche Kopien bleiben auf diesem PC.",
+    "vi": "Bản sao lưu cục bộ đã xác minh gần nhất: {0}. Máy này giữ bảy bản sao lưu hằng ngày."
+  },
+  "Light": {
+    "de": "Hell",
+    "vi": "Sáng"
+  },
+  "Local monitoring": {
+    "de": "Lokale Überwachung",
+    "vi": "Giám sát cục bộ"
+  },
+  "Local monitoring & backups": {
+    "de": "Lokale Überwachung & Sicherungen",
+    "vi": "Giám sát và sao lưu cục bộ"
+  },
+  "Main navigation": {
+    "de": "Hauptnavigation",
+    "vi": "Điều hướng chính"
+  },
+  "Make this space yours": {
+    "de": "Dein persönlicher Arbeitsbereich",
+    "vi": "Tùy chỉnh không gian học tập"
+  },
+  "Manual file import · re-upload to check for changes": {
+    "de": "Manueller Dateiimport · zum Aktualisieren erneut hochladen",
+    "vi": "Nhập tệp thủ công · tải lại tệp để cập nhật"
+  },
+  "Module for this document": {
+    "de": "Modul dieses Dokuments",
+    "vi": "Môn học của tài liệu"
+  },
+  "Module not provided": {
+    "de": "Modul nicht angegeben",
+    "vi": "Chưa có thông tin môn học"
+  },
+  "Needs review": {
+    "de": "Prüfung nötig",
+    "vi": "Cần kiểm tra"
+  },
+  "Never checked": {
+    "de": "Noch nie geprüft",
+    "vi": "Chưa từng kiểm tra"
+  },
+  "Next actions": {
+    "de": "Nächste Aktionen",
+    "vi": "Việc cần làm"
+  },
+  "Next period": {
+    "de": "Nächster Zeitraum",
+    "vi": "Khoảng thời gian tiếp theo"
+  },
+  "No assignments stored. This does not mean your university has no deadlines.": {
+    "de": "Keine Aufgaben gespeichert. Das bedeutet nicht, dass es keine Hochschulfristen gibt.",
+    "vi": "Chưa lưu bài tập nào. Điều này không có nghĩa là trường không có hạn nộp."
+  },
+  "No automatic backup has been verified yet.": {
+    "de": "Noch keine automatische Sicherung geprüft.",
+    "vi": "Chưa xác minh bản sao lưu tự động nào."
+  },
+  "No matching records. Try a title, module name or code, or words from saved notes.": {
+    "de": "Keine passenden Einträge. Suche nach Titel, Modulname, Kurscode oder Wörtern aus gespeicherten Notizen.",
+    "vi": "Không tìm thấy mục phù hợp. Thử tên mục, tên hoặc mã môn học, hay từ trong ghi chú đã lưu."
+  },
+  "No module assigned": {
+    "de": "Kein Modul zugeordnet",
+    "vi": "Chưa gắn môn học"
+  },
+  "No module code": {
+    "de": "Kein Modulcode",
+    "vi": "Chưa có mã môn học"
+  },
+  "No news isn’t always good news.": {
+    "de": "Keine Neuigkeiten bedeuten nicht immer Entwarnung.",
+    "vi": "Không có tin mới chưa chắc là không có việc."
+  },
+  "No open next actions recorded. This does not establish complete course coverage.": {
+    "de": "Keine offenen Aktionen erfasst. Das bestätigt keine vollständige Kursabdeckung.",
+    "vi": "Chưa ghi việc cần làm nào. Điều này không xác nhận dữ liệu môn học đã đầy đủ."
+  },
+  "No readable text found. Scanned PDFs need OCR, which is not included. This document has not been checked.": {
+    "de": "Kein lesbarer Text gefunden. Gescannte PDFs benötigen OCR, das nicht enthalten ist. Dieses Dokument wurde nicht geprüft.",
+    "vi": "Không tìm thấy văn bản đọc được. PDF quét cần OCR, hiện chưa hỗ trợ. Tài liệu này chưa được kiểm tra."
+  },
+  "No real university data": {
+    "de": "Keine echten Hochschuldaten",
+    "vi": "Không có dữ liệu thật từ trường"
+  },
+  "No scheduled events stored for today.": {
+    "de": "Heute keine Termine gespeichert.",
+    "vi": "Chưa lưu sự kiện nào cho hôm nay."
+  },
+  "No supported, evidenced dates found. Dates in other formats, images, or without explicit times may have been missed. This does not prove there are no deadlines.": {
+    "de": "Keine belegten Daten im unterstützten Format gefunden. Andere Formate, Bilder oder Angaben ohne Uhrzeit könnten fehlen. Dies beweist nicht, dass es keine Fristen gibt.",
+    "vi": "Không tìm thấy ngày có dẫn chứng trong định dạng hỗ trợ. Có thể bỏ sót định dạng khác, hình ảnh hoặc thông tin không có giờ. Điều này không chứng minh là không có hạn nộp."
+  },
+  "No university sources have been checked yet.": {
+    "de": "Noch keine Hochschulquellen geprüft.",
+    "vi": "Chưa kiểm tra nguồn dữ liệu nào của trường."
+  },
+  "Notification permission was not granted. Your deadlines remain visible in Tasks.": {
+    "de": "Benachrichtigungen wurden nicht erlaubt. Deine Fristen bleiben unter Aufgaben sichtbar.",
+    "vi": "Chưa được cấp quyền thông báo. Hạn nộp vẫn hiển thị trong Bài tập."
+  },
+  "Notifications are blocked in this browser. Allow them in site settings to receive alerts.": {
+    "de": "Benachrichtigungen sind in diesem Browser blockiert. Erlaube sie in den Website-Einstellungen.",
+    "vi": "Thông báo bị chặn trên trình duyệt này. Cho phép trong cài đặt trang để nhận lời nhắc."
+  },
+  "Notifications are not permitted in this browser.": {
+    "de": "Benachrichtigungen sind in diesem Browser nicht erlaubt.",
+    "vi": "Trình duyệt này chưa cho phép thông báo."
+  },
+  "Notify when a deadline moves": {
+    "de": "Friständerungen melden",
+    "vi": "Thông báo khi hạn nộp thay đổi"
+  },
+  "Off": {
+    "de": "Aus",
+    "vi": "Tắt"
+  },
+  "One place for the details of your semester.": {
+    "de": "Alle Semesterdetails an einem Ort.",
+    "vi": "Mọi chi tiết học kỳ ở cùng một nơi."
+  },
+  "Only moodle.rwth-aachen.de/calendar/export_execute.php is accepted. Feed links are encrypted on the server, never displayed again.": {
+    "de": "Nur moodle.rwth-aachen.de/calendar/export_execute.php wird akzeptiert. Kalenderlinks werden auf dem Server verschlüsselt und nie erneut angezeigt.",
+    "vi": "Chỉ chấp nhận moodle.rwth-aachen.de/calendar/export_execute.php. Liên kết lịch được mã hóa trên máy chủ và không hiển thị lại."
+  },
+  "Open": {
+    "de": "Offen",
+    "vi": "Chưa xong"
+  },
+  "Open calendar": {
+    "de": "Kalender öffnen",
+    "vi": "Mở lịch"
+  },
+  "Open navigation": {
+    "de": "Navigation öffnen",
+    "vi": "Mở điều hướng"
+  },
+  "Open original instructions": {
+    "de": "Originalanweisungen öffnen",
+    "vi": "Mở hướng dẫn gốc"
+  },
+  "Open original source for {0}": {
+    "de": "Originalquelle für {0} öffnen",
+    "vi": "Mở nguồn gốc cho {0}"
+  },
+  "Opening your workspace…": {
+    "de": "Arbeitsbereich wird geöffnet…",
+    "vi": "Đang mở không gian học tập…"
+  },
+  "Optional AI assistance": {
+    "de": "Optionale KI-Unterstützung",
+    "vi": "Hỗ trợ AI tùy chọn"
+  },
+  "Original document URL (optional)": {
+    "de": "Original-URL des Dokuments (optional)",
+    "vi": "Đường dẫn tài liệu gốc (tùy chọn)"
+  },
+  "Original instructions URL": {
+    "de": "URL der Originalanweisungen",
+    "vi": "Đường dẫn hướng dẫn gốc"
+  },
+  "Original source URL": {
+    "de": "URL der Originalquelle",
+    "vi": "Đường dẫn nguồn gốc"
+  },
+  "PERSONAL COURSE": {
+    "de": "PERSÖNLICHER KURS",
+    "vi": "MÔN HỌC CÁ NHÂN"
+  },
+  "PERSONAL WORKSPACE": {
+    "de": "PERSÖNLICHER ARBEITSBEREICH",
+    "vi": "KHÔNG GIAN CÁ NHÂN"
+  },
+  "Password · at least 12 characters": {
+    "de": "Passwort · mindestens 12 Zeichen",
+    "vi": "Mật khẩu · tối thiểu 12 ký tự"
+  },
+  "Personal": {
+    "de": "Persönlich",
+    "vi": "Cá nhân"
+  },
+  "Personal workspace": {
+    "de": "Persönlicher Arbeitsbereich",
+    "vi": "Không gian cá nhân"
+  },
+  "Preferences saved": {
+    "de": "Einstellungen gespeichert",
+    "vi": "Đã lưu cài đặt"
+  },
+  "Previous period": {
+    "de": "Vorheriger Zeitraum",
+    "vi": "Khoảng thời gian trước"
+  },
+  "Quiet from (Berlin)": {
+    "de": "Ruhezeit ab (Berlin)",
+    "vi": "Yên lặng từ (Berlin)"
+  },
+  "RECENT ACTIVITY": {
+    "de": "LETZTE AKTIVITÄTEN",
+    "vi": "HOẠT ĐỘNG GẦN ĐÂY"
+  },
+  "Read a PDF locally or paste an excerpt. The local check finds numeric and German month-name dates with a year near deadline wording. Berlin time is assumed when a time is given. Date-only results have an unknown cutoff; every result needs review.": {
+    "de": "Lies eine PDF lokal oder füge einen Auszug ein. Die lokale Prüfung findet numerische Daten und deutsche Monatsnamen mit Jahr nahe Fristformulierungen. Bei Uhrzeiten wird Berlin angenommen. Reine Datumsangaben haben keine bekannte genaue Frist; jedes Ergebnis muss geprüft werden.",
+    "vi": "Đọc PDF trên thiết bị hoặc dán đoạn trích. Kiểm tra cục bộ tìm ngày dạng số hoặc tên tháng tiếng Đức có năm gần nội dung về hạn. Nếu có giờ, dùng giờ Berlin. Ngày không kèm giờ chưa xác định giờ hết hạn; mọi kết quả đều cần kiểm tra."
+  },
+  "Read-only MCP token": {
+    "de": "MCP-Lesetoken",
+    "vi": "Mã MCP chỉ đọc"
+  },
+  "Read-only access for AI clients": {
+    "de": "Lesezugriff für KI-Clients",
+    "vi": "Quyền chỉ đọc cho ứng dụng AI"
+  },
+  "Reading PDF on this device…": {
+    "de": "PDF wird auf diesem Gerät gelesen…",
+    "vi": "Đang đọc PDF trên thiết bị này…"
+  },
+  "Recover account": {
+    "de": "Konto wiederherstellen",
+    "vi": "Khôi phục tài khoản"
+  },
+  "Recovery key": {
+    "de": "Wiederherstellungsschlüssel",
+    "vi": "Khóa khôi phục"
+  },
+  "Remind me before a deadline": {
+    "de": "Erinnerung vor einer Frist",
+    "vi": "Nhắc trước hạn nộp"
+  },
+  "Reminder settings": {
+    "de": "Erinnerungseinstellungen",
+    "vi": "Cài đặt lời nhắc"
+  },
+  "Reminders": {
+    "de": "Erinnerungen",
+    "vi": "Lời nhắc"
+  },
+  "Reminders are enabled in your account, but this browser cannot send them. Check notification permission in Settings.": {
+    "de": "Erinnerungen sind im Konto aktiviert, aber dieser Browser kann sie nicht senden. Prüfe die Benachrichtigungsberechtigung in den Einstellungen.",
+    "vi": "Tài khoản đã bật lời nhắc nhưng trình duyệt này không thể gửi. Kiểm tra quyền thông báo trong Cài đặt."
+  },
+  "Reminders still require an open browser. Local backups do not protect against losing this PC.": {
+    "de": "Erinnerungen benötigen weiterhin einen offenen Browser. Lokale Sicherungen schützen nicht vor Verlust dieses PCs.",
+    "vi": "Lời nhắc vẫn cần trình duyệt mở. Bản sao lưu cục bộ không bảo vệ khi mất máy tính này."
+  },
+  "Reopen": {
+    "de": "Wieder öffnen",
+    "vi": "Mở lại"
+  },
+  "Repeat uploads are matched by their event IDs, even if the source name changes. For partially overlapping exports, choose the existing source above. File imports do not check automatically.": {
+    "de": "Erneute Uploads werden anhand der Termin-IDs erkannt, auch bei anderem Quellennamen. Wähle bei teilweise überlappenden Exporten oben die vorhandene Quelle. Dateiimporte werden nicht automatisch geprüft.",
+    "vi": "Tệp tải lại được nhận diện bằng mã sự kiện, kể cả khi đổi tên nguồn. Với tệp xuất chồng lặp một phần, chọn nguồn hiện có ở trên. Tệp nhập không được kiểm tra tự động."
+  },
+  "Replace file import:": {
+    "de": "Dateiimport ersetzen:",
+    "vi": "Thay thế lần nhập tệp:"
+  },
+  "Request failed": {
+    "de": "Anfrage fehlgeschlagen",
+    "vi": "Yêu cầu thất bại"
+  },
+  "Reset password and sign in": {
+    "de": "Passwort zurücksetzen und anmelden",
+    "vi": "Đặt lại mật khẩu và đăng nhập"
+  },
+  "Review and save": {
+    "de": "Prüfen und speichern",
+    "vi": "Kiểm tra và lưu"
+  },
+  "Review document text": {
+    "de": "Dokumenttext prüfen",
+    "vi": "Kiểm tra nội dung tài liệu"
+  },
+  "Revoke all tokens": {
+    "de": "Alle Tokens widerrufen",
+    "vi": "Thu hồi mọi mã truy cập"
+  },
+  "Sample data. Your university accounts are not connected.": {
+    "de": "Beispieldaten. Deine Hochschulkonten sind nicht verbunden.",
+    "vi": "Dữ liệu mẫu. Tài khoản trường của bạn chưa được kết nối."
+  },
+  "Save a recovery key outside Gobbler. It can reset your password once. Generating a new key replaces the previous one.": {
+    "de": "Speichere einen Wiederherstellungsschlüssel außerhalb von Gobbler. Er kann dein Passwort einmal zurücksetzen. Ein neuer Schlüssel ersetzt den vorherigen.",
+    "vi": "Lưu khóa khôi phục bên ngoài Gobbler. Khóa có thể đặt lại mật khẩu một lần. Tạo khóa mới sẽ thay thế khóa cũ."
+  },
+  "Save action": {
+    "de": "Aktion speichern",
+    "vi": "Lưu việc cần làm"
+  },
+  "Save retains the existing completion state. Done does not mean submitted. Editing imported dates may be overwritten by the next source check.": {
+    "de": "Speichern behält den Erledigungsstatus bei. Erledigt bedeutet nicht abgegeben. Änderungen importierter Daten können bei der nächsten Quellenprüfung überschrieben werden.",
+    "vi": "Lưu sẽ giữ trạng thái hoàn thành hiện tại. Hoàn thành không có nghĩa là đã nộp bài. Ngày nhập từ nguồn có thể bị ghi đè ở lần kiểm tra tiếp theo."
+  },
+  "Save this key now. It will not be shown again after you leave this page.": {
+    "de": "Speichere diesen Schlüssel jetzt. Nach Verlassen der Seite wird er nicht erneut angezeigt.",
+    "vi": "Lưu khóa này ngay. Khi rời trang, khóa sẽ không hiển thị lại."
+  },
+  "Saved": {
+    "de": "Gespeichert",
+    "vi": "Đã lưu"
+  },
+  "Schedule changed": {
+    "de": "Termin geändert",
+    "vi": "Lịch đã thay đổi"
+  },
+  "Search covers stored records and extracted date evidence. It does not search full PDF contents or check Moodle live.": {
+    "de": "Die Suche umfasst gespeicherte Einträge und extrahierte Datumsbelege. Sie durchsucht weder ganze PDFs noch Moodle live.",
+    "vi": "Tìm kiếm bao gồm dữ liệu đã lưu và dẫn chứng ngày đã trích xuất. Không tìm toàn bộ PDF hoặc kiểm tra Moodle trực tiếp."
+  },
+  "Send test notification": {
+    "de": "Testbenachrichtigung senden",
+    "vi": "Gửi thông báo thử"
+  },
+  "Setup, registrations and course reviews without a known deadline. Dated obligations stay in Tasks. This checklist does not automatically check Moodle materials.": {
+    "de": "Einrichtung, Anmeldungen und Kursprüfungen ohne bekannte Frist. Datierte Verpflichtungen bleiben unter Aufgaben. Diese Liste prüft Moodle-Materialien nicht automatisch.",
+    "vi": "Việc thiết lập, đăng ký và xem môn học chưa có hạn rõ ràng. Nghĩa vụ có ngày vẫn nằm trong Bài tập. Danh sách này không tự kiểm tra tài liệu Moodle."
+  },
+  "Sign in": {
+    "de": "Anmelden",
+    "vi": "Đăng nhập"
+  },
+  "Sign in to your gobbler account. This is separate from RWTH SSO.": {
+    "de": "Melde dich bei Gobbler an. Dieses Konto ist getrennt von RWTH SSO.",
+    "vi": "Đăng nhập tài khoản Gobbler. Tài khoản này tách biệt với RWTH SSO."
+  },
+  "Signed out": {
+    "de": "Abgemeldet",
+    "vi": "Đã đăng xuất"
+  },
+  "Some dates still need your review.": {
+    "de": "Einige Daten müssen noch geprüft werden.",
+    "vi": "Một số ngày vẫn cần kiểm tra."
+  },
+  "Source disconnected": {
+    "de": "Quelle getrennt",
+    "vi": "Đã ngắt nguồn"
+  },
+  "Source name": {
+    "de": "Quellenname",
+    "vi": "Tên nguồn"
+  },
+  "Source outdated": {
+    "de": "Quelle veraltet",
+    "vi": "Nguồn chưa cập nhật"
+  },
+  "Sources": {
+    "de": "Quellen",
+    "vi": "Nguồn dữ liệu"
+  },
+  "Status": {
+    "de": "Status",
+    "vi": "Trạng thái"
+  },
+  "System": {
+    "de": "System",
+    "vi": "Hệ thống"
+  },
+  "TODAY": {
+    "de": "HEUTE",
+    "vi": "HÔM NAY"
+  },
+  "Take your workspace with you": {
+    "de": "Dein Arbeitsbereich zum Mitnehmen",
+    "vi": "Mang theo không gian học tập"
+  },
+  "Task updated. Completion does not mean submitted.": {
+    "de": "Aufgabe aktualisiert. Erledigt bedeutet nicht abgegeben.",
+    "vi": "Đã cập nhật bài tập. Hoàn thành không có nghĩa là đã nộp."
+  },
+  "Tasks, events & saved materials": {
+    "de": "Aufgaben, Termine & gespeicherte Materialien",
+    "vi": "Bài tập, sự kiện và tài liệu đã lưu"
+  },
+  "Test accepted by the browser. Check your device's notification area and Do Not Disturb settings.": {
+    "de": "Test vom Browser angenommen. Prüfe den Benachrichtigungsbereich und Nicht-stören-Einstellungen deines Geräts.",
+    "vi": "Trình duyệt đã chấp nhận thông báo thử. Kiểm tra khu vực thông báo và chế độ Không làm phiền của thiết bị."
+  },
+  "Tests are sent immediately, including during quiet hours. Device settings can silence or hide browser notifications. Closing Gobbler stops automatic reminders; scheduled source checks alone do not send alerts.": {
+    "de": "Tests werden sofort gesendet, auch während Ruhezeiten. Geräteeinstellungen können Browsermeldungen stummschalten oder ausblenden. Beim Schließen von Gobbler enden automatische Erinnerungen; geplante Quellenprüfungen allein senden keine Meldungen.",
+    "vi": "Thông báo thử được gửi ngay, kể cả trong giờ yên lặng. Cài đặt thiết bị có thể tắt tiếng hoặc ẩn thông báo trình duyệt. Đóng Gobbler sẽ dừng lời nhắc tự động; kiểm tra nguồn theo lịch không tự gửi thông báo."
+  },
+  "The last automatic check failed. Previous records are retained; review Sources.": {
+    "de": "Die letzte automatische Prüfung ist fehlgeschlagen. Vorherige Einträge bleiben erhalten; prüfe Quellen.",
+    "vi": "Lần kiểm tra tự động gần nhất thất bại. Dữ liệu trước vẫn được giữ; hãy xem Nguồn dữ liệu."
+  },
+  "This PDF contains over 20,000 characters. Paste a relevant excerpt instead.": {
+    "de": "Diese PDF enthält über 20.000 Zeichen. Füge stattdessen einen relevanten Auszug ein.",
+    "vi": "PDF này có hơn 20.000 ký tự. Hãy dán đoạn trích liên quan."
+  },
+  "This browser does not support notifications.": {
+    "de": "Dieser Browser unterstützt keine Benachrichtigungen.",
+    "vi": "Trình duyệt này không hỗ trợ thông báo."
+  },
+  "This document date is already saved. Reviewing its existing task.": {
+    "de": "Dieses Dokumentdatum ist bereits gespeichert. Die vorhandene Aufgabe wird geöffnet.",
+    "vi": "Ngày từ tài liệu này đã được lưu. Đang mở bài tập hiện có để kiểm tra."
+  },
+  "This notification's item is no longer in your workspace.": {
+    "de": "Der Eintrag dieser Meldung ist nicht mehr in deinem Arbeitsbereich.",
+    "vi": "Mục trong thông báo không còn trong không gian học tập của bạn."
+  },
+  "Title": {
+    "de": "Titel",
+    "vi": "Tiêu đề"
+  },
+  "Type": {
+    "de": "Typ",
+    "vi": "Loại"
+  },
+  "University calendar": {
+    "de": "Hochschulkalender",
+    "vi": "Lịch trường"
+  },
+  "Until (Berlin)": {
+    "de": "Bis (Berlin)",
+    "vi": "Đến (Berlin)"
+  },
+  "Update an existing document task (optional)": {
+    "de": "Vorhandene Dokumentaufgabe aktualisieren (optional)",
+    "vi": "Cập nhật bài tập từ tài liệu hiện có (tùy chọn)"
+  },
+  "Use optional AI extraction": {
+    "de": "Optionale KI-Extraktion nutzen",
+    "vi": "Dùng trích xuất AI tùy chọn"
+  },
+  "Use the recovery key you previously saved. This resets your password, consumes the key and revokes existing sessions and MCP tokens. If you never saved a key, contact your Gobbler operator.": {
+    "de": "Verwende deinen gespeicherten Wiederherstellungsschlüssel. Das setzt dein Passwort zurück, verbraucht den Schlüssel und widerruft Sitzungen und MCP-Tokens. Ohne gespeicherten Schlüssel wende dich an den Gobbler-Betreiber.",
+    "vi": "Dùng khóa khôi phục đã lưu. Thao tác này đặt lại mật khẩu, dùng hết hiệu lực của khóa và thu hồi các phiên cùng mã MCP. Nếu chưa từng lưu khóa, hãy liên hệ người vận hành Gobbler."
+  },
+  "Verification": {
+    "de": "Prüfstatus",
+    "vi": "Xác minh"
+  },
+  "View coursework": {
+    "de": "Kursaufgaben ansehen",
+    "vi": "Xem nội dung môn học"
+  },
+  "WORKSPACE": {
+    "de": "ARBEITSBEREICH",
+    "vi": "KHÔNG GIAN HỌC TẬP"
+  },
+  "Winter semester 26/27": {
+    "de": "Wintersemester 26/27",
+    "vi": "Học kỳ đông 26/27"
+  },
+  "Workspace": {
+    "de": "Arbeitsbereich",
+    "vi": "Không gian học tập"
+  },
+  "YOUR ACADEMIC SPACE": {
+    "de": "DEIN STUDIENBEREICH",
+    "vi": "KHÔNG GIAN HỌC TẬP CỦA BẠN"
+  },
+  "Your academic space": {
+    "de": "Dein Studienbereich",
+    "vi": "Không gian học tập của bạn"
+  },
+  "Your browser accepted this test. Automatic reminders require Gobbler to stay open.": {
+    "de": "Dein Browser hat den Test angenommen. Automatische Erinnerungen benötigen Gobbler geöffnet.",
+    "vi": "Trình duyệt đã chấp nhận thông báo thử. Lời nhắc tự động cần Gobbler luôn mở."
+  },
+  "Your data": {
+    "de": "Deine Daten",
+    "vi": "Dữ liệu của bạn"
+  },
+  "Your personal workspace is ready. Add a course or import a calendar.": {
+    "de": "Dein Arbeitsbereich ist bereit. Füge einen Kurs hinzu oder importiere einen Kalender.",
+    "vi": "Không gian cá nhân đã sẵn sàng. Thêm môn học hoặc nhập lịch."
+  },
+  "Your recovery key": {
+    "de": "Dein Wiederherstellungsschlüssel",
+    "vi": "Khóa khôi phục của bạn"
+  },
+  "You’re offline. Visible records may be outdated. Reconnect to save or check sources.": {
+    "de": "Du bist offline. Sichtbare Einträge können veraltet sein. Verbinde dich zum Speichern oder Prüfen von Quellen erneut.",
+    "vi": "Bạn đang ngoại tuyến. Dữ liệu hiển thị có thể đã cũ. Kết nối lại để lưu hoặc kiểm tra nguồn."
+  },
+  "assignments due": {
+    "de": "Aufgaben fällig",
+    "vi": "bài tập đến hạn"
+  },
+  "htwr-gobbler · Test notification": {
+    "de": "htwr-gobbler · Testbenachrichtigung",
+    "vi": "htwr-gobbler · Thông báo thử"
+  },
+  "matching record": {
+    "de": "passender Eintrag",
+    "vi": "mục phù hợp"
+  },
+  "of": {
+    "de": "von",
+    "vi": "trên"
+  },
+  "open assignments": {
+    "de": "offene Aufgaben",
+    "vi": "bài tập chưa xong"
+  },
+  "open items on today’s calendar.": {
+    "de": "offene Einträge im heutigen Kalender.",
+    "vi": "mục chưa xong trong lịch hôm nay."
+  },
+  "scheduled items": {
+    "de": "geplante Einträge",
+    "vi": "mục trong lịch"
+  },
+  "sources checked within the last hour.": {
+    "de": "Quellen in der letzten Stunde geprüft.",
+    "vi": "nguồn đã kiểm tra trong giờ qua."
+  },
+  "verify the original": {
+    "de": "Original prüfen",
+    "vi": "kiểm tra nguồn gốc"
+  },
+  "{0} · No date assigned": {
+    "de": "{0} · Kein Datum zugeordnet",
+    "vi": "{0} · Chưa gán ngày"
+  },
+  "· Needs review": {
+    "de": "· Prüfung nötig",
+    "vi": "· Cần kiểm tra"
+  },
+  "· No date assigned": {
+    "de": "· Kein Datum zugeordnet",
+    "vi": "· Chưa gán ngày"
+  },
+  "Saving…": {
+    "de": "Wird gespeichert…",
+    "vi": "Đang lưu…"
+  },
+  "Opening…": {
+    "de": "Wird geöffnet…",
+    "vi": "Đang mở…"
+  },
+  "Generating…": {
+    "de": "Wird erstellt…",
+    "vi": "Đang tạo…"
+  },
+  "Extracting…": {
+    "de": "Wird extrahiert…",
+    "vi": "Đang trích xuất…"
+  },
+  "Sending…": {
+    "de": "Wird gesendet…",
+    "vi": "Đang gửi…"
+  },
+  "Importing…": {
+    "de": "Wird importiert…",
+    "vi": "Đang nhập…"
+  },
+  "assignment": {
+    "de": "Aufgabe",
+    "vi": "Bài tập"
+  },
+  "lecture": {
+    "de": "Vorlesung",
+    "vi": "Bài giảng"
+  },
+  "tutorial": {
+    "de": "Übung",
+    "vi": "Buổi thực hành"
+  },
+  "exam": {
+    "de": "Prüfung",
+    "vi": "Kỳ thi"
+  },
+  "study": {
+    "de": "Lernzeit",
+    "vi": "Tự học"
+  },
+  "announcement": {
+    "de": "Ankündigung",
+    "vi": "Thông báo"
+  },
+  "material": {
+    "de": "Material",
+    "vi": "Tài liệu"
+  },
+  "open": {
+    "de": "Offen",
+    "vi": "Chưa xong"
+  },
+  "done": {
+    "de": "Erledigt",
+    "vi": "Hoàn thành"
+  },
+  "dismissed": {
+    "de": "Ausgeblendet",
+    "vi": "Đã ẩn"
+  },
+  "day": {
+    "de": "Tag",
+    "vi": "Ngày"
+  },
+  "week": {
+    "de": "Woche",
+    "vi": "Tuần"
+  },
+  "month": {
+    "de": "Monat",
+    "vi": "Tháng"
+  },
+  "sage": {
+    "de": "Salbei",
+    "vi": "Xanh lá"
+  },
+  "blue": {
+    "de": "Blau",
+    "vi": "Xanh dương"
+  },
+  "clay": {
+    "de": "Terrakotta",
+    "vi": "Đất nung"
+  },
+  "gold": {
+    "de": "Gold",
+    "vi": "Vàng"
+  },
+  "file": {
+    "de": "Datei",
+    "vi": "Tệp"
+  },
+  "feed": {
+    "de": "Abonnement",
+    "vi": "Lịch đăng ký"
+  },
+  "connected": {
+    "de": "Geprüft",
+    "vi": "Đã kiểm tra"
+  },
+  "failed": {
+    "de": "Prüfung fehlgeschlagen",
+    "vi": "Kiểm tra thất bại"
+  },
+  "syncing": {
+    "de": "Wird geprüft",
+    "vi": "Đang kiểm tra"
+  },
+  "not_configured": {
+    "de": "Nicht eingerichtet",
+    "vi": "Chưa thiết lập"
+  },
+  "enabled": {
+    "de": "aktiviert",
+    "vi": "đã bật"
+  },
+  "disabled": {
+    "de": "deaktiviert",
+    "vi": "đã tắt"
+  },
+  "{0} matching record.": {
+    "de": "{0} passender Eintrag.",
+    "vi": "{0} mục phù hợp."
+  },
+  "{0} matching records.": {
+    "de": "{0} passende Einträge.",
+    "vi": "{0} mục phù hợp."
+  },
+  "Includes completed and dismissed records, across all courses and types.": {
+    "de": "Einschließlich erledigter und ausgeblendeter Einträge aller Kurse und Typen.",
+    "vi": "Bao gồm các mục đã hoàn thành và đã ẩn, thuộc mọi môn và loại."
+  },
+  "1 overdue task needs a look.": {
+    "de": "Eine überfällige Aufgabe benötigt Aufmerksamkeit.",
+    "vi": "Có 1 bài tập quá hạn cần xem lại."
+  },
+  "{0} overdue tasks need a look.": {
+    "de": "{0} überfällige Aufgaben benötigen Aufmerksamkeit.",
+    "vi": "{0} bài tập quá hạn cần xem lại."
+  },
+  "1 assignment due in the next 7 days.": {
+    "de": "Eine Aufgabe in den nächsten 7 Tagen fällig.",
+    "vi": "Có 1 bài tập đến hạn trong 7 ngày tới."
+  },
+  "{0} assignments due in the next 7 days.": {
+    "de": "{0} Aufgaben in den nächsten 7 Tagen fällig.",
+    "vi": "{0} bài tập đến hạn trong 7 ngày tới."
+  },
+  "1 source needs a fresh check.": {
+    "de": "Eine Quelle benötigt eine neue Prüfung.",
+    "vi": "Có 1 nguồn cần được kiểm tra lại."
+  },
+  "{0} sources need a fresh check.": {
+    "de": "{0} Quellen benötigen eine neue Prüfung.",
+    "vi": "{0} nguồn cần được kiểm tra lại."
+  },
+  "Check the form fields and date format.": {
+    "de": "Prüfe die Formularfelder und das Datumsformat.",
+    "vi": "Kiểm tra các trường và định dạng ngày."
+  },
+  "Invalid request body.": {
+    "de": "Ungültiger Anfrageinhalt.",
+    "vi": "Nội dung yêu cầu không hợp lệ."
+  },
+  "Request failed. Please try again.": {
+    "de": "Anfrage fehlgeschlagen. Versuche es erneut.",
+    "vi": "Yêu cầu thất bại. Vui lòng thử lại."
+  },
+  "Not found": {
+    "de": "Nicht gefunden",
+    "vi": "Không tìm thấy"
+  },
+  "Request exceeds 2 MB.": {
+    "de": "Die Anfrage überschreitet 2 MB.",
+    "vi": "Yêu cầu vượt quá 2 MB."
+  },
+  "Configure SESSION_SECRET before using accounts.": {
+    "de": "Konfiguriere SESSION_SECRET vor der Kontonutzung.",
+    "vi": "Cấu hình SESSION_SECRET trước khi dùng tài khoản."
+  },
+  "This request must come from the application.": {
+    "de": "Diese Anfrage muss aus der Anwendung stammen.",
+    "vi": "Yêu cầu này phải được gửi từ ứng dụng."
+  },
+  "Too many attempts. Try again later.": {
+    "de": "Zu viele Versuche. Versuche es später erneut.",
+    "vi": "Quá nhiều lần thử. Hãy thử lại sau."
+  },
+  "Unknown action": {
+    "de": "Unbekannte Aktion",
+    "vi": "Thao tác không xác định"
+  },
+  "Account registration is closed for this private workspace.": {
+    "de": "Die Registrierung ist für diesen privaten Arbeitsbereich geschlossen.",
+    "vi": "Không gian riêng tư này đã đóng đăng ký tài khoản."
+  },
+  "Account could not be created. Try signing in.": {
+    "de": "Konto konnte nicht erstellt werden. Versuche dich anzumelden.",
+    "vi": "Không tạo được tài khoản. Hãy thử đăng nhập."
+  },
+  "Email or recovery key is incorrect.": {
+    "de": "E-Mail oder Wiederherstellungsschlüssel ist falsch.",
+    "vi": "Email hoặc khóa khôi phục không đúng."
+  },
+  "Email or password is incorrect.": {
+    "de": "E-Mail oder Passwort ist falsch.",
+    "vi": "Email hoặc mật khẩu không đúng."
+  },
+  "Account changed. Please sign in again.": {
+    "de": "Konto geändert. Melde dich erneut an.",
+    "vi": "Tài khoản đã thay đổi. Vui lòng đăng nhập lại."
+  },
+  "This token is read-only.": {
+    "de": "Dieses Token erlaubt nur Lesezugriff.",
+    "vi": "Mã truy cập này chỉ cho phép đọc."
+  },
+  "Read-only token expired or revoked.": {
+    "de": "Lesetoken abgelaufen oder widerrufen.",
+    "vi": "Mã chỉ đọc đã hết hạn hoặc bị thu hồi."
+  },
+  "Sign in to access your academic data.": {
+    "de": "Melde dich an, um auf deine Studieneinträge zuzugreifen.",
+    "vi": "Đăng nhập để xem dữ liệu học tập của bạn."
+  },
+  "Session expired. Sign in again.": {
+    "de": "Sitzung abgelaufen. Melde dich erneut an.",
+    "vi": "Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại."
+  },
+  "Current password is incorrect.": {
+    "de": "Das aktuelle Passwort ist falsch.",
+    "vi": "Mật khẩu hiện tại không đúng."
+  },
+  "Account changed. Sign in again before generating a key.": {
+    "de": "Konto geändert. Melde dich vor dem Erstellen eines Schlüssels erneut an.",
+    "vi": "Tài khoản đã thay đổi. Đăng nhập lại trước khi tạo khóa."
+  },
+  "Course not found": {
+    "de": "Kurs nicht gefunden",
+    "vi": "Không tìm thấy môn học"
+  },
+  "Action not found": {
+    "de": "Aktion nicht gefunden",
+    "vi": "Không tìm thấy việc cần làm"
+  },
+  "Item not found": {
+    "de": "Eintrag nicht gefunden",
+    "vi": "Không tìm thấy mục"
+  },
+  "Import source not found": {
+    "de": "Importquelle nicht gefunden",
+    "vi": "Không tìm thấy nguồn nhập"
+  },
+  "Import failed": {
+    "de": "Import fehlgeschlagen",
+    "vi": "Nhập dữ liệu thất bại"
+  },
+  "A check for this source is already running.": {
+    "de": "Diese Quelle wird bereits geprüft.",
+    "vi": "Nguồn này đang được kiểm tra."
+  },
+  "A source check is already running.": {
+    "de": "Eine Quellenprüfung läuft bereits.",
+    "vi": "Đang có một lần kiểm tra nguồn."
+  },
+  "Configure FEED_SECRET on the server first.": {
+    "de": "Konfiguriere zuerst FEED_SECRET auf dem Server.",
+    "vi": "Cấu hình FEED_SECRET trên máy chủ trước."
+  },
+  "Use the official HTTPS RWTHmoodle calendar export URL.": {
+    "de": "Nutze die offizielle HTTPS-Export-URL des RWTHmoodle-Kalenders.",
+    "vi": "Dùng đường dẫn xuất lịch HTTPS chính thức của RWTHmoodle."
+  },
+  "Feed not found": {
+    "de": "Kalenderabonnement nicht gefunden",
+    "vi": "Không tìm thấy lịch đăng ký"
+  },
+  "Calendar check failed. Previous information may be outdated.": {
+    "de": "Kalenderprüfung fehlgeschlagen. Vorherige Angaben können veraltet sein.",
+    "vi": "Kiểm tra lịch thất bại. Thông tin trước có thể đã cũ."
+  },
+  "AI provider unavailable. Your calendar and tasks still work.": {
+    "de": "KI-Anbieter nicht verfügbar. Kalender und Aufgaben funktionieren weiter.",
+    "vi": "Dịch vụ AI không khả dụng. Lịch và bài tập vẫn hoạt động."
+  },
+  "Choose an iCalendar file under 2 MB.": {
+    "de": "Wähle eine iCalendar-Datei unter 2 MB.",
+    "vi": "Chọn tệp iCalendar dưới 2 MB."
+  },
+  "Import at most 500 events at a time.": {
+    "de": "Importiere höchstens 500 Termine auf einmal.",
+    "vi": "Mỗi lần chỉ nhập tối đa 500 sự kiện."
+  },
+  "Calendar contains missing or duplicate event identifiers.": {
+    "de": "Der Kalender enthält fehlende oder doppelte Termin-IDs.",
+    "vi": "Lịch có mã sự kiện bị thiếu hoặc trùng."
+  },
+  "Every event needs a start date.": {
+    "de": "Jeder Termin benötigt ein Startdatum.",
+    "vi": "Mọi sự kiện cần có ngày bắt đầu."
+  },
+  "Timed events need UTC or an embedded VTIMEZONE.": {
+    "de": "Termine mit Uhrzeit benötigen UTC oder eine eingebettete VTIMEZONE.",
+    "vi": "Sự kiện có giờ cần UTC hoặc VTIMEZONE nhúng."
+  },
+  "Unknown calendar timezone. Include VTIMEZONE or export UTC.": {
+    "de": "Unbekannte Kalenderzeitzone. Füge VTIMEZONE hinzu oder exportiere in UTC.",
+    "vi": "Múi giờ lịch không xác định. Thêm VTIMEZONE hoặc xuất theo UTC."
+  },
+  "These events already belong to another calendar. Connect the feed by replacing its existing file source; no events were imported.": {
+    "de": "Diese Termine gehören bereits zu einem anderen Kalender. Ersetze dessen vorhandenen Dateiimport beim Verbinden; es wurde nichts importiert.",
+    "vi": "Các sự kiện này đã thuộc lịch khác. Kết nối bằng cách thay thế nguồn tệp hiện có; chưa nhập sự kiện nào."
+  },
+  "The calendar could not be retrieved. Check the export link in Moodle.": {
+    "de": "Kalender konnte nicht abgerufen werden. Prüfe den Exportlink in Moodle.",
+    "vi": "Không lấy được lịch. Kiểm tra liên kết xuất trong Moodle."
+  },
+  "Calendar exceeds the 2 MB import limit.": {
+    "de": "Der Kalender überschreitet die Importgrenze von 2 MB.",
+    "vi": "Lịch vượt quá giới hạn nhập 2 MB."
+  },
+  "The calendar response was empty.": {
+    "de": "Die Kalenderantwort war leer.",
+    "vi": "Phản hồi lịch trống."
+  },
+  "Interface and help text follow your language choice. Course content stays in its original language.": {
+    "de": "Oberfläche und Hilfetexte folgen deiner Sprachwahl. Kursinhalte bleiben im Original.",
+    "vi": "Giao diện và hướng dẫn theo ngôn ngữ bạn chọn. Nội dung môn học giữ nguyên bản gốc."
+  },
+  "Task calendars (VTODO) are not supported. Export an event calendar instead.": {
+    "de": "Aufgabenkalender (VTODO) werden nicht unterstützt. Exportiere stattdessen einen Terminkalender.",
+    "vi": "Chưa hỗ trợ lịch công việc VTODO. Hãy xuất lịch sự kiện."
+  },
+  "Recurring calendars are not supported yet. Export individual events. Nothing was imported.": {
+    "de": "Wiederkehrende Termine werden noch nicht unterstützt. Exportiere einzelne Termine. Es wurde nichts importiert.",
+    "vi": "Chưa hỗ trợ lịch lặp. Hãy xuất từng sự kiện riêng. Chưa nhập gì."
+  },
+  "These events overlap existing calendars. Update the existing file source or check its connected feed; no new import was created.": {
+    "de": "Diese Termine überlappen vorhandene Kalender. Aktualisiere die vorhandene Dateiquelle oder prüfe ihr Abonnement; kein neuer Import wurde erstellt.",
+    "vi": "Các sự kiện chồng lặp lịch hiện có. Cập nhật nguồn tệp hiện có hoặc kiểm tra lịch đăng ký; chưa tạo lần nhập mới."
+  },
+  "Choose an existing file source that is not currently being checked.": {
+    "de": "Wähle eine vorhandene Dateiquelle, die gerade nicht geprüft wird.",
+    "vi": "Chọn nguồn tệp hiện có không đang được kiểm tra."
+  },
+  "AI is optional. Configure an API key and model on the server to enable extraction.": {
+    "de": "KI ist optional. Konfiguriere API-Schlüssel und Modell auf dem Server, um die Extraktion zu aktivieren.",
+    "vi": "AI là tùy chọn. Cấu hình khóa API và mô hình trên máy chủ để bật trích xuất."
+  },
+  "Failed to fetch": {
+    "de": "Verbindung fehlgeschlagen",
+    "vi": "Không thể kết nối"
+  },
+  "NetworkError when attempting to fetch resource.": {
+    "de": "Netzwerkfehler beim Abrufen der Daten.",
+    "vi": "Lỗi mạng khi tải dữ liệu."
+  },
+  "Restore records": {
+    "de": "Einträge wiederherstellen",
+    "vi": "Khôi phục dữ liệu"
+  },
+  "Restore missing records": {
+    "de": "Fehlende Einträge wiederherstellen",
+    "vi": "Khôi phục mục còn thiếu"
+  },
+  "Choose a Gobbler JSON export. Existing records are kept unchanged. Missing dates return as needing review; disconnected calendars must be reconnected. Passwords, recovery keys and feed credentials are not restored.": {
+    "de": "Wähle einen Gobbler-JSON-Export. Vorhandene Einträge bleiben unverändert. Wiederhergestellte Daten müssen geprüft und getrennte Kalender neu verbunden werden. Passwörter, Wiederherstellungsschlüssel und Kalender-Zugangsdaten werden nicht wiederhergestellt.",
+    "vi": "Chọn tệp JSON xuất từ Gobbler. Dữ liệu hiện có được giữ nguyên. Các ngày khôi phục cần kiểm tra và lịch đã ngắt cần kết nối lại. Không khôi phục mật khẩu, khóa khôi phục hoặc thông tin truy cập lịch."
+  },
+  "Gobbler export file": {
+    "de": "Gobbler-Exportdatei",
+    "vi": "Tệp xuất Gobbler"
+  },
+  "This is not a supported Gobbler export. No records were changed.": {
+    "de": "Dies ist kein unterstützter Gobbler-Export. Es wurde nichts geändert.",
+    "vi": "Đây không phải tệp xuất Gobbler được hỗ trợ. Chưa thay đổi dữ liệu."
+  },
+  "Preview: {0} courses, {1} items, {2} actions and {3} calendar sources.": {
+    "de": "Vorschau: {0} Kurse, {1} Einträge, {2} Aktionen und {3} Kalenderquellen.",
+    "vi": "Xem trước: {0} môn học, {1} mục, {2} việc cần làm và {3} nguồn lịch."
+  },
+  "Restored {0} courses, {1} items, {2} actions and {3} sources. Skipped {4} existing records.": {
+    "de": "{0} Kurse, {1} Einträge, {2} Aktionen und {3} Quellen wiederhergestellt. {4} vorhandene Einträge übersprungen.",
+    "vi": "Đã khôi phục {0} môn học, {1} mục, {2} việc cần làm và {3} nguồn. Bỏ qua {4} mục hiện có."
+  },
+  "Restore failed. Your existing records were retained. Try again after checking the file and connection.": {
+    "de": "Wiederherstellung fehlgeschlagen. Vorhandene Einträge bleiben erhalten. Prüfe Datei und Verbindung und versuche es erneut.",
+    "vi": "Khôi phục thất bại. Dữ liệu hiện có được giữ nguyên. Kiểm tra tệp và kết nối rồi thử lại."
+  },
+  "Sign in to save course material and use the local assistant.": {
+    "de": "Melde dich an, um Kursmaterial zu speichern und den lokalen Assistenten zu nutzen.",
+    "vi": "Đăng nhập để lưu tài liệu môn học và dùng trợ lý cục bộ."
+  },
+  "Ask your course material": {
+    "de": "Fragen zum Kursmaterial",
+    "vi": "Hỏi về tài liệu môn học"
+  },
+  "Answers use selected excerpts from material you saved for this module. Check the quotations; the AI can still make mistakes. Moodle is not read automatically.": {
+    "de": "Antworten nutzen ausgewählte Auszüge aus deinem gespeicherten Material für dieses Modul. Prüfe die Zitate; die KI kann Fehler machen. Moodle wird nicht automatisch gelesen.",
+    "vi": "Câu trả lời dựa trên các đoạn trích từ tài liệu bạn đã lưu cho môn này. Hãy kiểm tra trích dẫn; AI vẫn có thể sai. Moodle không được đọc tự động."
+  },
+  "Module": {
+    "de": "Modul",
+    "vi": "Môn học"
+  },
+  "Checking local AI…": {
+    "de": "Lokale KI wird geprüft…",
+    "vi": "Đang kiểm tra AI cục bộ…"
+  },
+  "Local AI is ready. Course text stays on this laptop.": {
+    "de": "Lokale KI ist bereit. Kurstexte bleiben auf diesem Laptop.",
+    "vi": "AI cục bộ đã sẵn sàng. Nội dung môn học được giữ trên máy này."
+  },
+  "Local AI is not ready. Start Ollama and install the configured model, then retry.": {
+    "de": "Lokale KI ist nicht bereit. Starte Ollama und installiere das konfigurierte Modell. Versuche es dann erneut.",
+    "vi": "AI cục bộ chưa sẵn sàng. Hãy mở Ollama, cài mô hình đã cấu hình rồi thử lại."
+  },
+  "Check local AI": {
+    "de": "Lokale KI prüfen",
+    "vi": "Kiểm tra AI cục bộ"
+  },
+  "Your question": {
+    "de": "Deine Frage",
+    "vi": "Câu hỏi của bạn"
+  },
+  "Reading your material…": {
+    "de": "Kursmaterial wird gelesen…",
+    "vi": "Đang đọc tài liệu…"
+  },
+  "Ask local AI": {
+    "de": "Lokale KI fragen",
+    "vi": "Hỏi AI cục bộ"
+  },
+  "The first answer may take a minute while the model loads.": {
+    "de": "Die erste Antwort kann beim Laden des Modells etwa eine Minute dauern.",
+    "vi": "Câu trả lời đầu tiên có thể mất một phút khi mô hình đang tải."
+  },
+  "Course answer": {
+    "de": "Antwort zum Kurs",
+    "vi": "Câu trả lời về môn học"
+  },
+  "Answer": {
+    "de": "Antwort",
+    "vi": "Câu trả lời"
+  },
+  "The supplied excerpts do not establish an answer. Add relevant material or ask a more specific question.": {
+    "de": "Die bereitgestellten Auszüge belegen keine Antwort. Ergänze passendes Material oder stelle eine genauere Frage.",
+    "vi": "Các đoạn trích hiện có chưa đủ để trả lời. Hãy thêm tài liệu liên quan hoặc đặt câu hỏi cụ thể hơn."
+  },
+  " · Page {0}": {
+    "de": " · Seite {0}",
+    "vi": " · Trang {0}"
+  },
+  " · Pasted text": {
+    "de": " · Eingefügter Text",
+    "vi": " · Văn bản đã dán"
+  },
+  "Open original source": {
+    "de": "Originalquelle öffnen",
+    "vi": "Mở nguồn gốc"
+  },
+  "This answer does not change your tasks, deadlines or submissions. Answers are not saved between visits.": {
+    "de": "Diese Antwort ändert keine Aufgaben, Fristen oder Abgaben. Antworten werden nicht für spätere Besuche gespeichert.",
+    "vi": "Câu trả lời không thay đổi bài tập, hạn nộp hay bài đã nộp. Câu trả lời không được lưu giữa các lần truy cập."
+  },
+  "Course material": {
+    "de": "Kursmaterial",
+    "vi": "Tài liệu môn học"
+  },
+  "Choose a module to add or read its material.": {
+    "de": "Wähle ein Modul, um Material hinzuzufügen oder zu lesen.",
+    "vi": "Chọn môn học để thêm hoặc đọc tài liệu."
+  },
+  "No material saved for this module. Add a PDF or paste course text to ask questions.": {
+    "de": "Für dieses Modul ist kein Material gespeichert. Füge eine PDF hinzu oder füge Kurstext ein, um Fragen zu stellen.",
+    "vi": "Môn này chưa có tài liệu. Thêm PDF hoặc dán nội dung môn học để đặt câu hỏi."
+  },
+  "Remove material {0}": {
+    "de": "Material {0} entfernen",
+    "vi": "Xóa tài liệu {0}"
+  },
+  "Remove": {
+    "de": "Entfernen",
+    "vi": "Xóa"
+  },
+  "Add course material": {
+    "de": "Kursmaterial hinzufügen",
+    "vi": "Thêm tài liệu môn học"
+  },
+  "PDF text is read on this device and saved in your local Gobbler account. Up to 200 pages, 10 MB and 500,000 text characters per document. Scanned images need OCR, which is not included.": {
+    "de": "PDF-Text wird auf diesem Gerät gelesen und im lokalen Gobbler-Konto gespeichert. Bis zu 200 Seiten, 10 MB und 500.000 Textzeichen pro Dokument. Gescannte Bilder benötigen OCR; dies ist nicht enthalten.",
+    "vi": "PDF được đọc trên thiết bị này và lưu trong tài khoản Gobbler cục bộ. Mỗi tài liệu tối đa 200 trang, 10 MB và 500.000 ký tự. Bản quét cần OCR, hiện chưa được hỗ trợ."
+  },
+  "Course PDF": {
+    "de": "Kurs-PDF",
+    "vi": "PDF môn học"
+  },
+  "Material title": {
+    "de": "Materialtitel",
+    "vi": "Tên tài liệu"
+  },
+  "Review or paste course text": {
+    "de": "Kurstext prüfen oder einfügen",
+    "vi": "Kiểm tra hoặc dán nội dung môn học"
+  },
+  "Editing extracted text removes PDF page references. The original PDF file is not stored.": {
+    "de": "Beim Bearbeiten des extrahierten Textes gehen PDF-Seitenverweise verloren. Die ursprüngliche PDF-Datei wird nicht gespeichert.",
+    "vi": "Chỉnh sửa văn bản đã trích xuất sẽ xóa tham chiếu trang PDF. Tệp PDF gốc không được lưu."
+  },
+  "Save material": {
+    "de": "Material speichern",
+    "vi": "Lưu tài liệu"
+  },
+  "Could not load course materials. Try again.": {
+    "de": "Kursmaterial konnte nicht geladen werden. Versuche es erneut.",
+    "vi": "Không tải được tài liệu môn học. Vui lòng thử lại."
+  },
+  "Material removed from the assistant library.": {
+    "de": "Material aus der Assistentenbibliothek entfernt.",
+    "vi": "Đã xóa tài liệu khỏi thư viện trợ lý."
+  },
+  "Material saved for this module.": {
+    "de": "Material für dieses Modul gespeichert.",
+    "vi": "Đã lưu tài liệu cho môn học này."
+  },
+  "This material was already saved. No duplicate was added.": {
+    "de": "Dieses Material ist bereits gespeichert. Es wurde kein Duplikat hinzugefügt.",
+    "vi": "Tài liệu này đã được lưu. Không tạo bản trùng lặp."
+  },
+  "Material library is full or the document was already saved. Refresh the library before trying again.": {
+    "de": "Die Materialbibliothek ist voll oder das Dokument ist bereits gespeichert. Lade die Bibliothek neu, bevor du es erneut versuchst.",
+    "vi": "Thư viện đã đầy hoặc tài liệu đã được lưu. Hãy tải lại thư viện trước khi thử lại."
+  },
+  "Local AI could not produce a complete answer with valid source quotations. Check Ollama and try a more specific question.": {
+    "de": "Die lokale KI konnte keine vollständige Antwort mit gültigen Quellenzitaten erstellen. Prüfe Ollama und stelle eine genauere Frage.",
+    "vi": "AI cục bộ chưa tạo được câu trả lời hoàn chỉnh với trích dẫn hợp lệ. Kiểm tra Ollama và thử câu hỏi cụ thể hơn."
+  },
+  "Choose a PDF with at most 200 pages. Nothing has been analyzed.": {
+    "de": "Wähle eine PDF mit höchstens 200 Seiten. Es wurde nichts analysiert.",
+    "vi": "Chọn PDF tối đa 200 trang. Chưa có nội dung nào được phân tích."
+  },
+  "This PDF contains over 500,000 characters. Choose a smaller document.": {
+    "de": "Diese PDF enthält über 500.000 Zeichen. Wähle ein kleineres Dokument.",
+    "vi": "PDF này có hơn 500.000 ký tự. Hãy chọn tài liệu nhỏ hơn."
+  },
+  "Skip to content": {
+    "de": "Zum Inhalt springen",
+    "vi": "Chuyển đến nội dung"
+  },
+  "Download your stored academic records as JSON. Feed credentials and account secrets are excluded. Course material text is not included; keep your original documents.": {
+    "de": "Lade deine gespeicherten Studienunterlagen als JSON herunter. Feed-Zugangsdaten und Kontogeheimnisse sind ausgeschlossen. Kursmaterialtexte sind nicht enthalten; bewahre die Originaldokumente auf.",
+    "vi": "Tải các mục học tập đã lưu dưới dạng JSON. Không bao gồm thông tin đăng nhập nguồn lịch và bí mật tài khoản. Văn bản tài liệu môn học không được xuất; hãy giữ tài liệu gốc."
+  }
+}
