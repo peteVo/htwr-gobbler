@@ -31,7 +31,7 @@ The objective is a complete academic assistant experience. Course registration a
 
 The EN/DE/VI catalogue covers app-owned forms, help, errors, statuses, search metadata and accessibility labels. Original course names, notes and source quotations stay unchanged. Typed control values remain the server's stable values even when their labels are translated; locale-aware dates and parameterized messages are checked. Native browser/third-party diagnostics may remain in their original language.
 
-Settings now validates and previews Gobbler JSON exports, then restores missing courses/items/actions/calendar identities without overwriting current records. Restored dates need review; disconnected calendars must be reconnected. This does not recover account secrets or perform a full database rollback. `pnpm local --backup` verifies a complete local snapshot; the Windows update script backs up, checks/builds/migrates and restarts the identified runner. See RECOVERY_AND_UPDATES.md.
+Settings now validates and previews Gobbler JSON exports, then restores missing courses/items/actions/calendar identities without overwriting current records. Restored dates need review; disconnected calendars must be reconnected. This does not recover account secrets or perform a full database rollback. `pnpm local --backup` verifies a complete local snapshot separately from automatic retention; the Windows update script backs up, checks/builds/migrates and restarts the identified runner. The actual update/restart rehearsal passed on this PC with personal records retained. See RECOVERY_AND_UPDATES.md.
 
 ## Completed: configurable foreground reminders
 

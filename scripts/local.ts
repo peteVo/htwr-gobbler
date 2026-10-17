@@ -18,7 +18,7 @@ if (process.argv[2] === "--backup") {
   try {
     const result = await createBackup(
       findDatabase(path.join(root, ".wrangler/state/v3/d1")),
-      path.join(local, "backups"),
+      path.join(local, "manual-backups"),
       {
         SESSION_SECRET: proxy.env.SESSION_SECRET,
         FEED_SECRET: proxy.env.FEED_SECRET,
