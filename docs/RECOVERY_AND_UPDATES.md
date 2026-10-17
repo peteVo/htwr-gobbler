@@ -31,7 +31,7 @@ After the intended code revision is available in this checkout, run:
 
 Check inspects prerequisites without changing anything. Apply requires a clean checkout and installed local startup setup. It rejects unrelated listeners on Gobbler's ports and verifies the saved runner belongs to this checkout before stopping any process. Close separately started development terminals first.
 
-Apply creates and verifies a full backup, stops only the identified runner tree, installs locked dependencies, runs unit/API checks, builds the app, applies local migrations and starts the hidden launcher. It verifies API availability and a fresh runner heartbeat. Open Gobbler afterward and check your records, Sources, monitoring and reminders.
+Apply creates and verifies a full backup, stops only the identified runner tree, installs locked dependencies, runs unit/API checks, builds the app, applies local migrations and starts the hidden launcher. It verifies API availability, the finished-build gateway and a fresh runner heartbeat. Open Gobbler afterward and check your records, Sources, monitoring and reminders. The app keeps the same origin at port 5173, so existing cookies and browser notification permissions remain associated with it.
 
 The script does not fetch code, switch branches, reset files, merge the draft PR, change billing or deploy anything. It operates on the revision already present. If a check fails, it stops with the verified backup retained; it does not guess a rollback across schema or dependency changes. Resolve the failure before restarting. On other operating systems, the documented install/test/build/migrate steps remain manual; the Windows startup/update script is platform-specific.
 

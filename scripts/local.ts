@@ -43,6 +43,10 @@ if (process.argv[2] === "--verify") {
   );
   process.exit(0);
 }
+if (!fs.existsSync(path.join(root, "dist/index.html")))
+  throw new Error(
+    "Build Gobbler with pnpm build before starting the local runner.",
+  );
 const { user_id } = z
   .object({ user_id: z.string().uuid() })
   .parse(JSON.parse(fs.readFileSync(path.join(local, "config.json"), "utf8")));
@@ -167,13 +171,9 @@ try {
     "--port",
     "8787",
   ]);
-  await ensureServer(5173, "/", "htwr-gobbler", [
-    "node_modules/vite/bin/vite.js",
-    "--host",
-    "127.0.0.1",
-    "--port",
-    "5173",
-    "--strictPort",
+  await ensureServer(5173, "/", "/assets/", [
+    "node_modules/tsx/dist/cli.mjs",
+    "scripts/local-server.ts",
   ]);
   proxy = await getPlatformProxy<{
     DB: D1Database;

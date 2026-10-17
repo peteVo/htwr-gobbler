@@ -25,7 +25,7 @@ Open **http://127.0.0.1:5173**. Use this address rather than `localhost` so the 
 
 The logged-out view is a clearly labeled, read-only sample workspace. Sign in → **Create an account** opens an empty personal workspace. This is a gobbler account, separate from RWTH SSO. Do not reuse your RWTH password.
 
-For daily Windows use, the installed local runner starts the app at Windows sign-in, checks connected feeds every 30 minutes while the PC is awake, and keeps seven verified daily backups. Sources and Settings show its current status. See [local operation, backup verification and removal](docs/LOCAL_USE.md). `pnpm dev` alone does not start automatic checks/backups.
+For daily Windows use, the installed local runner serves the finished build at Windows sign-in, checks connected feeds every 30 minutes while the PC is awake, and keeps seven verified daily backups. Sources and Settings show its current status. See [local operation, backup verification and removal](docs/LOCAL_USE.md). Run `pnpm build` before installing startup. `pnpm start` serves the finished app/API manually; `pnpm dev` serves live development sources. Neither command alone starts automatic checks/backups.
 
 ## What works
 

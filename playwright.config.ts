@@ -12,7 +12,7 @@ export default defineConfig({
   webServer: process.env.REUSE_SERVER
     ? undefined
     : {
-        command: "pnpm db:migrate && pnpm dev",
+        command: "pnpm db:migrate && pnpm build && pnpm start",
         url: "http://127.0.0.1:5173",
         reuseExistingServer: !process.env.CI,
         timeout: 120000,

@@ -65,7 +65,8 @@ try {
     try {
       $gobblerStatus = Invoke-RestMethod 'http://127.0.0.1:5173/local-status' -TimeoutSec 2
       $gobblerHealth = Invoke-RestMethod 'http://127.0.0.1:8787/api/auth/options' -TimeoutSec 2
-      if ($gobblerStatus -and $null -ne $gobblerHealth.registration_open -and ([datetimeoffset]::UtcNow - [datetimeoffset]$gobblerStatus.heartbeat).TotalSeconds -lt 180) {
+      $gobblerApp = Invoke-WebRequest 'http://127.0.0.1:5173/' -TimeoutSec 2
+      if ($gobblerApp.Headers['X-Gobbler-Build'] -eq 'production' -and $gobblerStatus -and $null -ne $gobblerHealth.registration_open -and ([datetimeoffset]::UtcNow - [datetimeoffset]$gobblerStatus.heartbeat).TotalSeconds -lt 180) {
         Write-Output 'Gobbler restarted successfully. Open the app and verify your workspace and Sources.'
         exit 0
       }
