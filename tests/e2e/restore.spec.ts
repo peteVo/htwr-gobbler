@@ -7,6 +7,8 @@ test("record restore validates and previews a file, waits for confirmation, and 
   let writes = 0;
   await page.route("**/api/**", async (route) => {
     const path = new URL(route.request().url()).pathname;
+    if (path === "/api/materials/candidates")
+      return route.fulfill({ json: [] });
     if (path === "/api/restore") {
       writes++;
       await route.fulfill({

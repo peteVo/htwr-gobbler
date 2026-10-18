@@ -106,41 +106,47 @@ export async function readLocalOcr(data: Buffer, pages: number[]) {
       throw new PdfReadError("unreadable");
     const result: DocumentPage[] = [];
     for (const image of images) {
-      let response: Response;
-      try {
-        response = await fetch("http://127.0.0.1:11434/api/generate", {
-          method: "POST",
-          redirect: "error",
-          signal: AbortSignal.timeout(120000),
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            model: "glm-ocr:latest",
-            prompt: "Text Recognition:",
-            images: [image.image],
-            stream: false,
-            keep_alive: 0,
-            options: {
-              temperature: 0,
-              num_ctx: 8192,
-              num_predict: 6000,
-              repeat_penalty: 1.1,
-            },
-          }),
-        });
-      } catch {
-        throw new PdfReadError("ocr_unavailable");
+      // Handwritten pages can loop at the default setting; retry once without accepting partial text.
+      for (const penalty of [1.1, 1.2]) {
+        let response: Response;
+        try {
+          response = await fetch("http://127.0.0.1:11434/api/generate", {
+            method: "POST",
+            redirect: "error",
+            signal: AbortSignal.timeout(120000),
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: "glm-ocr:latest",
+              prompt: "Text Recognition:",
+              images: [image.image],
+              stream: false,
+              keep_alive: 0,
+              options: {
+                temperature: 0,
+                num_ctx: 8192,
+                num_predict: 6000,
+                repeat_penalty: penalty,
+              },
+            }),
+          });
+        } catch {
+          throw new PdfReadError("ocr_unavailable");
+        }
+        if (!response.ok) throw new PdfReadError("ocr_unavailable");
+        const output = z
+          .object({
+            done: z.literal(true),
+            done_reason: z.string().optional(),
+            response: z.string().max(500000),
+          })
+          .parse(await response.json());
+        if (output.done_reason === "length") {
+          if (penalty === 1.1) continue;
+          throw new PdfReadError("ocr_incomplete");
+        }
+        result.push({ page: image.page, text: output.response, ocr: true });
+        break;
       }
-      if (!response.ok) throw new PdfReadError("ocr_unavailable");
-      const output = z
-        .object({
-          done: z.literal(true),
-          done_reason: z.string().optional(),
-          response: z.string().max(500000),
-        })
-        .parse(await response.json());
-      if (output.done_reason === "length")
-        throw new PdfReadError("ocr_incomplete");
-      result.push({ page: image.page, text: output.response, ocr: true });
     }
     return result;
   } finally {

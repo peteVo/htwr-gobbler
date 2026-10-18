@@ -83,6 +83,8 @@ async function setup(
   );
   await page.context().route("**/api/**", async (route) => {
     const url = new URL(route.request().url());
+    if (url.pathname === "/api/materials/candidates")
+      return route.fulfill({ json: [] });
     if (
       url.pathname === "/api/preferences" &&
       route.request().method() === "PUT"

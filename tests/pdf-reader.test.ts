@@ -84,6 +84,7 @@ test.skipIf(process.platform !== "win32")(
   async () => {
     const data = await fs.readFile("tests/fixtures/scanned.pdf");
     let complete = true;
+    let fallback = false;
     const provider = vi.fn(async (url: string, init: RequestInit) => {
       expect(url).toBe("http://127.0.0.1:11434/api/generate");
       expect(init.redirect).toBe("error");
@@ -96,7 +97,10 @@ test.skipIf(process.platform !== "win32")(
       ).toBe("PNG");
       return Response.json({
         done: true,
-        done_reason: complete ? "stop" : "length",
+        done_reason:
+          complete || (fallback && body.options.repeat_penalty === 1.2)
+            ? "stop"
+            : "length",
         response: "Gobbler OCR test\nLocal document processing.",
       });
     });
@@ -107,6 +111,13 @@ test.skipIf(process.platform !== "win32")(
       text: expect.stringContaining("Gobbler OCR test"),
     });
     complete = false;
+    fallback = true;
+    const before = provider.mock.calls.length;
+    expect((await readLocalOcr(data, [1]))[0].text).toContain(
+      "Gobbler OCR test",
+    );
+    expect(provider.mock.calls.length - before).toBe(2);
+    fallback = false;
     await expect(readLocalOcr(data, [1])).rejects.toMatchObject({
       issue: "ocr_incomplete",
     });

@@ -8,6 +8,8 @@ import type {
   MaterialCandidate,
 } from "../../../packages/core/materials";
 import { useText } from "./text";
+import { MaterialDates } from "./MaterialDates";
+import type { Item } from "../../../packages/core/index";
 import { scheduleKind } from "../../../packages/core/schedule";
 type FileIssue = {
   source_name: string;
@@ -20,6 +22,7 @@ type FileIssue = {
 
 export function Assistant({
   courses,
+  items,
   signedIn,
   language,
   request,
@@ -27,16 +30,16 @@ export function Assistant({
   showSources,
 }: {
   courses: Course[];
+  items: Item[];
   signedIn: boolean;
   language: string;
   request: <T>(path: string, method?: string, body?: unknown) => Promise<T>;
-  review: (candidate: MaterialCandidate) => void;
+  review: (candidate: MaterialCandidate & { target_id?: string }) => void;
   showSources: () => void;
 }) {
   const tx = useText();
   const [course, setCourse] = useState(""),
     [materials, setMaterials] = useState<SyncedMaterialSummary[]>([]);
-  const [candidates, setCandidates] = useState<MaterialCandidate[]>([]);
   const [issues, setIssues] = useState<FileIssue[]>([]);
   const [ready, setReady] = useState(false),
     [checking, setChecking] = useState(false),
@@ -50,13 +53,11 @@ export function Assistant({
     [pages, setPages] = useState<DocumentPage[]>([]);
   const [answer, setAnswer] = useState<CourseAnswer | null>(null);
   async function refresh() {
-    const [library, dates, files] = await Promise.all([
+    const [library, files] = await Promise.all([
       request<SyncedMaterialSummary[]>("/materials"),
-      request<MaterialCandidate[]>("/materials/candidates"),
       request<FileIssue[]>("/materials/issues"),
     ]);
     setMaterials(library);
-    setCandidates(dates);
     setIssues(files);
   }
   async function check() {
@@ -75,13 +76,11 @@ export function Assistant({
     const load = () =>
       Promise.all([
         request<SyncedMaterialSummary[]>("/materials"),
-        request<MaterialCandidate[]>("/materials/candidates"),
         request<FileIssue[]>("/materials/issues"),
       ])
-        .then(([v, dates, files]) => {
+        .then(([v, files]) => {
           if (active) {
             setMaterials(v);
-            setCandidates(dates);
             setIssues(files);
           }
         })
@@ -356,6 +355,14 @@ export function Assistant({
       </section>
       <section>
         <h2>{tx("Course material")}</h2>
+        <MaterialDates
+          courses={courses}
+          items={items}
+          course={course || undefined}
+          request={request}
+          review={review}
+          disabled={!!busy}
+        />
         <details className="material-upload small muted">
           <summary>{tx("Material coverage by module")}</summary>
           <ul>
@@ -564,47 +571,6 @@ export function Assistant({
                 )}
               </article>
             ))}
-            {candidates.filter((d) => d.course_id === course).length > 0 && (
-              <section aria-label={tx("Dates to review")}>
-                <h3>{tx("Dates to review")}</h3>
-                <p className="small muted">
-                  {tx(
-                    "These PDF dates are suggestions. Check the wording and existing tasks before saving; they are not confirmed deadlines.",
-                  )}
-                </p>
-                {candidates
-                  .filter((d) => d.course_id === course)
-                  .map((d) => (
-                    <article key={d.document_key} className="assistant-answer">
-                      <strong>{d.document_name}</strong>
-                      <p>
-                        {new Intl.DateTimeFormat(language, {
-                          dateStyle: "medium",
-                          ...(d.all_day ? {} : { timeStyle: "short" as const }),
-                          timeZone: "Europe/Berlin",
-                        }).format(new Date(d.deadline))}
-                        {" · Europe/Berlin"}
-                        {d.page ? tx(" · Page {0}", d.page) : ""}
-                      </p>
-                      <blockquote>{d.evidence}</blockquote>
-                      {d.ocr && (
-                        <p className="warning-text">
-                          {tx(
-                            "OCR-derived date · compare the original page before saving.",
-                          )}
-                        </p>
-                      )}
-                      <button
-                        className="secondary"
-                        disabled={!!busy}
-                        onClick={() => review(d)}
-                      >
-                        {tx("Review date")}
-                      </button>
-                    </article>
-                  ))}
-              </section>
-            )}
             <details className="material-upload">
               <summary>{tx("Add course material")}</summary>
               <p className="small muted">

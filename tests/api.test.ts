@@ -1629,7 +1629,7 @@ it("keeps automatic material candidates private, omits reviewed dates and exclud
       user,
       course,
       JSON.stringify([{ page: 1, text: "Private course text" }]),
-      JSON.stringify([candidate]),
+      JSON.stringify([candidate, candidate]),
     );
   sqlite
     .prepare(

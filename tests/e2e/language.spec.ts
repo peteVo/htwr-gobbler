@@ -34,6 +34,8 @@ test("German and Vietnamese translate full workflows without changing stored val
   let saved: any;
   await page.route("**/api/**", async (route) => {
     const path = new URL(route.request().url()).pathname;
+    if (path === "/api/materials/candidates")
+      return route.fulfill({ json: [] });
     if (path === "/api/preferences" && route.request().method() === "PUT")
       data.preferences = route.request().postDataJSON();
     if (path === "/api/items/i" && route.request().method() === "PUT") {

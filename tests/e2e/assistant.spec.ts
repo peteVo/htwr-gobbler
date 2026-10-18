@@ -145,7 +145,22 @@ test("automatic material shows availability and reviews a suggested date without
     r.fulfill({
       json: {
         courses: [{ id: "c", name: "Networks", code: "NET", color: "sage" }],
-        items: [],
+        items: [
+          {
+            id: "existing",
+            course_id: "c",
+            title: "Sheet already saved",
+            kind: "assignment",
+            starts_at: candidate.deadline,
+            ends_at: null,
+            all_day: false,
+            status: "open",
+            verification: "confirmed",
+            description: "",
+            evidence: "",
+            source_url: "",
+          },
+        ],
         actions: [],
         sources: [],
         changes: [],
@@ -246,8 +261,16 @@ test("automatic material shows availability and reviews a suggested date without
   await expect(
     page.getByRole("button", { name: "Remove material Sheet.pdf" }),
   ).toHaveCount(0);
+  const sameDay = page.getByLabel(
+    "Tasks already saved for this module on this day",
+  );
+  await expect(sameDay).toContainText("Sheet already saved");
+  await sameDay.selectOption("existing");
   await page.getByRole("button", { name: "Review date", exact: true }).click();
   await expect(page.getByRole("dialog")).toContainText(candidate.evidence);
+  await expect(
+    page.getByRole("dialog").getByLabel("Title", { exact: true }),
+  ).toHaveValue("Sheet already saved");
   expect(writes).toBe(0);
 });
 
@@ -455,4 +478,87 @@ test("keyboard users can skip navigation, identify dialogs and dismiss mobile na
   await page.keyboard.press("Escape");
   await expect(toggle).toBeFocused();
   await expect(toggle).toHaveAttribute("aria-expanded", "false");
+});
+
+test("Today surfaces evidenced dates, flags old dates and retries failed refreshes without writing tasks", async ({
+  page,
+}) => {
+  let failed = false,
+    writes = 0;
+  const future = {
+    course_id: "c",
+    document_key: "a".repeat(64),
+    document_hash: "b".repeat(64),
+    document_name: "Sheet.pdf",
+    document: "Sheet.pdf",
+    deadline: "2099-10-22T00:00:00.000Z",
+    all_day: true,
+    evidence: "Abgabe 22.10.2099",
+    page: 2,
+    source_url: "",
+    title: "Date",
+  };
+  await page.route("**/api/**", (r) => {
+    const path = new URL(r.request().url()).pathname;
+    if (r.request().method() !== "GET") writes++;
+    if (path === "/api/materials/candidates" && failed)
+      return r.fulfill({ status: 503, json: { error: "Unavailable" } });
+    const json =
+      path === "/api/me"
+        ? { email: "dates@test.invalid" }
+        : path === "/api/data"
+          ? {
+              courses: [
+                { id: "c", name: "Networks", code: "NET", color: "sage" },
+              ],
+              items: [],
+              actions: [],
+              changes: [],
+              sources: [],
+              preferences: defaultPreferences,
+            }
+          : path === "/api/materials/candidates"
+            ? [
+                {
+                  ...future,
+                  document_key: "c".repeat(64),
+                  deadline: "2020-01-01T00:00:00.000Z",
+                  evidence: "Abgabe 01.01.2020",
+                },
+                future,
+              ]
+            : [];
+    return r.fulfill({ json });
+  });
+  await page.goto("/");
+  await page.getByText("Dates to review (2)", { exact: true }).click();
+  const region = page.getByRole("region", { name: "Dates to review" });
+  await expect(region.locator("article").first()).toContainText(
+    future.evidence,
+  );
+  await expect(region).toContainText("Networks · Sheet.pdf");
+  await expect(region).toContainText("Date only · no exact time is recorded.");
+  await expect(region).toContainText(
+    "Past date · check the semester before saving.",
+  );
+  expect(writes).toBe(0);
+  for (const width of [320, 375, 414, 768]) {
+    await page.setViewportSize({ width, height: 900 });
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+  }
+  failed = true;
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+  await expect(page.getByRole("alert")).toContainText(
+    "Could not refresh suggested dates",
+  );
+  failed = false;
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+  await expect(
+    page.getByText("Dates to review (2)", { exact: true }),
+  ).toBeVisible();
+  expect(writes).toBe(0);
 });

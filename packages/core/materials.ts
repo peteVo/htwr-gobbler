@@ -72,7 +72,7 @@ export function selectPassages(
       .toLowerCase()
       .normalize("NFD")
       .replace(/\p{M}/gu, "")
-      .match(/[\p{L}\p{N}]{3,}/gu) ?? [];
+      .match(/\p{L}{3,}|\p{N}{3,}/gu) ?? [];
   const common = new Set(
     "the and for are with this that what when where which how does explain please about from your can you und der die das ein eine einer einem einen ist sind was wie warum bitte mit von den des dem bai cua cac cho mot nhung the nao tai sao gi hay toi".split(
       " ",
@@ -115,7 +115,7 @@ export function selectPassages(
         (n, t) =>
           n +
           (weights.get(t) ?? 0) *
-            (p.found.has(t) ? 2 : p.title.has(t) ? 0.25 : 0),
+            ((p.found.has(t) ? 2 : 0) + (p.title.has(t) ? 1 : 0)),
         0,
       ),
     }))

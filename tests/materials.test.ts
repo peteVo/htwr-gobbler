@@ -85,6 +85,34 @@ test("retrieval favors topic evidence over common question words and repeated fi
   }
 });
 
+test("retrieval recognizes numbered lecture filenames and ranks topic pages above outlines", () => {
+  const library = [
+    {
+      ...material,
+      id: "outline",
+      name: "intro.pdf",
+      pages: Array.from({ length: 12 }, (_, i) => ({
+        page: i + 1,
+        text: "Image segmentation is on the course outline.",
+      })),
+    },
+    {
+      ...material,
+      id: "topic",
+      name: "cv26-part05-segmentation1-6on1.pdf",
+      pages: [
+        {
+          page: 4,
+          text: "Image segmentation partitions an image into regions sharing a property.",
+        },
+      ],
+    },
+  ];
+  expect(
+    selectPassages(library, "What is image segmentation?")[0],
+  ).toMatchObject({ material_id: "topic", page: 4 });
+});
+
 test("local assistant accepts only complete answers with matching quotations and references", async () => {
   const passages = selectPassages([material], "TCP");
   let result: unknown = {
@@ -101,6 +129,9 @@ test("local assistant accepts only complete answers with matching quotations and
     const body = JSON.parse(String(init.body));
     expect(body.stream).toBe(false);
     expect(body.model).toBe("test-local");
+    expect(body.format.properties.citations.items.properties.id.enum).toEqual([
+      "1",
+    ]);
     return Response.json({
       done: true,
       done_reason: reason,
@@ -111,6 +142,22 @@ test("local assistant accepts only complete answers with matching quotations and
   expect(
     (await answerCourse("test-local", "TCP?", "en", passages)).citations[0],
   ).toMatchObject({ page: 3, material_id: "m" });
+  result = {
+    answer: "TCP uses retransmission [1].",
+    supported: true,
+    citations: [{ id: "1" }],
+  };
+  expect(
+    (await answerCourse("test-local", "TCP?", "en", passages)).citations[0]
+      .quote,
+  ).toBe(passages[0].text);
+  result = {
+    answer: "TCP uses retransmission [1].",
+    supported: true,
+    citations: [
+      { id: "1", quote: "TCP uses acknowledgements and retransmission" },
+    ],
+  };
   const spaced = [
     {
       ...passages[0],

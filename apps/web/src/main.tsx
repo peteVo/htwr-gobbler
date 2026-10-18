@@ -53,6 +53,7 @@ import { SearchResults } from "./SearchResults";
 import { ReminderSettings } from "./ReminderSettings";
 import { useReminders } from "./reminders";
 import { Restore } from "./Restore";
+import { MaterialDates } from "./MaterialDates";
 import { Assistant } from "./Assistant";
 import "./styles.css";
 
@@ -851,6 +852,14 @@ function App() {
                         g.
                       </span>
                     </section>
+                    {!!email && (
+                      <MaterialDates
+                        courses={data.courses}
+                        items={data.items}
+                        request={api}
+                        review={(d) => reviewDocument(d, d)}
+                      />
+                    )}
                     <div className="overview-line">
                       <div>
                         <span className="metric">
@@ -1449,6 +1458,7 @@ function App() {
                 {page === "assistant" && (
                   <Assistant
                     courses={data.courses}
+                    items={data.items}
                     signedIn={!!email}
                     language={prefs.language}
                     request={api}

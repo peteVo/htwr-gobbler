@@ -57,6 +57,8 @@ test("workspace search opens hidden work, actions, modules and sources without c
   const writes: string[] = [];
   await page.route("**/api/**", async (route) => {
     const url = new URL(route.request().url());
+    if (url.pathname === "/api/materials/candidates")
+      return route.fulfill({ json: [] });
     if (route.request().method() !== "GET") writes.push(url.pathname);
     await route.fulfill({
       json:

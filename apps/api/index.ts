@@ -12,6 +12,7 @@ import {
   parseCalendar,
   itemChangeKind,
   actionInput,
+  berlinDay,
 } from "../../packages/core/index";
 import { hash, passwordHash, equal, crypt } from "./security";
 import { acquireSource, ingest, syncFeed, checkSources } from "./sync";
@@ -788,9 +789,21 @@ app.get("/api/materials/candidates", async (c) => {
   const candidates = rows.results.flatMap(
     (r) => JSON.parse(r.candidates) as MaterialCandidate[],
   );
+  const today = berlinDay(new Date());
   return c.json(
     candidates
-      .filter((d) => !keys.has(JSON.stringify([d.course_id, d.document_key])))
+      .filter((d) => {
+        const key = JSON.stringify([d.course_id, d.document_key]);
+        if (keys.has(key)) return false;
+        keys.add(key);
+        return true;
+      })
+      .sort(
+        (a, b) =>
+          Number(berlinDay(a.deadline) < today) -
+            Number(berlinDay(b.deadline) < today) ||
+          a.deadline.localeCompare(b.deadline),
+      )
       .slice(0, 100),
   );
 });

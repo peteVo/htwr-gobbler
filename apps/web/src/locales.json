@@ -67,7 +67,10 @@
     "de": "Datum aus OCR · vor dem Speichern mit der Originalseite vergleichen.",
     "vi": "Ngày từ OCR · hãy đối chiếu trang gốc trước khi lưu."
   },
-  "OCR-derived text": { "de": "OCR-Text", "vi": "Văn bản từ OCR" },
+  "OCR-derived text": {
+    "de": "OCR-Text",
+    "vi": "Văn bản từ OCR"
+  },
   "Manual PDF uploads read existing text: up to 200 pages, 10 MB and 500,000 characters. Automatic OCR and larger PDF imports run through connected local folders.": {
     "de": "Manuelle PDF-Uploads lesen vorhandenen Text: bis zu 200 Seiten, 10 MB und 500.000 Zeichen. Automatische OCR und größere PDF-Importe laufen über verbundene lokale Ordner.",
     "vi": "Tải PDF thủ công đọc văn bản có sẵn: tối đa 200 trang, 10 MB và 500.000 ký tự. OCR tự động và nhập PDF lớn chạy qua thư mục cục bộ đã kết nối."
@@ -124,8 +127,14 @@
     "de": "Die erzeugte Antwort ließ sich nicht anhand deines Materials belegen und wurde nicht angezeigt. Stelle eine engere Frage mit Thema oder Dokumentname.",
     "vi": "Không thể xác minh câu trả lời bằng tài liệu của bạn nên câu trả lời không được hiển thị. Hãy hỏi cụ thể hơn kèm chủ đề hoặc tên tài liệu."
   },
-  "Overdue": { "de": "Überfällig", "vi": "Quá hạn" },
-  "Due today": { "de": "Heute fällig", "vi": "Đến hạn hôm nay" },
+  "Overdue": {
+    "de": "Überfällig",
+    "vi": "Quá hạn"
+  },
+  "Due today": {
+    "de": "Heute fällig",
+    "vi": "Đến hạn hôm nay"
+  },
   "Due within 7 days": {
     "de": "Innerhalb von 7 Tagen fällig",
     "vi": "Đến hạn trong 7 ngày"
@@ -1925,5 +1934,25 @@
   "Ask about your course": {
     "de": "Fragen zu deinem Kurs",
     "vi": "Hỏi về môn học"
+  },
+  "Could not refresh suggested dates. Return to this window to retry; saved tasks are unchanged.": {
+    "de": "Datumsvorschläge konnten nicht aktualisiert werden. Kehre zu diesem Fenster zurück, um es erneut zu versuchen; gespeicherte Aufgaben bleiben unverändert.",
+    "vi": "Không thể làm mới ngày được đề xuất. Quay lại cửa sổ này để thử lại; các công việc đã lưu không thay đổi."
+  },
+  "Dates to review ({0})": {
+    "de": "Zu prüfende Termine ({0})",
+    "vi": "Ngày cần kiểm tra ({0})"
+  },
+  "Past date · check the semester before saving.": {
+    "de": "Vergangenes Datum · prüfe das Semester vor dem Speichern.",
+    "vi": "Ngày đã qua · kiểm tra học kỳ trước khi lưu."
+  },
+  "Tasks already saved for this module on this day": {
+    "de": "Bereits gespeicherte Aufgaben für dieses Modul an diesem Tag",
+    "vi": "Công việc đã lưu cho môn này trong ngày này"
+  },
+  "Create a separate task after checking for duplicates": {
+    "de": "Nach Prüfung auf Duplikate eine separate Aufgabe erstellen",
+    "vi": "Tạo công việc riêng sau khi kiểm tra trùng lặp"
   }
 }
