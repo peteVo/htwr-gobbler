@@ -1726,6 +1726,7 @@ nav button {
 }
 .material-upload {
   margin-top: 24px;
+  overflow-wrap: anywhere;
 }
 .material-upload summary {
   cursor: pointer;

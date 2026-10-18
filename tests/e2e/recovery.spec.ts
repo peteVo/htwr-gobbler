@@ -55,9 +55,10 @@ test("a saved recovery key restores the workspace through the sign-in screen", a
   await expect(
     page.getByLabel("Your recovery key", { exact: true }),
   ).toHaveCount(0);
-  await page.request.post("/api/logout", {
+  const logout = await page.request.post("/api/logout", {
     headers: { Origin: "http://127.0.0.1:5173" },
   });
+  expect(logout.status()).toBe(200);
   await page.reload();
   await page
     .locator(".demo-strip")

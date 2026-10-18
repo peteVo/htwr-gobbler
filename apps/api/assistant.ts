@@ -76,9 +76,15 @@ export async function answerCourse(
     throw new Error("Missing evidence");
   const citations = result.citations.map((c) => {
     const source = passages.find((p) => p.id === c.id);
-    if (!source || !source.text.includes(c.quote))
-      throw new Error("Invalid evidence");
-    return { ...source, quote: c.quote };
+    if (!source) throw new Error("Invalid evidence");
+    // PDF line spacing may change in model output; return the original source substring.
+    const pattern = c.quote
+      .split(/\s+/)
+      .map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+      .join("\\s+");
+    const quote = source.text.match(new RegExp(pattern))?.[0];
+    if (!quote) throw new Error("Invalid evidence");
+    return { ...source, quote };
   });
   const markers = [...result.answer.matchAll(/\[(\d+)\]/g)].map((m) => m[1]);
   if (

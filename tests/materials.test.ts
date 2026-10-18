@@ -76,6 +76,15 @@ test("local assistant accepts only complete answers with matching quotations and
   expect(
     (await answerCourse("test-local", "TCP?", "en", passages)).citations[0],
   ).toMatchObject({ page: 3, material_id: "m" });
+  const spaced = [
+    {
+      ...passages[0],
+      text: "TCP uses\n  acknowledgements and retransmission to provide reliable delivery.",
+    },
+  ];
+  expect(
+    (await answerCourse("test-local", "TCP?", "en", spaced)).citations[0].quote,
+  ).toBe("TCP uses\n  acknowledgements and retransmission");
   result = {
     answer: "Invented [1]",
     supported: true,

@@ -32,6 +32,7 @@ test("course assistant saves PDF pages, cites material, handles missing evidence
   await page.route("**/api/materials/candidates", (r) =>
     r.fulfill({ json: [] }),
   );
+  await page.route("**/api/materials/issues", (r) => r.fulfill({ json: [] }));
   await page.route("**/api/assistant/status", (r) =>
     r.fulfill({ json: { ready } }),
   );
@@ -163,6 +164,17 @@ test("automatic material shows availability and reviews a suggested date without
   await page.route("**/api/materials/candidates", (r) =>
     r.fulfill({ json: [candidate] }),
   );
+  await page.route("**/api/materials/issues", (r) =>
+    r.fulfill({
+      json: [
+        {
+          source_name: "Local files · Networks",
+          relative_path: "scanned.pdf",
+          state: "unreadable",
+        },
+      ],
+    }),
+  );
   await page.route("**/api/assistant/status", (r) =>
     r.fulfill({ json: { ready: true } }),
   );
@@ -180,6 +192,8 @@ test("automatic material shows availability and reviews a suggested date without
   await expect(
     page.getByText("Local PDF unavailable · excluded from answers"),
   ).toBeVisible();
+  await page.getByText("PDFs needing attention (1)", { exact: true }).click();
+  await expect(page.getByText("scanned.pdf", { exact: true })).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Ask local AI", exact: true }),
   ).toBeDisabled();

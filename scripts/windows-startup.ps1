@@ -11,7 +11,10 @@ if ($Remove) {
 if ($UserId) {
     [void][Guid]::Parse($UserId)
     New-Item -ItemType Directory -Path $gobblerLocal -Force | Out-Null
-    @{ user_id = $UserId } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $gobblerLocal 'config.json')
+    $gobblerConfigPath = Join-Path $gobblerLocal 'config.json'
+    if (!(Test-Path -LiteralPath $gobblerConfigPath) -or (Get-Content -LiteralPath $gobblerConfigPath -Raw | ConvertFrom-Json).user_id -ne $UserId) {
+        @{ user_id = $UserId } | ConvertTo-Json | Set-Content -LiteralPath $gobblerConfigPath
+    }
 }
 if (-not (Test-Path -LiteralPath (Join-Path $gobblerLocal 'config.json'))) { throw 'Choose a local workspace with -UserId before installing startup.' }
 $gobblerNode = (Get-Command node -CommandType Application | Select-Object -First 1).Source

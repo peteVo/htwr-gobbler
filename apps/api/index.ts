@@ -17,6 +17,7 @@ import { hash, passwordHash, equal, crypt } from "./security";
 import { acquireSource, ingest, syncFeed, checkSources } from "./sync";
 import { restoreRecords } from "./restore";
 import { answerCourse } from "./assistant";
+import { localQueries } from "./local-queries";
 import {
   materialInput,
   answerInput,
@@ -182,6 +183,41 @@ app.post("/api/auth/:action", async (c) => {
     maxAge: 604800,
   });
   return c.json({ email });
+});
+app.use("/api/local/*", async (c, next) => {
+  if (
+    new URL(c.req.url).hostname !== "127.0.0.1" ||
+    !equal(
+      c.req.header("X-Gobbler-Local-Key") ?? "",
+      await hash("local-runner:" + c.env.SESSION_SECRET),
+    )
+  )
+    return c.json({ error: "Local runner access required." }, 403);
+  await next();
+});
+app.post("/api/local/query", async (c) => {
+  const v = z
+    .object({
+      id: z.string().max(50),
+      values: z
+        .array(
+          z.union([z.string().max(3000000), z.number().finite(), z.null()]),
+        )
+        .max(20),
+      method: z.enum(["first", "all", "run"]),
+    })
+    .parse(await c.req.json());
+  const sql = Object.entries(localQueries).find(([id]) => id === v.id)?.[1];
+  if (!sql)
+    return c.json({ error: "Unsupported local database operation." }, 400);
+  const query = c.env.DB.prepare(sql).bind(...v.values);
+  return c.json({ result: await query[v.method]() });
+});
+app.post("/api/local/check", async (c) => {
+  const { user_id } = z
+    .object({ user_id: z.string().uuid() })
+    .parse(await c.req.json());
+  return c.json(await checkSources(c.env.DB, c.env.FEED_SECRET, user_id));
 });
 app.use("/api/*", async (c, next) => {
   const bearer = c.req.header("Authorization")?.match(/^Bearer (.+)$/)?.[1];
@@ -722,6 +758,14 @@ app.get("/api/materials", async (c) => {
     .all();
   return c.json(rows.results);
 });
+app.get("/api/materials/issues", async (c) => {
+  const rows = await c.env.DB.prepare(
+    "SELECT s.name AS source_name,f.relative_path,f.state FROM material_files f JOIN sources s ON s.id=f.source_id AND s.user_id=f.user_id WHERE f.user_id=? AND f.state<>'available' ORDER BY s.name,f.relative_path LIMIT 100",
+  )
+    .bind(c.get("user"))
+    .all();
+  return c.json(rows.results);
+});
 app.get("/api/materials/candidates", async (c) => {
   const user = c.get("user");
   const rows = await c.env.DB.prepare(
@@ -961,8 +1005,15 @@ app.post("/api/ai/extract", async (c) => {
       .map((d) => ({ ...d, verification: "needs_review" })),
   });
 });
-app.onError((err, c) =>
-  c.json(
+app.onError((err, c) => {
+  if (!(err instanceof z.ZodError || err instanceof SyntaxError))
+    console.error("Request failed", {
+      kind: err.name,
+      localCommitTokenFailure: err.message.includes(
+        "Failed to get session commit token",
+      ),
+    });
+  return c.json(
     {
       error:
         err instanceof z.ZodError
@@ -972,8 +1023,8 @@ app.onError((err, c) =>
             : "Request failed. Please try again.",
     },
     err instanceof z.ZodError || err instanceof SyntaxError ? 400 : 500,
-  ),
-);
+  );
+});
 app.notFound((c) => c.json({ error: "Not found" }, 404));
 export default {
   fetch: app.fetch,

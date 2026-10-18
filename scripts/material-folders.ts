@@ -1,3 +1,4 @@
+import { localQueries } from "../apps/api/local-queries";
 import fs from "node:fs/promises";
 import { createReadStream } from "node:fs";
 import path from "node:path";
@@ -64,7 +65,7 @@ export async function connectMaterialFolder(
   if (!(await fs.stat(canonical)).isDirectory())
     throw new Error("Choose a course folder");
   const owned = await db
-    .prepare("SELECT name FROM courses WHERE id=? AND user_id=?")
+    .prepare(localQueries.courseName)
     .bind(course, user)
     .first<{ name: string }>();
   if (!owned) throw new Error("Course not found");
@@ -78,9 +79,7 @@ export async function connectMaterialFolder(
       ]),
     ));
   await db
-    .prepare(
-      "INSERT INTO sources (id,user_id,name,kind) VALUES (?,?,?,'folder') ON CONFLICT(id) DO NOTHING",
-    )
+    .prepare(localQueries.connectSource)
     .bind(source_id, user, "Local files · " + owned.name)
     .run();
   return { course_id: course, path: canonical, source_id };
@@ -95,23 +94,21 @@ export async function syncMaterialFolder(
 ) {
   if (
     !(await db
-      .prepare(
-        "SELECT id FROM sources WHERE id=? AND user_id=? AND kind='folder'",
-      )
+      .prepare(localQueries.source)
       .bind(folder.source_id, user)
       .first())
   )
     return;
   if (
     !(await db
-      .prepare("SELECT id FROM courses WHERE id=? AND user_id=?")
+      .prepare(localQueries.ownedCourse)
       .bind(folder.course_id, user)
       .first())
   )
     return;
   const stamp = new Date(now).toISOString();
   await db
-    .prepare("UPDATE sources SET last_attempt=? WHERE id=? AND user_id=?")
+    .prepare(localQueries.attempt)
     .bind(stamp, folder.source_id, user)
     .run();
   let failed = false,
@@ -151,9 +148,7 @@ export async function syncMaterialFolder(
           if (now - before.mtimeMs < 5000) {
             complete = false;
             await db
-              .prepare(
-                "UPDATE material_files SET state='unreadable' WHERE user_id=? AND source_id=? AND relative_path=?",
-              )
+              .prepare(localQueries.unavailableFile)
               .bind(user, folder.source_id, relative)
               .run();
             continue;
@@ -168,9 +163,7 @@ export async function syncMaterialFolder(
           const data = Buffer.concat(chunks);
           fileHash = createHash("sha256").update(data).digest("hex");
           const previous = await db
-            .prepare(
-              "SELECT file_hash,state,material_id,checked_at FROM material_files WHERE user_id=? AND source_id=? AND relative_path=?",
-            )
+            .prepare(localQueries.file)
             .bind(user, folder.source_id, relative)
             .first<{
               file_hash: string;
@@ -196,9 +189,7 @@ export async function syncMaterialFolder(
           if (parsed >= 3) {
             complete = false;
             await db
-              .prepare(
-                "UPDATE material_files SET state='unreadable' WHERE user_id=? AND source_id=? AND relative_path=?",
-              )
+              .prepare(localQueries.unavailableFile)
               .bind(user, folder.source_id, relative)
               .run();
             continue;
@@ -246,9 +237,7 @@ export async function syncMaterialFolder(
             "material-" +
             (await hash(JSON.stringify([user, folder.course_id, contentHash])));
           await db
-            .prepare(
-              "INSERT INTO materials (id,user_id,course_id,name,source_url,pages,content_hash,created_at,managed,candidates) SELECT ?,?,?,?,'',?,?,?,1,? WHERE (SELECT COUNT(*) FROM materials WHERE user_id=?)<100 AND (SELECT COALESCE(SUM(length(pages)),0) FROM materials WHERE user_id=?) + length(?)<=5000000 ON CONFLICT(user_id,course_id,content_hash) DO NOTHING",
-            )
+            .prepare(localQueries.saveMaterial)
             .bind(
               id,
               user,
@@ -260,28 +249,21 @@ export async function syncMaterialFolder(
               JSON.stringify(candidates),
               user,
               user,
-              text,
             )
             .run();
           const saved = await db
-            .prepare(
-              "SELECT id FROM materials WHERE user_id=? AND course_id=? AND content_hash=?",
-            )
+            .prepare(localQueries.material)
             .bind(user, folder.course_id, contentHash)
             .first<{ id: string }>();
           if (!saved) throw new Error("Material library is full");
           await db
-            .prepare(
-              "INSERT INTO material_files (user_id,source_id,relative_path,material_id,file_hash,state) VALUES (?,?,?,?,?,'available') ON CONFLICT(user_id,source_id,relative_path) DO UPDATE SET material_id=excluded.material_id,file_hash=excluded.file_hash,state='available'",
-            )
+            .prepare(localQueries.bindFile)
             .bind(user, folder.source_id, relative, saved.id, fileHash)
             .run();
         } catch {
           failed = true;
           await db
-            .prepare(
-              "INSERT INTO material_files (user_id,source_id,relative_path,state,file_hash,checked_at) VALUES (?,?,?,'unreadable',?,?) ON CONFLICT(user_id,source_id,relative_path) DO UPDATE SET state='unreadable',file_hash=excluded.file_hash,checked_at=excluded.checked_at",
-            )
+            .prepare(localQueries.failedFile)
             .bind(user, folder.source_id, relative, fileHash, now)
             .run();
         }
@@ -290,46 +272,31 @@ export async function syncMaterialFolder(
     await walk(base, 0);
     if (complete) {
       const rows = await db
-        .prepare(
-          "SELECT relative_path FROM material_files WHERE user_id=? AND source_id=?",
-        )
+        .prepare(localQueries.files)
         .bind(user, folder.source_id)
         .all<{ relative_path: string }>();
       for (const row of rows.results)
         if (!found.has(row.relative_path))
           await db
-            .prepare(
-              "UPDATE material_files SET state='missing' WHERE user_id=? AND source_id=? AND relative_path=?",
-            )
+            .prepare(localQueries.missingFile)
             .bind(user, folder.source_id, row.relative_path)
             .run();
     }
   } catch {
     failed = true;
     await db
-      .prepare(
-        "UPDATE material_files SET state='unreadable' WHERE user_id=? AND source_id=?",
-      )
+      .prepare(localQueries.unavailableFolder)
       .bind(user, folder.source_id)
       .run();
   }
   // Retain missing files for recovery; discard only superseded, unreferenced automatic text.
-  await db
-    .prepare(
-      "DELETE FROM materials WHERE user_id=? AND managed=1 AND NOT EXISTS (SELECT 1 FROM material_files WHERE material_id=materials.id)",
-    )
-    .bind(user)
-    .run();
+  await db.prepare(localQueries.discardSuperseded).bind(user).run();
   const count = await db
-    .prepare(
-      "SELECT COUNT(*) AS n FROM material_files WHERE user_id=? AND source_id=? AND state='available'",
-    )
+    .prepare(localQueries.countFiles)
     .bind(user, folder.source_id)
     .first<{ n: number }>();
   await db
-    .prepare(
-      "UPDATE sources SET status=?,last_success=CASE WHEN ? THEN last_success ELSE ? END,error=?,imported_count=? WHERE id=? AND user_id=?",
-    )
+    .prepare(localQueries.sourceStatus)
     .bind(
       failed || !complete ? "failed" : "connected",
       failed || !complete ? 1 : 0,

@@ -3,7 +3,7 @@ import { DatabaseSync } from "node:sqlite";
 import { readFileSync, readdirSync } from "node:fs";
 import { app } from "../apps/api/index";
 import { syncFeed, checkSources } from "../apps/api/sync";
-import { crypt } from "../apps/api/security";
+import { crypt, hash } from "../apps/api/security";
 
 // The adapter exercises the actual migration and SQL against SQLite, without mocking query results.
 let sqlite: DatabaseSync, db: D1Database;
@@ -1376,6 +1376,39 @@ it("stores module material once, isolates owners, and asks local AI only with ow
   ).toEqual([]);
 });
 
+it("permits fixed local-runner queries only on loopback with the derived operator key", async () => {
+  await account();
+  const user = sqlite.prepare("SELECT id FROM users").get()!.id;
+  const body = { id: "user", values: [user], method: "first" };
+  const key = await hash("local-runner:" + env().SESSION_SECRET);
+  const query = (host: string, credential: string, value: unknown = body) =>
+    app.request(
+      "http://" + host + "/api/local/query",
+      {
+        method: "POST",
+        headers: {
+          Origin: "http://localhost:5173",
+          "Content-Type": "application/json",
+          "X-Gobbler-Local-Key": credential,
+        },
+        body: JSON.stringify(value),
+      },
+      env(),
+    );
+  expect((await query("127.0.0.1:8787", "")).status).toBe(403);
+  expect((await query("127.0.0.1:8787", "wrong")).status).toBe(403);
+  expect((await query("example.test", key)).status).toBe(403);
+  expect((await query("127.0.0.1:8787", key, { ...body, id: -1 })).status).toBe(
+    400,
+  );
+  expect(
+    (await query("127.0.0.1:8787", key, { ...body, method: "exec" })).status,
+  ).toBe(400);
+  expect(await (await query("127.0.0.1:8787", key)).json()).toEqual({
+    result: { id: user },
+  });
+});
+
 it("keeps automatic material candidates private, omits reviewed dates and excludes unavailable PDFs from AI", async () => {
   const one = await account(),
     two = await account("folder-other@example.test");
@@ -1448,6 +1481,18 @@ it("keeps automatic material candidates private, omits reviewed dates and exclud
     ).json(),
   ).toEqual([]);
   sqlite.exec("UPDATE material_files SET state='unreadable'");
+  expect(
+    await (await request("/materials/issues", "GET", undefined, two)).json(),
+  ).toEqual([]);
+  expect(
+    await (await request("/materials/issues", "GET", undefined, one)).json(),
+  ).toEqual([
+    {
+      source_name: "Local files",
+      relative_path: "Sheet.pdf",
+      state: "unreadable",
+    },
+  ]);
   const provider = vi.fn();
   vi.stubGlobal("fetch", provider);
   try {

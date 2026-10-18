@@ -1718,5 +1718,21 @@
   "This material comes from a connected folder. Disconnect its local source to stop importing it.": {
     "de": "Dieses Material stammt aus einem verbundenen Ordner. Trenne die lokale Quelle, um den Import zu stoppen.",
     "vi": "Tài liệu này đến từ thư mục đã kết nối. Ngắt nguồn cục bộ để dừng nhập."
+  },
+  "PDFs needing attention ({0})": {
+    "de": "PDFs mit Handlungsbedarf ({0})",
+    "vi": "PDF cần chú ý ({0})"
+  },
+  "These local files are excluded from answers. Missing files need downloading again; unreadable PDFs may be scanned, damaged or exceed the 10 MB, 200 page or text limits. Imports still catching up are shown in Sources.": {
+    "de": "Diese lokalen Dateien werden nicht für Antworten verwendet. Fehlende Dateien müssen erneut heruntergeladen werden; unlesbare PDFs können gescannt, beschädigt oder größer als 10 MB, 200 Seiten oder das Textlimit sein. Laufende Importe werden unter Quellen angezeigt.",
+    "vi": "Các tệp cục bộ này không được dùng để trả lời. Cần tải lại tệp bị thiếu; PDF không đọc được có thể là bản quét, bị hỏng hoặc vượt giới hạn 10 MB, 200 trang hay văn bản. Các đợt nhập đang tiếp tục được hiển thị trong Nguồn."
+  },
+  "Missing local file": {
+    "de": "Lokale Datei fehlt",
+    "vi": "Thiếu tệp cục bộ"
+  },
+  "Local PDF unavailable": {
+    "de": "Lokales PDF nicht verfügbar",
+    "vi": "PDF cục bộ không khả dụng"
   }
 }

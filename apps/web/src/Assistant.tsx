@@ -8,6 +8,7 @@ import type {
   MaterialCandidate,
 } from "../../../packages/core/materials";
 import { useText } from "./text";
+type FileIssue = { source_name: string; relative_path: string; state: string };
 
 export function Assistant({
   courses,
@@ -26,6 +27,7 @@ export function Assistant({
   const [course, setCourse] = useState(""),
     [materials, setMaterials] = useState<SyncedMaterialSummary[]>([]);
   const [candidates, setCandidates] = useState<MaterialCandidate[]>([]);
+  const [issues, setIssues] = useState<FileIssue[]>([]);
   const [ready, setReady] = useState(false),
     [checking, setChecking] = useState(false),
     [busy, setBusy] = useState("");
@@ -38,12 +40,14 @@ export function Assistant({
     [pages, setPages] = useState<DocumentPage[]>([]);
   const [answer, setAnswer] = useState<CourseAnswer | null>(null);
   async function refresh() {
-    const [library, dates] = await Promise.all([
+    const [library, dates, files] = await Promise.all([
       request<SyncedMaterialSummary[]>("/materials"),
       request<MaterialCandidate[]>("/materials/candidates"),
+      request<FileIssue[]>("/materials/issues"),
     ]);
     setMaterials(library);
     setCandidates(dates);
+    setIssues(files);
   }
   async function check() {
     setChecking(true);
@@ -62,11 +66,13 @@ export function Assistant({
       Promise.all([
         request<SyncedMaterialSummary[]>("/materials"),
         request<MaterialCandidate[]>("/materials/candidates"),
+        request<FileIssue[]>("/materials/issues"),
       ])
-        .then(([v, dates]) => {
+        .then(([v, dates, files]) => {
           if (active) {
             setMaterials(v);
             setCandidates(dates);
+            setIssues(files);
           }
         })
         .catch(() => {
@@ -242,6 +248,33 @@ export function Assistant({
       </section>
       <section>
         <h2>{tx("Course material")}</h2>
+        {issues.length > 0 && (
+          <details className="material-upload small muted">
+            <summary>
+              {tx("PDFs needing attention ({0})", issues.length)}
+            </summary>
+            <p>
+              {tx(
+                "These local files are excluded from answers. Missing files need downloading again; unreadable PDFs may be scanned, damaged or exceed the 10 MB, 200 page or text limits. Imports still catching up are shown in Sources.",
+              )}
+            </p>
+            <ul>
+              {issues.map((f) => (
+                <li key={f.source_name + f.relative_path}>
+                  <strong>{f.source_name}</strong>
+                  <p>{f.relative_path}</p>
+                  <span>
+                    {tx(
+                      f.state === "missing"
+                        ? "Missing local file"
+                        : "Local PDF unavailable",
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
         <p className="small muted">
           {tx(
             "Gobbler reads connected PDF folders every minute while the laptop is awake. Sync-my-L2P must download Moodle changes first; a local file check does not confirm Moodle is up to date.",

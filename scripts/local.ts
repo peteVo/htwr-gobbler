@@ -1,9 +1,10 @@
+import { localQueries } from "../apps/api/local-queries";
 import fs from "node:fs";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { getPlatformProxy } from "wrangler";
 import { z } from "zod";
-import { checkSources } from "../apps/api/sync";
+import { localDatabase, localRequest } from "./local-database";
 import { createBackup, findDatabase, verifyBackup } from "./backup";
 import {
   folderInput,
@@ -25,12 +26,12 @@ if (process.argv[2] === "--connect-material-folder") {
   );
   if (!process.argv[3] || !process.argv[4])
     throw new Error("Supply a module ID and its download folder");
-  const connection = await getPlatformProxy<{ DB: D1Database }>({
+  const connection = await getPlatformProxy<{ SESSION_SECRET: string }>({
     remoteBindings: false,
   });
   try {
     const folder = await connectMaterialFolder(
-      connection.env.DB,
+      localDatabase(connection.env.SESSION_SECRET),
       config.user_id,
       process.argv[3],
       process.argv[4],
@@ -223,11 +224,8 @@ try {
     SESSION_SECRET: string;
     FEED_SECRET: string;
   }>({ remoteBindings: false });
-  if (
-    !(await proxy.env.DB.prepare("SELECT id FROM users WHERE id=?")
-      .bind(user_id)
-      .first())
-  )
+  const database = localDatabase(proxy.env.SESSION_SECRET);
+  if (!(await database.prepare(localQueries.user).bind(user_id).first()))
     throw new Error("Local workspace not found");
   let backupAttempt = 0;
   let folderAttempt = 0;
@@ -257,11 +255,9 @@ try {
       writeStatus();
     }
     try {
-      const result = await checkSources(
-        proxy.env.DB,
-        proxy.env.FEED_SECRET,
+      const result = (await localRequest(proxy.env.SESSION_SECRET, "check", {
         user_id,
-      );
+      })) as { attempted: number; failed: number };
       if (result.attempted) {
         status.last_check = new Date().toISOString();
         status.check_failed = result.failed > 0;
@@ -279,7 +275,7 @@ try {
         if (config.user_id !== user_id)
           throw new Error("Workspace changed; restart Gobbler");
         for (const folder of config.material_folders) {
-          await syncMaterialFolder(proxy.env.DB, user_id, folder);
+          await syncMaterialFolder(database, user_id, folder);
           writeStatus();
         }
       } catch {
