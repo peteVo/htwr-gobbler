@@ -42,6 +42,7 @@ export class PdfReadError extends Error {
       | "unreadable"
       | "ocr_unavailable"
       | "renderer_unavailable"
+      | "ocr_incomplete"
       | "limits"
       | "timeout"
       | "library_full",
@@ -118,7 +119,12 @@ export async function readLocalOcr(data: Buffer, pages: number[]) {
             images: [image.image],
             stream: false,
             keep_alive: 0,
-            options: { temperature: 0, num_ctx: 4096, num_predict: 3000 },
+            options: {
+              temperature: 0,
+              num_ctx: 8192,
+              num_predict: 6000,
+              repeat_penalty: 1.1,
+            },
           }),
         });
       } catch {
@@ -132,7 +138,8 @@ export async function readLocalOcr(data: Buffer, pages: number[]) {
           response: z.string().max(500000),
         })
         .parse(await response.json());
-      if (output.done_reason === "length") throw new PdfReadError("limits");
+      if (output.done_reason === "length")
+        throw new PdfReadError("ocr_incomplete");
       result.push({ page: image.page, text: output.response, ocr: true });
     }
     return result;

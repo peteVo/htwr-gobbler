@@ -442,6 +442,13 @@ export function Assistant({
                       )}
                     </p>
                   )}
+                  {f.issue === "ocr_incomplete" && (
+                    <p>
+                      {tx(
+                        "Local OCR could not finish this page. Partial text was rejected; the original is retained and Gobbler will retry.",
+                      )}
+                    </p>
+                  )}
                   {f.issue === "limits" && (
                     <p>
                       {tx(

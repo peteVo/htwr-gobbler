@@ -95,7 +95,7 @@ test.skipIf(process.platform !== "win32")(
         Buffer.from(body.images[0], "base64").subarray(1, 4).toString(),
       ).toBe("PNG");
       return Response.json({
-        done: complete,
+        done: true,
         done_reason: complete ? "stop" : "length",
         response: "Gobbler OCR test\nLocal document processing.",
       });
@@ -107,7 +107,9 @@ test.skipIf(process.platform !== "win32")(
       text: expect.stringContaining("Gobbler OCR test"),
     });
     complete = false;
-    await expect(readLocalOcr(data, [1])).rejects.toThrow();
+    await expect(readLocalOcr(data, [1])).rejects.toMatchObject({
+      issue: "ocr_incomplete",
+    });
   },
   30000,
 );

@@ -1,4 +1,8 @@
 {
+  "Local OCR could not finish this page. Partial text was rejected; the original is retained and Gobbler will retry.": {
+    "de": "Lokale OCR konnte diese Seite nicht abschließen. Unvollständiger Text wurde verworfen; das Original bleibt erhalten und Gobbler versucht es erneut.",
+    "vi": "OCR cục bộ chưa hoàn tất trang này. Văn bản chưa đầy đủ đã bị loại; tệp gốc được giữ lại và Gobbler sẽ thử lại."
+  },
   "Waiting for the next import pass.": {
     "de": "Wartet auf den nächsten Importdurchlauf.",
     "vi": "Đang chờ lượt nhập tiếp theo."
