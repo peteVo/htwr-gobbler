@@ -23,6 +23,8 @@ export function localStatus(req: IncomingMessage, res: ServerResponse) {
         check_failed: status.check_failed,
         last_backup: status.last_backup,
         backup_failed: status.backup_failed,
+        last_material_check: status.last_material_check ?? null,
+        material_check_failed: status.material_check_failed ?? false,
       }),
     );
   } catch {

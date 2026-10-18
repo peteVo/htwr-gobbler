@@ -1367,6 +1367,46 @@ it("stores module material once, isolates owners, and asks local AI only with ow
     );
     expect(await status.json()).toEqual({ ready: true, model: "test-local" });
     expect(provider).toHaveBeenCalledTimes(2);
+    const ask = () =>
+      app.request(
+        "http://localhost:8787/api/assistant/ask",
+        {
+          method: "POST",
+          headers: {
+            Origin: "http://localhost:5173",
+            Cookie: one,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            course_id: c.id,
+            question: "How does TCP work?",
+          }),
+        },
+        { ...env(), LOCAL_AI_MODEL: "test-local" },
+      );
+    vi.stubGlobal("fetch", async () =>
+      Response.json({
+        done: true,
+        message: {
+          content: JSON.stringify({
+            answer: "Invented [1]",
+            supported: true,
+            citations: [{ id: "1", quote: "This is an invented quotation." }],
+          }),
+        },
+      }),
+    );
+    const rejected = await ask();
+    expect(rejected.status).toBe(502);
+    expect(((await rejected.json()) as any).error).toContain(
+      "No answer was shown",
+    );
+    vi.stubGlobal("fetch", async () => {
+      throw new TypeError("fetch failed");
+    });
+    const offline = await ask();
+    expect(offline.status).toBe(502);
+    expect(((await offline.json()) as any).error).toContain("Start Ollama");
   } finally {
     vi.unstubAllGlobals();
   }

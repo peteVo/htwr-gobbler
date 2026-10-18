@@ -50,6 +50,41 @@ test("material validation and retrieval retain page evidence and bound model con
   expect(passages[0]).toMatchObject({ id: "1", page: 3 });
   expect(passages.every((p) => p.text.length <= 1600)).toBe(true);
 });
+test("retrieval favors topic evidence over common question words and repeated filename matches", () => {
+  const library = [
+    {
+      ...material,
+      name: "Segmentation.pdf",
+      pages: [
+        {
+          page: 1,
+          text: "What does this explain about your course? ".repeat(100),
+        },
+      ],
+    },
+    {
+      ...material,
+      id: "evidence",
+      name: "Lecture notes.pdf",
+      pages: [
+        {
+          page: 7,
+          text: "Segmentation partitions an image into meaningful regions.",
+        },
+      ],
+    },
+  ];
+  for (const question of [
+    "What does this explain about segmentation?",
+    "Was ist Segmentation?",
+    "Hay giai thich segmentation la gi?",
+  ]) {
+    const result = selectPassages(library, question);
+    expect(result[0]).toMatchObject({ material_id: "evidence", page: 7 });
+    expect(result.every((p) => !("found" in p) && !("score" in p))).toBe(true);
+  }
+});
+
 test("local assistant accepts only complete answers with matching quotations and references", async () => {
   const passages = selectPassages([material], "TCP");
   let result: unknown = {

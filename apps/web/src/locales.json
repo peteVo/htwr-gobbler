@@ -1,4 +1,74 @@
 {
+  "Overdue assignments ({0})": {
+    "de": "Überfällige Aufgaben ({0})",
+    "vi": "Bài tập quá hạn ({0})"
+  },
+  "Upcoming assignments": {
+    "de": "Anstehende Aufgaben",
+    "vi": "Bài tập sắp đến hạn"
+  },
+  "No upcoming assignments stored. Open Tasks & deadlines to review all saved work.": {
+    "de": "Keine anstehenden Aufgaben gespeichert. Unter Aufgaben & Fristen findest du alle gespeicherten Einträge.",
+    "vi": "Chưa lưu bài tập sắp đến hạn nào. Mở Công việc & hạn chót để xem tất cả công việc đã lưu."
+  },
+  "Material coverage by module": {
+    "de": "Materialabdeckung nach Modul",
+    "vi": "Tài liệu theo học phần"
+  },
+  "{0} readable documents": {
+    "de": "{0} lesbare Dokumente",
+    "vi": "{0} tài liệu đọc được"
+  },
+  "{0} readable documents for this module": {
+    "de": "{0} lesbare Dokumente für dieses Modul",
+    "vi": "{0} tài liệu đọc được cho học phần này"
+  },
+  "Counts cover imported text, not every Moodle resource. Zero means content questions have no readable material yet.": {
+    "de": "Gezählt werden importierte Texte, nicht alle Moodle-Ressourcen. Bei null gibt es noch kein lesbares Material für Inhaltsfragen.",
+    "vi": "Số lượng chỉ tính văn bản đã nhập, không phải mọi tài nguyên Moodle. Số 0 nghĩa là chưa có tài liệu đọc được để trả lời câu hỏi nội dung."
+  },
+  "Missing file: run Sync-my-L2P to download it again. Unreadable file: check whether it opens and has selectable text; scanned pages need OCR, and large PDFs need a smaller copy. Gobbler retries changed files automatically.": {
+    "de": "Fehlende Datei: mit Sync-my-L2P erneut herunterladen. Unlesbare Datei: prüfen, ob sie sich öffnen lässt und Text auswählbar ist; Scans brauchen OCR, große PDFs eine kleinere Kopie. Gobbler prüft geänderte Dateien automatisch erneut.",
+    "vi": "Tệp bị thiếu: chạy Sync-my-L2P để tải lại. Tệp không đọc được: kiểm tra có mở được và chọn văn bản được không; bản quét cần OCR, PDF lớn cần bản nhỏ hơn. Gobbler tự thử lại khi tệp thay đổi."
+  },
+  "Check connected sources": {
+    "de": "Verbundene Quellen prüfen",
+    "vi": "Kiểm tra nguồn đã kết nối"
+  },
+  "The supplied excerpts do not establish an answer. Try a specific topic or document name, and check material availability below.": {
+    "de": "Die Auszüge belegen keine Antwort. Frage nach einem konkreten Thema oder Dokument und prüfe unten die Materialverfügbarkeit.",
+    "vi": "Các đoạn trích chưa đủ căn cứ để trả lời. Hãy hỏi về chủ đề hoặc tên tài liệu cụ thể và kiểm tra tài liệu bên dưới."
+  },
+  "The local AI did not respond. Start Ollama and retry; the first answer can take a minute.": {
+    "de": "Die lokale KI hat nicht geantwortet. Starte Ollama und versuche es erneut; die erste Antwort kann eine Minute dauern.",
+    "vi": "AI cục bộ chưa phản hồi. Hãy mở Ollama rồi thử lại; câu trả lời đầu tiên có thể mất một phút."
+  },
+  "The generated answer could not be verified against your material. No answer was shown. Try a narrower question with the topic or document name.": {
+    "de": "Die erzeugte Antwort ließ sich nicht anhand deines Materials belegen und wurde nicht angezeigt. Stelle eine engere Frage mit Thema oder Dokumentname.",
+    "vi": "Không thể xác minh câu trả lời bằng tài liệu của bạn nên câu trả lời không được hiển thị. Hãy hỏi cụ thể hơn kèm chủ đề hoặc tên tài liệu."
+  },
+  "Overdue": { "de": "Überfällig", "vi": "Quá hạn" },
+  "Due today": { "de": "Heute fällig", "vi": "Đến hạn hôm nay" },
+  "Due within 7 days": {
+    "de": "Innerhalb von 7 Tagen fällig",
+    "vi": "Đến hạn trong 7 ngày"
+  },
+  "All connected sources were checked within the last hour.": {
+    "de": "Alle verbundenen Quellen wurden innerhalb der letzten Stunde geprüft.",
+    "vi": "Tất cả nguồn đã kết nối được kiểm tra trong giờ vừa qua."
+  },
+  "No open assignments stored. This does not mean your university has no deadlines.": {
+    "de": "Keine offenen Aufgaben gespeichert. Das bedeutet nicht, dass es keine Hochschulfristen gibt.",
+    "vi": "Chưa lưu bài tập chưa hoàn thành nào. Điều này không có nghĩa là trường không có hạn nộp."
+  },
+  "Last local material check: {0}": {
+    "de": "Letzte lokale Materialprüfung: {0}",
+    "vi": "Lần kiểm tra tài liệu cục bộ gần nhất: {0}"
+  },
+  "Some local material could not be read. Open Assistant → PDFs needing attention for recovery steps. Downloading from Moodle is checked separately by Sync-my-L2P.": {
+    "de": "Einige lokale Materialien konnten nicht gelesen werden. Öffne Assistent → PDFs mit Handlungsbedarf für weitere Schritte. Moodle-Downloads prüft Sync-my-L2P separat.",
+    "vi": "Một số tài liệu cục bộ không đọc được. Mở Trợ lý → PDF cần xử lý để xem cách khắc phục. Sync-my-L2P kiểm tra việc tải từ Moodle riêng."
+  },
   " · Page ": {
     "de": " · Seite ",
     "vi": " · Trang "

@@ -1,5 +1,98 @@
 import { test, expect } from "@playwright/test";
 import { defaultPreferences } from "../../packages/core/index";
+
+test("Today distinguishes overdue, date-only due-today and upcoming assignments with source warnings", async ({
+  page,
+}) => {
+  const now = new Date("2026-10-18T12:00:00Z");
+  await page.clock.install({ time: now });
+  await page.route("**/api/me", (r) =>
+    r.fulfill({ json: { email: "deadlines@test.invalid" } }),
+  );
+  await page.route("**/api/data", (r) =>
+    r.fulfill({
+      json: {
+        preferences: defaultPreferences,
+        courses: [{ id: "c", name: "Networks", code: "NET", color: "sage" }],
+        changes: [],
+        sources: [
+          {
+            id: "s",
+            name: "Moodle",
+            kind: "feed",
+            status: "failed",
+            last_success: "2026-10-17T12:00:00Z",
+          },
+        ],
+        items: [
+          ...Array.from({ length: 3 }, (_, i) => ({
+            id: "older-" + i,
+            title: "Older sheet " + i,
+            starts_at: "2026-10-16T12:00:00Z",
+            all_day: false,
+            status: "open",
+          })),
+          {
+            id: "old",
+            title: "Late sheet",
+            starts_at: "2026-10-17T12:00:00Z",
+            all_day: false,
+            status: "open",
+          },
+          {
+            id: "today",
+            title: "Date-only sheet",
+            starts_at: "2026-10-18T00:00:00Z",
+            all_day: true,
+            status: "open",
+          },
+          {
+            id: "next",
+            title: "Next sheet",
+            starts_at: "2026-10-20T12:00:00Z",
+            all_day: false,
+            status: "open",
+          },
+          {
+            id: "done",
+            title: "Finished sheet",
+            starts_at: "2026-10-16T12:00:00Z",
+            all_day: false,
+            status: "done",
+          },
+        ].map((i) => ({
+          ...i,
+          course_id: "c",
+          source_id: "s",
+          kind: "assignment",
+          verification: "confirmed",
+          description: "",
+          source_url: "",
+          evidence: "",
+          ends_at: null,
+          last_verified: null,
+        })),
+      },
+    }),
+  );
+  await page.goto("/");
+  const tasks = page.locator(".deadline-section .task-row");
+  await expect(tasks).toHaveCount(4);
+  await expect(
+    page.getByRole("heading", { name: "Overdue assignments (4)", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Upcoming assignments", exact: true }),
+  ).toBeVisible();
+  await expect(tasks.nth(0)).toContainText("Overdue");
+  await expect(tasks.nth(2)).toContainText("Due today");
+  await expect(tasks.nth(2)).toContainText("date only; verify cutoff");
+  await expect(tasks.nth(3)).toContainText("Due within 7 days");
+  for (const row of await tasks.all()) {
+    await expect(row).toContainText("Networks");
+    await expect(row).toContainText("Source outdated");
+  }
+});
 test("Today prioritizes a recent earlier deadline with its module and both dates", async ({
   page,
 }) => {

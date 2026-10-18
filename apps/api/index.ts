@@ -950,11 +950,16 @@ app.post("/api/assistant/ask", async (c) => {
         passages,
       ),
     );
-  } catch {
+  } catch (error) {
     return c.json(
       {
         error:
-          "Local AI could not produce a complete answer with valid source quotations. Check Ollama and try a more specific question.",
+          error instanceof TypeError ||
+          (error instanceof Error &&
+            (error.message === "Local AI unavailable" ||
+              error.name === "TimeoutError"))
+            ? "The local AI did not respond. Start Ollama and retry; the first answer can take a minute."
+            : "The generated answer could not be verified against your material. No answer was shown. Try a narrower question with the topic or document name.",
       },
       502,
     );

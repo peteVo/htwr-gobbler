@@ -17,12 +17,14 @@ export function Assistant({
   language,
   request,
   review,
+  showSources,
 }: {
   courses: Course[];
   signedIn: boolean;
   language: string;
   request: <T>(path: string, method?: string, body?: unknown) => Promise<T>;
   review: (candidate: MaterialCandidate) => void;
+  showSources: () => void;
 }) {
   const tx = useText();
   const [course, setCourse] = useState(""),
@@ -84,9 +86,20 @@ export function Assistant({
       if (document.visibilityState === "visible") void load();
     }, 60000);
     void check();
+    const resume = () => {
+      if (document.hidden) return;
+      void load();
+      void check();
+    };
+    window.addEventListener("focus", resume);
+    window.addEventListener("online", resume);
+    document.addEventListener("visibilitychange", resume);
     return () => {
       active = false;
       clearInterval(timer);
+      window.removeEventListener("focus", resume);
+      window.removeEventListener("online", resume);
+      document.removeEventListener("visibilitychange", resume);
     };
   }, [signedIn]);
   if (!signedIn)
@@ -96,6 +109,7 @@ export function Assistant({
       </p>
     );
   const selected = materials.filter((m) => m.course_id === course);
+  const readable = selected.filter((m) => m.available !== 0);
   const calendarQuestion = scheduleKind(question);
   return (
     <div className="assistant-layout">
@@ -294,7 +308,7 @@ export function Assistant({
                 {answer.supported
                   ? answer.answer
                   : tx(
-                      "The supplied excerpts do not establish an answer. Add relevant material or ask a more specific question.",
+                      "The supplied excerpts do not establish an answer. Try a specific topic or document name, and check material availability below.",
                     )}
               </p>
             )}
@@ -324,6 +338,28 @@ export function Assistant({
       </section>
       <section>
         <h2>{tx("Course material")}</h2>
+        <details className="material-upload small muted">
+          <summary>{tx("Material coverage by module")}</summary>
+          <ul>
+            {courses.map((c) => (
+              <li key={c.id}>
+                {c.name}
+                {" · "}
+                {tx(
+                  "{0} readable documents",
+                  materials.filter(
+                    (m) => m.course_id === c.id && m.available !== 0,
+                  ).length,
+                )}
+              </li>
+            ))}
+          </ul>
+          <p>
+            {tx(
+              "Counts cover imported text, not every Moodle resource. Zero means content questions have no readable material yet.",
+            )}
+          </p>
+        </details>
         {issues.length > 0 && (
           <details className="material-upload small muted">
             <summary>
@@ -349,6 +385,14 @@ export function Assistant({
                 </li>
               ))}
             </ul>
+            <p>
+              {tx(
+                "Missing file: run Sync-my-L2P to download it again. Unreadable file: check whether it opens and has selectable text; scanned pages need OCR, and large PDFs need a smaller copy. Gobbler retries changed files automatically.",
+              )}
+            </p>
+            <button className="text-button" onClick={showSources}>
+              {tx("Check connected sources")}
+            </button>
           </details>
         )}
         <p className="small muted">
@@ -374,7 +418,10 @@ export function Assistant({
           </p>
         ) : (
           <>
-            {!selected.length && (
+            <p role="status" className="small muted">
+              {tx("{0} readable documents for this module", readable.length)}
+            </p>
+            {!readable.length && (
               <p className="coverage-note">
                 {tx(
                   "No PDFs imported for this module. You can ask about its saved calendar now; course-content answers need readable material from a connected folder.",

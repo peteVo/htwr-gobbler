@@ -39,6 +39,8 @@ test("local monitoring reports backup failures and stale heartbeats; focus refre
         check_failed: failed,
         last_backup: new Date().toISOString(),
         backup_failed: true,
+        last_material_check: new Date().toISOString(),
+        material_check_failed: failed,
       },
     }),
   );
@@ -60,6 +62,12 @@ test("local monitoring reports backup failures and stale heartbeats; focus refre
   ).toBeVisible();
   await expect(
     page.getByText("Previous records retained", { exact: false }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Last local material check:", { exact: false }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Some local material could not be read.", { exact: false }),
   ).toBeVisible();
   running = false;
   await page.evaluate(() => window.dispatchEvent(new Event("focus")));

@@ -88,6 +88,8 @@ test("built-app gateway preserves API bodies, origins, cookies and asset bytes; 
           "check_failed",
           "last_backup",
           "backup_failed",
+          "last_material_check",
+          "material_check_failed",
         ].sort(),
       );
     expect(

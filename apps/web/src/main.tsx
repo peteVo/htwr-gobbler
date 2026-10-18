@@ -33,6 +33,7 @@ import {
   type CalendarView,
   berlinDay,
   briefing,
+  isPastDue,
   defaultPreferences,
   type Course,
   type Item,
@@ -278,6 +279,9 @@ function App() {
   const deadlines = items
     .filter((i) => i.kind === "assignment")
     .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
+  const openDeadlines = deadlines.filter((i) => i.status === "open");
+  const overdueDeadlines = openDeadlines.filter((i) => isPastDue(i, clock));
+  const upcomingDeadlines = openDeadlines.filter((i) => !isPastDue(i, clock));
   function needAccount() {
     if (isDemo) {
       setModal("auth");
@@ -366,6 +370,18 @@ function App() {
               (item.kind === "assignment"
                 ? tx(" · date only; verify cutoff")
                 : tx(" · all day"))}
+            {item.kind === "assignment" && item.status === "open" && (
+              <span className={isPastDue(item, clock) ? "warning-text" : ""}>
+                {isPastDue(item, clock)
+                  ? tx("Overdue")
+                  : berlinDay(item.starts_at) === berlinDay(clock)
+                    ? tx("Due today")
+                    : new Date(item.starts_at).getTime() <=
+                        clock.getTime() + 7 * 86400000
+                      ? tx("Due within 7 days")
+                      : ""}
+              </span>
+            )}
             <span
               className={`verification ${item.verification === "needs_review" || outdated ? "review" : ""}`}
             >
@@ -811,12 +827,16 @@ function App() {
                           {summary.today}{" "}
                           {tx("open items on today’s calendar.")}{" "}
                           {summary.total
-                            ? tx(
-                                summary.total - summary.healthy === 1
-                                  ? "1 source needs a fresh check."
-                                  : "{0} sources need a fresh check.",
-                                summary.total - summary.healthy,
-                              )
+                            ? summary.total === summary.healthy
+                              ? tx(
+                                  "All connected sources were checked within the last hour.",
+                                )
+                              : tx(
+                                  summary.total - summary.healthy === 1
+                                    ? "1 source needs a fresh check."
+                                    : "{0} sources need a fresh check.",
+                                  summary.total - summary.healthy,
+                                )
                             : tx(
                                 "No university sources have been checked yet.",
                               )}{" "}
@@ -880,16 +900,39 @@ function App() {
                           </button>
                         </div>
                         <div className="task-list">
-                          {deadlines
-                            .filter((i) => i.status === "open")
-                            .slice(0, 4)
-                            .map((i) => (
-                              <TaskRow item={i} key={i.id} />
-                            ))}
-                          {!deadlines.some((i) => i.status === "open") && (
+                          {overdueDeadlines.length > 0 && (
+                            <>
+                              <h3>
+                                {tx(
+                                  "Overdue assignments ({0})",
+                                  overdueDeadlines.length,
+                                )}
+                              </h3>
+                              {overdueDeadlines.slice(0, 2).map((i) => (
+                                <TaskRow item={i} key={i.id} />
+                              ))}
+                            </>
+                          )}
+                          {upcomingDeadlines.length > 0 && (
+                            <>
+                              <h3>{tx("Upcoming assignments")}</h3>
+                              {upcomingDeadlines.slice(0, 4).map((i) => (
+                                <TaskRow item={i} key={i.id} />
+                              ))}
+                            </>
+                          )}
+                          {openDeadlines.length > 0 &&
+                            !upcomingDeadlines.length && (
+                              <p className="small muted">
+                                {tx(
+                                  "No upcoming assignments stored. Open Tasks & deadlines to review all saved work.",
+                                )}
+                              </p>
+                            )}
+                          {!openDeadlines.length && (
                             <Empty
                               text={tx(
-                                "No assignments stored. This does not mean your university has no deadlines.",
+                                "No open assignments stored. This does not mean your university has no deadlines.",
                               )}
                             />
                           )}
@@ -1410,6 +1453,7 @@ function App() {
                     language={prefs.language}
                     request={api}
                     review={(d) => reviewDocument(d, d)}
+                    showSources={() => setPage("sources")}
                   />
                 )}
                 {page === "settings" && (
@@ -2215,6 +2259,8 @@ const localStatusSchema = z.object({
   check_failed: z.boolean(),
   last_backup: z.string().datetime().nullable(),
   backup_failed: z.boolean(),
+  last_material_check: z.string().datetime().nullable().default(null),
+  material_check_failed: z.boolean().default(false),
 });
 function LocalStatus() {
   const tx = useText();
@@ -2274,6 +2320,21 @@ function LocalStatus() {
       {running && status.last_check && (
         <p>
           {tx("Last automatic check:")} {date(status.last_check)}
+        </p>
+      )}
+      {running && status.last_material_check && (
+        <p>
+          {tx(
+            "Last local material check: {0}",
+            date(status.last_material_check),
+          )}
+        </p>
+      )}
+      {running && status.material_check_failed && (
+        <p role="status" className="warning-text">
+          {tx(
+            "Some local material could not be read. Open Assistant → PDFs needing attention for recovery steps. Downloading from Moodle is checked separately by Sync-my-L2P.",
+          )}
         </p>
       )}
       <p>

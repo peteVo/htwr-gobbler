@@ -118,6 +118,8 @@ const status = {
   check_failed: previous.check_failed ?? false,
   last_backup: previous.last_backup ?? null,
   backup_failed: previous.backup_failed ?? false,
+  last_material_check: previous.last_material_check ?? null,
+  material_check_failed: previous.material_check_failed ?? false,
 };
 function writeStatus() {
   status.heartbeat = new Date().toISOString();
@@ -268,6 +270,7 @@ try {
     writeStatus();
     if (Date.now() - folderAttempt >= 60000) {
       folderAttempt = Date.now();
+      let materialFailed = false;
       try {
         const config = configInput.parse(
           JSON.parse(fs.readFileSync(configPath, "utf8")),
@@ -275,10 +278,14 @@ try {
         if (config.user_id !== user_id)
           throw new Error("Workspace changed; restart Gobbler");
         for (const folder of config.material_folders) {
-          await syncMaterialFolder(database, user_id, folder);
+          const result = await syncMaterialFolder(database, user_id, folder);
+          if (result?.failed) materialFailed = true;
           writeStatus();
         }
+        status.last_material_check = new Date().toISOString();
+        status.material_check_failed = materialFailed;
       } catch {
+        status.material_check_failed = true;
         console.error(
           "Local course folders could not be checked. Inspect the local configuration and Sources.",
         );

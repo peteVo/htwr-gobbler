@@ -70,14 +70,18 @@ export function selectPassages(
       .normalize("NFD")
       .replace(/\p{M}/gu, "")
       .match(/[\p{L}\p{N}]{3,}/gu) ?? [];
-  const terms = [...new Set(words(question))];
-  const passages: (Passage & { score: number })[] = [];
+  const common = new Set(
+    "the and for are with this that what when where which how does explain please about from your can you und der die das ein eine einer einem einen ist sind was wie warum bitte mit von den des dem bai cua cac cho mot nhung the nao tai sao gi hay toi".split(
+      " ",
+    ),
+  );
+  const terms = [...new Set(words(question))].filter((t) => !common.has(t));
+  const passages: (Passage & { found: Set<string>; title: Set<string> })[] = [];
   for (const material of materials)
     for (const page of material.pages)
       for (let start = 0; start < page.text.length; start += 1200) {
         const text = page.text.slice(start, start + 1600);
         if (!text.trim()) continue;
-        const found = new Set(words(material.name + " " + text));
         passages.push({
           id: "",
           material_id: material.id,
@@ -85,12 +89,33 @@ export function selectPassages(
           source_url: material.source_url,
           page: page.page,
           text,
-          score: terms.filter((t) => found.has(t)).length,
+          found: new Set(words(text)),
+          title: new Set(words(material.name)),
         });
       }
-  // shortcut: lexical excerpts, not semantic retrieval; add embeddings when representative course questions need it.
+  const weights = new Map(
+    terms.map((term) => [
+      term,
+      Math.log(
+        1 +
+          passages.length /
+            (1 + passages.filter((p) => p.found.has(term)).length),
+      ),
+    ]),
+  );
+  // shortcut: lexical ranking across EN/DE/VI, not cross-language semantic search; add embeddings when representative questions need it.
   return passages
+    .map((p) => ({
+      ...p,
+      score: terms.reduce(
+        (n, t) =>
+          n +
+          (weights.get(t) ?? 0) *
+            (p.found.has(t) ? 2 : p.title.has(t) ? 0.25 : 0),
+        0,
+      ),
+    }))
     .sort((a, b) => b.score - a.score)
     .slice(0, 8)
-    .map(({ score, ...p }, i) => ({ ...p, id: String(i + 1) }));
+    .map(({ score, found, title, ...p }, i) => ({ ...p, id: String(i + 1) }));
 }
