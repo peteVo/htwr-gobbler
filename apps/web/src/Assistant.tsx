@@ -8,6 +8,7 @@ import type {
   MaterialCandidate,
 } from "../../../packages/core/materials";
 import { useText } from "./text";
+import { scheduleKind } from "../../../packages/core/schedule";
 type FileIssue = { source_name: string; relative_path: string; state: string };
 
 export function Assistant({
@@ -95,10 +96,11 @@ export function Assistant({
       </p>
     );
   const selected = materials.filter((m) => m.course_id === course);
+  const calendarQuestion = scheduleKind(question);
   return (
     <div className="assistant-layout">
       <section>
-        <h2>{tx("Ask your course material")}</h2>
+        <h2>{tx("Ask about your course")}</h2>
         <p className="muted">
           {tx(
             "Answers use selected excerpts from this module's available material. Connected local folders update automatically. Check the quotations; the AI can still make mistakes.",
@@ -184,16 +186,20 @@ export function Assistant({
             disabled={
               !!busy ||
               !course ||
-              !selected.some((m) => m.available !== 0) ||
-              !ready
+              !question.trim() ||
+              (!calendarQuestion && !ready)
             }
           >
             {busy === "asking"
-              ? tx("Reading your material…")
-              : tx("Ask local AI")}
+              ? tx(
+                  calendarQuestion
+                    ? "Checking saved calendar…"
+                    : "Reading your material…",
+                )
+              : tx(calendarQuestion ? "Check saved calendar" : "Ask local AI")}
           </button>
         </form>
-        {busy === "asking" && (
+        {busy === "asking" && !calendarQuestion && (
           <p role="status" className="small muted">
             {tx("The first answer may take a minute while the model loads.")}
           </p>
@@ -215,13 +221,83 @@ export function Assistant({
             aria-live="polite"
           >
             <h3>{tx("Answer")}</h3>
-            <p className="answer-text">
-              {answer.supported
-                ? answer.answer
-                : tx(
-                    "The supplied excerpts do not establish an answer. Add relevant material or ask a more specific question.",
+            {answer.calendar ? (
+              <div className="answer-text">
+                <p>
+                  {tx("Saved calendar result · {0}", tx(answer.calendar.kind))}
+                </p>
+                {answer.calendar.item ? (
+                  <>
+                    <strong>{answer.calendar.item.title}</strong>
+                    <p>
+                      {new Intl.DateTimeFormat(language, {
+                        dateStyle: "full",
+                        ...(answer.calendar.item.all_day
+                          ? {}
+                          : { timeStyle: "short" as const }),
+                        timeZone: "Europe/Berlin",
+                      }).format(new Date(answer.calendar.item.starts_at))}
+                      {" · Europe/Berlin"}
+                    </p>
+                    {answer.calendar.item.all_day && (
+                      <p>{tx("Date only · no exact time is recorded.")}</p>
+                    )}
+                    {answer.calendar.item.verification !== "confirmed" && (
+                      <p className="warning-text">
+                        {tx("This date still needs review.")}
+                      </p>
+                    )}
+                    {!answer.calendar.source_current && (
+                      <p className="warning-text">
+                        {tx(
+                          "The source has not been checked successfully within the last hour. Verify this date before relying on it.",
+                        )}
+                      </p>
+                    )}
+                    {answer.calendar.last_checked && (
+                      <p className="small muted">
+                        {tx(
+                          "Last successful calendar check: {0}",
+                          new Intl.DateTimeFormat(language, {
+                            dateStyle: "medium",
+                            timeStyle: "short",
+                            timeZone: "Europe/Berlin",
+                          }).format(new Date(answer.calendar.last_checked)),
+                        )}
+                      </p>
+                    )}
+                    {answer.calendar.item.source_url && (
+                      <a
+                        href={answer.calendar.item.source_url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {tx("Open original source")}
+                      </a>
+                    )}
+                  </>
+                ) : (
+                  <p>
+                    {tx(
+                      "No upcoming entry of this type is saved for this module. This does not mean the class or deadline does not exist.",
+                    )}
+                  </p>
+                )}
+                <p className="small muted">
+                  {tx(
+                    "This checks your saved calendar, without using AI or requiring PDFs. Check the university source for changes and missing events.",
                   )}
-            </p>
+                </p>
+              </div>
+            ) : (
+              <p className="answer-text">
+                {answer.supported
+                  ? answer.answer
+                  : tx(
+                      "The supplied excerpts do not establish an answer. Add relevant material or ask a more specific question.",
+                    )}
+              </p>
+            )}
             {answer.citations.map((c, i) => (
               <blockquote key={i}>
                 <p>{c.quote}</p>
@@ -301,7 +377,7 @@ export function Assistant({
             {!selected.length && (
               <p className="coverage-note">
                 {tx(
-                  "No material saved for this module. Add a PDF or paste course text to ask questions.",
+                  "No PDFs imported for this module. You can ask about its saved calendar now; course-content answers need readable material from a connected folder.",
                 )}
               </p>
             )}

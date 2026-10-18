@@ -19,6 +19,10 @@ import { restoreRecords } from "./restore";
 import { answerCourse } from "./assistant";
 import { localQueries } from "./local-queries";
 import {
+  scheduleKind,
+  type CalendarAnswer,
+} from "../../packages/core/schedule";
+import {
   materialInput,
   answerInput,
   selectPassages,
@@ -882,6 +886,42 @@ app.post("/api/assistant/ask", async (c) => {
       .first())
   )
     return c.json({ error: "Course not found" }, 404);
+  const kind = scheduleKind(v.question);
+  if (kind) {
+    const now = new Date().toISOString();
+    const row = await c.env.DB.prepare(
+      "SELECT i.id,i.title,i.starts_at,i.ends_at,i.all_day,i.verification,i.source_url,s.last_success AS last_checked,s.status AS source_status,s.kind AS source_kind FROM items i LEFT JOIN sources s ON s.id=i.source_id AND s.user_id=i.user_id WHERE i.user_id=? AND i.course_id=? AND i.kind=? AND i.status='open' AND i.starts_at>=? ORDER BY i.starts_at,i.id LIMIT 1",
+    )
+      .bind(user, v.course_id, kind, now)
+      .first<
+        NonNullable<CalendarAnswer["item"]> & {
+          last_checked: string | null;
+          source_status: string | null;
+          source_kind: string | null;
+        }
+      >();
+    const calendar: CalendarAnswer = {
+      kind,
+      item: row
+        ? {
+            id: row.id,
+            title: row.title,
+            starts_at: row.starts_at,
+            ends_at: row.ends_at,
+            all_day: !!row.all_day,
+            verification: row.verification,
+            source_url: row.source_url,
+          }
+        : null,
+      last_checked: row?.last_checked ?? null,
+      source_current:
+        !!row?.last_checked &&
+        row.source_kind === "feed" &&
+        row.source_status === "connected" &&
+        Date.parse(now) - Date.parse(row.last_checked) < 3600000,
+    };
+    return c.json({ answer: "", supported: !!row, citations: [], calendar });
+  }
   const rows = await c.env.DB.prepare(
     `SELECT id,course_id,name,source_url,pages,created_at FROM materials WHERE user_id=? AND course_id=? AND ${availableMaterial} ORDER BY created_at,id`,
   )

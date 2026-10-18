@@ -57,6 +57,7 @@ export type CourseAnswer = {
   answer: string;
   supported: boolean;
   citations: (Passage & { quote: string })[];
+  calendar?: import("./schedule").CalendarAnswer;
 };
 
 export function selectPassages(

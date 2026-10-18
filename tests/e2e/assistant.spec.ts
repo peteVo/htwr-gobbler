@@ -205,6 +205,85 @@ test("automatic material shows availability and reviews a suggested date without
   expect(writes).toBe(0);
 });
 
+test("a module without PDFs can check its saved calendar even when the AI is offline, and missing dates stay explicit", async ({
+  page,
+}) => {
+  let missing = false;
+  await page.route("**/api/**", (route) => {
+    const path = new URL(route.request().url()).pathname;
+    const json =
+      path === "/api/me"
+        ? { email: "calendar@test.invalid" }
+        : path === "/api/data"
+          ? {
+              courses: [
+                { id: "c", name: "Computer Vision", code: "CV", color: "sage" },
+              ],
+              items: [],
+              actions: [],
+              sources: [],
+              changes: [],
+              preferences: defaultPreferences,
+            }
+          : path === "/api/assistant/status"
+            ? { ready: false }
+            : path === "/api/assistant/ask"
+              ? {
+                  answer: "",
+                  supported: !missing,
+                  citations: [],
+                  calendar: {
+                    kind: "lecture",
+                    item: missing
+                      ? null
+                      : {
+                          id: "i",
+                          title: "Vision lecture",
+                          starts_at: "2026-10-21T08:30:00.000Z",
+                          ends_at: null,
+                          all_day: false,
+                          verification: "confirmed",
+                          source_url: "",
+                        },
+                    last_checked: null,
+                    source_current: false,
+                  },
+                }
+              : [];
+    return route.fulfill({ json });
+  });
+  await page.goto("/");
+  await page
+    .getByRole("navigation")
+    .getByRole("button", { name: "Assistant", exact: true })
+    .click();
+  await page.getByLabel("Module", { exact: true }).selectOption("c");
+  await page.getByLabel("Your question").fill("When's the next lecture?");
+  const check = page.getByRole("button", {
+    name: "Check saved calendar",
+    exact: true,
+  });
+  await expect(check).toBeEnabled();
+  await check.click();
+  await expect(
+    page.getByRole("region", { name: "Course answer" }),
+  ).toContainText("Vision lecture");
+  await expect(
+    page.getByRole("region", { name: "Course answer" }),
+  ).toContainText("10:30");
+  await expect(
+    page.getByRole("region", { name: "Course answer" }),
+  ).toContainText("Verify this date");
+  missing = true;
+  await check.click();
+  await expect(
+    page.getByRole("region", { name: "Course answer" }),
+  ).toContainText("No upcoming entry");
+  await expect(
+    page.getByRole("region", { name: "Course answer" }),
+  ).not.toContainText("Vision lecture");
+});
+
 test("keyboard users can skip navigation, identify dialogs and dismiss mobile navigation", async ({
   page,
 }) => {

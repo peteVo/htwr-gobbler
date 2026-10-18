@@ -1376,6 +1376,112 @@ it("stores module material once, isolates owners, and asks local AI only with ow
   ).toEqual([]);
 });
 
+it("answers next-event questions from the owned module calendar without PDFs or a model, retaining uncertainty", async () => {
+  const one = await account(),
+    two = await account("calendar-other@example.test");
+  const course = (
+    (await (
+      await request("/courses", "POST", { name: "Vision" }, one)
+    ).json()) as any
+  ).id;
+  const otherCourse = (
+    (await (
+      await request("/courses", "POST", { name: "Other module" }, one)
+    ).json()) as any
+  ).id;
+  const date = (hours: number) =>
+    new Date(Date.now() + hours * 3600000).toISOString();
+  for (const v of [
+    { title: "Past lecture", kind: "lecture", starts_at: date(-24) },
+    { title: "Earlier tutorial", kind: "tutorial", starts_at: date(1) },
+    {
+      title: "Completed lecture",
+      kind: "lecture",
+      starts_at: date(2),
+      status: "done",
+    },
+    {
+      title: "Dismissed lecture",
+      kind: "lecture",
+      starts_at: date(3),
+      status: "dismissed",
+    },
+    {
+      title: "Next vision lecture",
+      kind: "lecture",
+      starts_at: date(24),
+      verification: "needs_review",
+      all_day: true,
+    },
+    { title: "Later lecture", kind: "lecture", starts_at: date(48) },
+  ])
+    expect(
+      (await request("/items", "POST", { course_id: course, ...v }, one))
+        .status,
+    ).toBe(200);
+  await request(
+    "/items",
+    "POST",
+    {
+      course_id: otherCourse,
+      title: "Other subject",
+      kind: "lecture",
+      starts_at: date(1),
+    },
+    one,
+  );
+  const user = sqlite
+    .prepare("SELECT user_id FROM courses WHERE id=?")
+    .get(course)!.user_id;
+  sqlite
+    .prepare(
+      "INSERT INTO sources (id,user_id,name,kind,status,last_success) VALUES ('calendar-test',?,'Calendar','feed','failed',?)",
+    )
+    .run(user, date(-2));
+  sqlite
+    .prepare("UPDATE items SET source_id='calendar-test' WHERE course_id=?")
+    .run(course);
+  const provider = vi.fn();
+  vi.stubGlobal("fetch", provider);
+  try {
+    const body = { course_id: course, question: "When's the next lecture?" };
+    const response = await request("/assistant/ask", "POST", body, one);
+    expect(response.status).toBe(200);
+    const result = (await response.json()) as any;
+    expect(result).toMatchObject({
+      supported: true,
+      citations: [],
+      calendar: {
+        kind: "lecture",
+        source_current: false,
+        item: {
+          title: "Next vision lecture",
+          all_day: true,
+          verification: "needs_review",
+        },
+      },
+    });
+    expect((await request("/assistant/ask", "POST", body, two)).status).toBe(
+      404,
+    );
+    const missing = (await (
+      await request(
+        "/assistant/ask",
+        "POST",
+        { course_id: otherCourse, question: "When is the next exam?" },
+        one,
+      )
+    ).json()) as any;
+    expect(missing).toMatchObject({
+      supported: false,
+      calendar: { kind: "exam", item: null },
+    });
+    expect(provider).not.toHaveBeenCalled();
+  } finally {
+    vi.unstubAllGlobals();
+  }
+});
+
 it("permits fixed local-runner queries only on loopback with the derived operator key", async () => {
   await account();
   const user = sqlite.prepare("SELECT id FROM users").get()!.id;

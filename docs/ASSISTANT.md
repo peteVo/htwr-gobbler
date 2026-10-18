@@ -2,6 +2,10 @@
 
 The Assistant view answers questions using material saved or automatically imported for a selected module. It runs through a local Ollama model, with no AI API key or per-request service charge. Downloading/installing the engine and model requires internet access; inference uses the fixed loopback endpoint `http://127.0.0.1:11434/api/chat`. It does not fall back to a cloud model or provider.
 
+## Saved calendar questions
+
+Explicit timing questions such as “When’s the next lecture?” check the selected module’s saved calendar directly, including when there are no PDFs or the local AI is offline. EN/DE/VI next-lecture, tutorial, exam and assignment timing phrases are recognized. Results use the earliest future open entry of the requested type, exclude completed/dismissed records, preserve date-only and review uncertainty, and display stale-source warnings. A missing entry means the local calendar has no matching record; it does not establish cancellation or the absence of a real class/deadline. This path does not call a model or fabricate dates from course PDFs. Broader course-content questions still use readable material and the local model.
+
 ## Use
 
 1. Use the official [RWTH SyncMyMoodle app](https://app.rwth-aachen.de/syncmymoodle/) (Windows name: Sync-my-L2P) to download enrolled-course files. Complete university sign-in in that app; Gobbler never reads its credentials or tokens.

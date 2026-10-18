@@ -1734,5 +1734,49 @@
   "Local PDF unavailable": {
     "de": "Lokales PDF nicht verfügbar",
     "vi": "PDF cục bộ không khả dụng"
+  },
+  "Checking saved calendar…": {
+    "de": "Gespeicherten Kalender prüfen…",
+    "vi": "Đang kiểm tra lịch đã lưu…"
+  },
+  "Check saved calendar": {
+    "de": "Gespeicherten Kalender prüfen",
+    "vi": "Kiểm tra lịch đã lưu"
+  },
+  "Saved calendar result · {0}": {
+    "de": "Ergebnis im gespeicherten Kalender · {0}",
+    "vi": "Kết quả lịch đã lưu · {0}"
+  },
+  "Date only · no exact time is recorded.": {
+    "de": "Nur Datum · keine genaue Uhrzeit gespeichert.",
+    "vi": "Chỉ có ngày · chưa có giờ cụ thể."
+  },
+  "This date still needs review.": {
+    "de": "Dieser Termin muss noch geprüft werden.",
+    "vi": "Ngày này vẫn cần được xác minh."
+  },
+  "The source has not been checked successfully within the last hour. Verify this date before relying on it.": {
+    "de": "Die Quelle wurde in der letzten Stunde nicht erfolgreich geprüft. Bestätige den Termin, bevor du dich darauf verlässt.",
+    "vi": "Nguồn chưa được kiểm tra thành công trong giờ qua. Hãy xác minh ngày giờ trước khi dựa vào kết quả này."
+  },
+  "Last successful calendar check: {0}": {
+    "de": "Letzte erfolgreiche Kalenderprüfung: {0}",
+    "vi": "Lần kiểm tra lịch thành công gần nhất: {0}"
+  },
+  "No upcoming entry of this type is saved for this module. This does not mean the class or deadline does not exist.": {
+    "de": "Für dieses Modul ist kein kommender Eintrag dieses Typs gespeichert. Das bedeutet nicht, dass es die Veranstaltung oder Frist nicht gibt.",
+    "vi": "Học phần này chưa có mục sắp tới thuộc loại này trong lịch đã lưu. Điều đó không có nghĩa là buổi học hay hạn chót không tồn tại."
+  },
+  "This checks your saved calendar, without using AI or requiring PDFs. Check the university source for changes and missing events.": {
+    "de": "Hier wird dein gespeicherter Kalender ohne KI und ohne PDFs geprüft. Prüfe die Hochschulquelle auf Änderungen und fehlende Termine.",
+    "vi": "Tính năng này kiểm tra lịch đã lưu, không dùng AI và không cần PDF. Kiểm tra nguồn của trường để biết thay đổi và các sự kiện còn thiếu."
+  },
+  "No PDFs imported for this module. You can ask about its saved calendar now; course-content answers need readable material from a connected folder.": {
+    "de": "Für dieses Modul wurden keine PDFs importiert. Du kannst nach dem gespeicherten Kalender fragen; für Fragen zum Kursinhalt wird lesbares Material aus einem verbundenen Ordner benötigt.",
+    "vi": "Chưa nhập PDF cho học phần này. Bạn vẫn có thể hỏi về lịch đã lưu; câu hỏi về nội dung môn học cần tài liệu đọc được từ thư mục đã kết nối."
+  },
+  "Ask about your course": {
+    "de": "Fragen zu deinem Kurs",
+    "vi": "Hỏi về môn học"
   }
 }
