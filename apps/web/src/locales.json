@@ -1,4 +1,73 @@
 {
+  "Connected folders are checked automatically while this laptop is awake. Scanned pages may take longer; progress is shown here. Sync-my-L2P downloads Moodle changes separately.": {
+    "de": "Verbundene Ordner werden automatisch geprüft, solange dieser Laptop aktiv ist. Gescannte Seiten können länger dauern; der Fortschritt erscheint hier. Sync-my-L2P lädt Moodle-Änderungen separat herunter.",
+    "vi": "Thư mục đã kết nối được tự động kiểm tra khi máy tính đang thức. Trang quét có thể mất lâu hơn; tiến độ được hiển thị tại đây. Sync-my-L2P tải các thay đổi Moodle riêng."
+  },
+  "Automatic scanned-PDF rendering currently requires Windows. Text-based PDFs still import locally.": {
+    "de": "Automatisches Rendern gescannter PDFs erfordert derzeit Windows. Text-PDFs werden weiterhin lokal importiert.",
+    "vi": "Kết xuất PDF quét tự động hiện cần Windows. PDF có văn bản vẫn được nhập cục bộ."
+  },
+  "PDF import progress": {
+    "de": "PDF-Importfortschritt",
+    "vi": "Tiến độ nhập PDF"
+  },
+  "PDFs importing ({0})": {
+    "de": "PDFs werden importiert ({0})",
+    "vi": "PDF đang được nhập ({0})"
+  },
+  "Pages processed: {0} of {1}": {
+    "de": "Seiten verarbeitet: {0} von {1}",
+    "vi": "Số trang đã xử lý: {0} trên {1}"
+  },
+  "Importing continues automatically while this laptop is awake. Unfinished files are excluded from answers.": {
+    "de": "Der Import läuft automatisch weiter, solange dieser Laptop aktiv ist. Unvollständige Dateien werden nicht für Antworten verwendet.",
+    "vi": "Quá trình nhập tự tiếp tục khi máy tính đang thức. Tệp chưa hoàn tất không được dùng để trả lời."
+  },
+  "These local files are excluded from answers. Missing files need downloading again. Local imports support up to 50 MB and 2,000 pages per PDF; extraction and library limits still apply.": {
+    "de": "Diese lokalen Dateien werden nicht für Antworten verwendet. Fehlende Dateien müssen erneut heruntergeladen werden. Lokale Importe unterstützen bis zu 50 MB und 2.000 Seiten pro PDF; Grenzen für Texterkennung und Bibliothek gelten weiterhin.",
+    "vi": "Các tệp cục bộ này không được dùng để trả lời. Tệp bị thiếu cần tải lại. Nhập cục bộ hỗ trợ tối đa 50 MB và 2.000 trang mỗi PDF; giới hạn trích xuất và thư viện vẫn áp dụng."
+  },
+  "Local OCR is unavailable. Start Ollama and install glm-ocr:latest, then let Gobbler retry.": {
+    "de": "Lokale OCR ist nicht verfügbar. Starte Ollama und installiere glm-ocr:latest; Gobbler versucht es erneut.",
+    "vi": "OCR cục bộ chưa sẵn sàng. Mở Ollama và cài glm-ocr:latest rồi để Gobbler thử lại."
+  },
+  "This PDF exceeds a local processing limit. Use a smaller copy; original files are retained.": {
+    "de": "Dieses PDF überschreitet eine lokale Verarbeitungsgrenze. Verwende eine kleinere Kopie; Originaldateien bleiben erhalten.",
+    "vi": "PDF này vượt giới hạn xử lý cục bộ. Hãy dùng bản nhỏ hơn; tệp gốc vẫn được giữ lại."
+  },
+  "The material library is full. Free space in the library before retrying this PDF.": {
+    "de": "Die Materialbibliothek ist voll. Schaffe Platz, bevor dieses PDF erneut importiert wird.",
+    "vi": "Thư viện tài liệu đã đầy. Hãy giải phóng chỗ trước khi nhập lại PDF này."
+  },
+  "This PDF took too long to process. Gobbler will retry; check local OCR availability.": {
+    "de": "Die Verarbeitung dieses PDFs dauerte zu lange. Gobbler versucht es erneut; prüfe die lokale OCR.",
+    "vi": "Xử lý PDF này mất quá lâu. Gobbler sẽ thử lại; hãy kiểm tra OCR cục bộ."
+  },
+  "Missing file: run Sync-my-L2P to download it again. Scanned pages use local OCR automatically. If processing fails, Gobbler retries later and keeps the original file untouched.": {
+    "de": "Fehlende Datei: mit Sync-my-L2P erneut herunterladen. Gescannte Seiten werden automatisch lokal erkannt. Bei Fehlern versucht Gobbler es später erneut und verändert das Original nicht.",
+    "vi": "Tệp bị thiếu: chạy Sync-my-L2P để tải lại. Trang quét được tự động OCR cục bộ. Nếu xử lý thất bại, Gobbler thử lại sau và không thay đổi tệp gốc."
+  },
+  "Contains OCR-derived text · verify formulas and handwriting.": {
+    "de": "Enthält OCR-Text · Formeln und Handschrift prüfen.",
+    "vi": "Có văn bản từ OCR · hãy kiểm tra công thức và chữ viết tay."
+  },
+  "OCR-derived text · check the original page, especially formulas and handwriting.": {
+    "de": "OCR-Text · Originalseite prüfen, besonders Formeln und Handschrift.",
+    "vi": "Văn bản từ OCR · hãy đối chiếu trang gốc, nhất là công thức và chữ viết tay."
+  },
+  "OCR-derived date · compare the original page before saving.": {
+    "de": "Datum aus OCR · vor dem Speichern mit der Originalseite vergleichen.",
+    "vi": "Ngày từ OCR · hãy đối chiếu trang gốc trước khi lưu."
+  },
+  "OCR-derived text": { "de": "OCR-Text", "vi": "Văn bản từ OCR" },
+  "Manual PDF uploads read existing text: up to 200 pages, 10 MB and 500,000 characters. Automatic OCR and larger PDF imports run through connected local folders.": {
+    "de": "Manuelle PDF-Uploads lesen vorhandenen Text: bis zu 200 Seiten, 10 MB und 500.000 Zeichen. Automatische OCR und größere PDF-Importe laufen über verbundene lokale Ordner.",
+    "vi": "Tải PDF thủ công đọc văn bản có sẵn: tối đa 200 trang, 10 MB và 500.000 ký tự. OCR tự động và nhập PDF lớn chạy qua thư mục cục bộ đã kết nối."
+  },
+  "No readable text found in this upload. Automatic OCR runs through connected local folders. This document has not been checked.": {
+    "de": "In diesem Upload wurde kein lesbarer Text gefunden. Automatische OCR läuft über verbundene lokale Ordner. Dieses Dokument wurde nicht geprüft.",
+    "vi": "Không tìm thấy văn bản đọc được trong tệp tải lên này. OCR tự động chạy qua thư mục cục bộ đã kết nối. Tài liệu này chưa được kiểm tra."
+  },
   "Overdue assignments ({0})": {
     "de": "Überfällige Aufgaben ({0})",
     "vi": "Bài tập quá hạn ({0})"

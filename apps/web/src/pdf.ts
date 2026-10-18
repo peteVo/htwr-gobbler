@@ -41,7 +41,7 @@ export async function readPdf(
     }
     if (pages.every((p) => !p.text.trim()))
       throw new Error(
-        "No readable text found. Scanned PDFs need OCR, which is not included. This document has not been checked.",
+        "No readable text found in this upload. Automatic OCR runs through connected local folders. This document has not been checked.",
       );
     return pages;
   } finally {

@@ -749,14 +749,14 @@ app.delete("/api/sources/:id", async (c) => {
       c.get("user"),
     ),
     c.env.DB.prepare(
-      "DELETE FROM materials WHERE user_id=? AND managed=1 AND NOT EXISTS (SELECT 1 FROM material_files WHERE material_id=materials.id)",
+      "DELETE FROM materials WHERE user_id=? AND managed=1 AND NOT EXISTS (SELECT 1 FROM material_files WHERE material_id=materials.id OR EXISTS (SELECT 1 FROM json_each(material_files.material_ids) WHERE value=materials.id))",
     ).bind(c.get("user")),
   ]);
   return c.json({ ok: true });
 });
 app.get("/api/materials", async (c) => {
   const rows = await c.env.DB.prepare(
-    `SELECT id,course_id,name,source_url,created_at,managed AS synced,${availableMaterial} AS available FROM materials WHERE user_id=? ORDER BY created_at DESC,id`,
+    `SELECT id,course_id,name,source_url,created_at,managed AS synced,${availableMaterial} AS available,EXISTS (SELECT 1 FROM json_each(materials.pages) WHERE json_extract(value,'$.ocr')=1) AS ocr FROM materials WHERE user_id=? ORDER BY created_at DESC,id`,
   )
     .bind(c.get("user"))
     .all();
@@ -764,7 +764,7 @@ app.get("/api/materials", async (c) => {
 });
 app.get("/api/materials/issues", async (c) => {
   const rows = await c.env.DB.prepare(
-    "SELECT s.name AS source_name,f.relative_path,f.state FROM material_files f JOIN sources s ON s.id=f.source_id AND s.user_id=f.user_id WHERE f.user_id=? AND f.state<>'available' ORDER BY s.name,f.relative_path LIMIT 100",
+    "SELECT s.name AS source_name,f.relative_path,f.state,f.issue,f.pages_done,f.pages_total FROM material_files f JOIN sources s ON s.id=f.source_id AND s.user_id=f.user_id WHERE f.user_id=? AND f.state<>'available' ORDER BY s.name,f.relative_path LIMIT 100",
   )
     .bind(c.get("user"))
     .all();
@@ -841,7 +841,7 @@ app.post("/api/materials", async (c) => {
 });
 app.delete("/api/materials/:id", async (c) => {
   const linked = await c.env.DB.prepare(
-    "SELECT material_id FROM material_files WHERE material_id=? AND user_id=? LIMIT 1",
+    "SELECT material_id FROM material_files WHERE (material_id=?1 OR EXISTS (SELECT 1 FROM json_each(material_files.material_ids) WHERE value=?1)) AND user_id=?2 LIMIT 1",
   )
     .bind(c.req.param("id"), c.get("user"))
     .first();

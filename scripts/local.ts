@@ -190,6 +190,7 @@ let proxy:
     >
   | undefined;
 let timer: ReturnType<typeof setTimeout> | undefined;
+let materialTimer: ReturnType<typeof setTimeout> | undefined;
 let stopping = false;
 async function stop(code = 0) {
   if (stopping) return;
@@ -197,6 +198,7 @@ async function stop(code = 0) {
   status.heartbeat = "1970-01-01T00:00:00.000Z";
   fs.writeFileSync(statusPath, JSON.stringify(status));
   clearTimeout(timer);
+  clearTimeout(materialTimer);
   for (const child of children) child.kill();
   await proxy?.dispose();
   if (
@@ -230,7 +232,7 @@ try {
   if (!(await database.prepare(localQueries.user).bind(user_id).first()))
     throw new Error("Local workspace not found");
   let backupAttempt = 0;
-  let folderAttempt = 0;
+  let materialPass: Promise<void>;
   async function tick() {
     if (stopping || !proxy) return;
     writeStatus();
@@ -268,33 +270,48 @@ try {
       status.check_failed = true;
     }
     writeStatus();
-    if (Date.now() - folderAttempt >= 60000) {
-      folderAttempt = Date.now();
-      let materialFailed = false;
-      try {
-        const config = configInput.parse(
-          JSON.parse(fs.readFileSync(configPath, "utf8")),
-        );
-        if (config.user_id !== user_id)
-          throw new Error("Workspace changed; restart Gobbler");
-        for (const folder of config.material_folders) {
-          const result = await syncMaterialFolder(database, user_id, folder);
-          if (result?.failed) materialFailed = true;
-          writeStatus();
-        }
-        status.last_material_check = new Date().toISOString();
-        status.material_check_failed = materialFailed;
-      } catch {
-        status.material_check_failed = true;
-        console.error(
-          "Local course folders could not be checked. Inspect the local configuration and Sources.",
-        );
-      }
-    }
-    writeStatus();
-    if (process.argv.includes("--once")) await stop();
-    else timer = setTimeout(tick, 60000);
+    if (process.argv.includes("--once")) {
+      await materialPass;
+      await stop();
+    } else timer = setTimeout(tick, 60000);
   }
+  async function scanMaterials() {
+    if (stopping) return;
+    let materialPending = false;
+    let materialFailed = false;
+    try {
+      const config = configInput.parse(
+        JSON.parse(fs.readFileSync(configPath, "utf8")),
+      );
+      if (config.user_id !== user_id)
+        throw new Error("Workspace changed; restart Gobbler");
+      for (const folder of config.material_folders) {
+        const result = await syncMaterialFolder(database, user_id, folder);
+        if (result?.failed) materialFailed = true;
+        if (result?.pending) materialPending = true;
+        writeStatus();
+      }
+      status.last_material_check = new Date().toISOString();
+      status.material_check_failed = materialFailed;
+    } catch {
+      status.material_check_failed = true;
+      console.error(
+        "Local course folders could not be checked. Inspect the local configuration and Sources.",
+      );
+    }
+    if (!stopping) {
+      writeStatus();
+      if (!process.argv.includes("--once"))
+        materialTimer = setTimeout(
+          () => {
+            materialPass = scanMaterials();
+          },
+          materialPending ? 15000 : 60000,
+        );
+    }
+  }
+
+  materialPass = scanMaterials();
   await tick();
 } catch {
   console.error(

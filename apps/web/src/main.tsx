@@ -441,7 +441,7 @@ function App() {
       starts_at: d.deadline,
       all_day: d.all_day ?? false,
       ends_at: null,
-      evidence: `${d.document}${d.page ? tx(" · page {0}", d.page) : ""}: ${d.evidence}`,
+      evidence: `${d.ocr ? tx("OCR-derived text") + " · " : ""}${d.document}${d.page ? tx(" · page {0}", d.page) : ""}: ${d.evidence}`,
       verification: "needs_review",
     } as Item);
     setModal("item");

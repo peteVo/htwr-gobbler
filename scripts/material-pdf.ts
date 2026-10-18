@@ -1,13 +1,12 @@
-import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
+import { getDocument, OPS } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { createRequire } from "node:module";
 import path from "node:path";
-import { materialInput } from "../packages/core/materials";
 
 const chunks: Buffer[] = [];
 let bytes = 0;
 for await (const chunk of process.stdin) {
   bytes += chunk.length;
-  if (bytes > 10_000_000) throw new Error("PDF exceeds 10 MB");
+  if (bytes > 50_000_000) throw new Error("PDF exceeds 50 MB");
   chunks.push(chunk);
 }
 const task = getDocument({
@@ -28,11 +27,15 @@ const task = getDocument({
 });
 try {
   const pdf = await task.promise;
-  if (pdf.numPages > 200) throw new Error("PDF exceeds 200 pages");
+  if (pdf.numPages > 2000) throw new Error("PDF exceeds 2000 pages");
+  const start = Number(process.argv[2] ?? 1);
+  if (!Number.isInteger(start) || start < 1 || start > pdf.numPages)
+    throw new Error("Invalid PDF batch");
   const pages = [];
   let length = 0;
-  for (let page = 1; page <= pdf.numPages; page++) {
-    const content = await (await pdf.getPage(page)).getTextContent();
+  for (let page = start; page <= Math.min(start + 9, pdf.numPages); page++) {
+    const pdfPage = await pdf.getPage(page);
+    const content = await pdfPage.getTextContent();
     const text = content.items
       .map((item) =>
         "str" in item ? item.str + (item.hasEOL ? "\n" : " ") : "",
@@ -40,15 +43,18 @@ try {
       .join("");
     length += text.length;
     if (length > 500000) throw new Error("PDF exceeds text limit");
-    pages.push({ page, text });
+    const ocr_needed =
+      !text.trim() &&
+      (await pdfPage.getOperatorList()).fnArray.some((fn) =>
+        [
+          OPS.paintImageXObject,
+          OPS.paintInlineImageXObject,
+          OPS.paintImageMaskXObject,
+        ].includes(fn),
+      );
+    pages.push({ page, text, ...(ocr_needed ? { ocr_needed: true } : {}) });
   }
-  materialInput.parse({
-    course_id: "local",
-    name: "PDF",
-    source_url: "",
-    pages,
-  });
-  process.stdout.write(JSON.stringify(pages));
+  process.stdout.write(JSON.stringify({ total: pdf.numPages, pages }));
 } finally {
   await task.destroy();
 }

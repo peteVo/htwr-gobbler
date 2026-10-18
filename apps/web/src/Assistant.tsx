@@ -9,7 +9,14 @@ import type {
 } from "../../../packages/core/materials";
 import { useText } from "./text";
 import { scheduleKind } from "../../../packages/core/schedule";
-type FileIssue = { source_name: string; relative_path: string; state: string };
+type FileIssue = {
+  source_name: string;
+  relative_path: string;
+  state: string;
+  issue?: string;
+  pages_done?: number;
+  pages_total?: number;
+};
 
 export function Assistant({
   courses,
@@ -110,6 +117,10 @@ export function Assistant({
     );
   const selected = materials.filter((m) => m.course_id === course);
   const readable = selected.filter((m) => m.available !== 0);
+  const pending = issues.filter(
+    (f) => f.state === "unreadable" && f.issue === "indexing",
+  );
+  const attention = issues.filter((f) => !pending.includes(f));
   const calendarQuestion = scheduleKind(question);
   return (
     <div className="assistant-layout">
@@ -319,6 +330,13 @@ export function Assistant({
                   [{c.id}] {c.name}
                   {c.page ? tx(" · Page {0}", c.page) : tx(" · Pasted text")}
                 </cite>
+                {c.ocr && (
+                  <p className="warning-text">
+                    {tx(
+                      "OCR-derived text · check the original page, especially formulas and handwriting.",
+                    )}
+                  </p>
+                )}
                 {c.source_url && (
                   <p>
                     <a href={c.source_url} target="_blank" rel="noreferrer">
@@ -360,18 +378,44 @@ export function Assistant({
             )}
           </p>
         </details>
-        {issues.length > 0 && (
+        {pending.length > 0 && (
+          <section
+            aria-label={tx("PDF import progress")}
+            className="material-upload small muted"
+          >
+            <h3>{tx("PDFs importing ({0})", pending.length)}</h3>
+            {pending.map((f) => (
+              <p key={f.source_name + f.relative_path}>
+                <strong>{f.source_name}</strong>
+                {" · "}
+                {f.relative_path}
+                {" · "}
+                {tx(
+                  "Pages processed: {0} of {1}",
+                  f.pages_done ?? 0,
+                  f.pages_total ?? 0,
+                )}
+              </p>
+            ))}
+            <p>
+              {tx(
+                "Importing continues automatically while this laptop is awake. Unfinished files are excluded from answers.",
+              )}
+            </p>
+          </section>
+        )}
+        {attention.length > 0 && (
           <details className="material-upload small muted">
             <summary>
-              {tx("PDFs needing attention ({0})", issues.length)}
+              {tx("PDFs needing attention ({0})", attention.length)}
             </summary>
             <p>
               {tx(
-                "These local files are excluded from answers. Missing files need downloading again; unreadable PDFs may be scanned, damaged or exceed the 10 MB, 200 page or text limits. Imports still catching up are shown in Sources.",
+                "These local files are excluded from answers. Missing files need downloading again. Local imports support up to 50 MB and 2,000 pages per PDF; extraction and library limits still apply.",
               )}
             </p>
             <ul>
-              {issues.map((f) => (
+              {attention.map((f) => (
                 <li key={f.source_name + f.relative_path}>
                   <strong>{f.source_name}</strong>
                   <p>{f.relative_path}</p>
@@ -382,12 +426,47 @@ export function Assistant({
                         : "Local PDF unavailable",
                     )}
                   </span>
+                  {f.issue === "ocr_unavailable" && (
+                    <p>
+                      {tx(
+                        "Local OCR is unavailable. Start Ollama and install glm-ocr:latest, then let Gobbler retry.",
+                      )}
+                    </p>
+                  )}
+                  {f.issue === "renderer_unavailable" && (
+                    <p>
+                      {tx(
+                        "Automatic scanned-PDF rendering currently requires Windows. Text-based PDFs still import locally.",
+                      )}
+                    </p>
+                  )}
+                  {f.issue === "limits" && (
+                    <p>
+                      {tx(
+                        "This PDF exceeds a local processing limit. Use a smaller copy; original files are retained.",
+                      )}
+                    </p>
+                  )}
+                  {f.issue === "library_full" && (
+                    <p>
+                      {tx(
+                        "The material library is full. Free space in the library before retrying this PDF.",
+                      )}
+                    </p>
+                  )}
+                  {f.issue === "timeout" && (
+                    <p>
+                      {tx(
+                        "This PDF took too long to process. Gobbler will retry; check local OCR availability.",
+                      )}
+                    </p>
+                  )}
                 </li>
               ))}
             </ul>
             <p>
               {tx(
-                "Missing file: run Sync-my-L2P to download it again. Unreadable file: check whether it opens and has selectable text; scanned pages need OCR, and large PDFs need a smaller copy. Gobbler retries changed files automatically.",
+                "Missing file: run Sync-my-L2P to download it again. Scanned pages use local OCR automatically. If processing fails, Gobbler retries later and keeps the original file untouched.",
               )}
             </p>
             <button className="text-button" onClick={showSources}>
@@ -397,7 +476,7 @@ export function Assistant({
         )}
         <p className="small muted">
           {tx(
-            "Gobbler reads connected PDF folders every minute while the laptop is awake. Sync-my-L2P must download Moodle changes first; a local file check does not confirm Moodle is up to date.",
+            "Connected folders are checked automatically while this laptop is awake. Scanned pages may take longer; progress is shown here. Sync-my-L2P downloads Moodle changes separately.",
           )}
         </p>
         <button
@@ -431,6 +510,13 @@ export function Assistant({
             {selected.map((m) => (
               <article className="material-row" key={m.id}>
                 <strong>{m.name}</strong>
+                {!!m.ocr && (
+                  <span className="warning-text small">
+                    {tx(
+                      "Contains OCR-derived text · verify formulas and handwriting.",
+                    )}
+                  </span>
+                )}
                 {m.synced ? (
                   <span className="small muted">
                     {tx(
@@ -492,6 +578,13 @@ export function Assistant({
                         {d.page ? tx(" · Page {0}", d.page) : ""}
                       </p>
                       <blockquote>{d.evidence}</blockquote>
+                      {d.ocr && (
+                        <p className="warning-text">
+                          {tx(
+                            "OCR-derived date · compare the original page before saving.",
+                          )}
+                        </p>
+                      )}
                       <button
                         className="secondary"
                         disabled={!!busy}
@@ -507,7 +600,7 @@ export function Assistant({
               <summary>{tx("Add course material")}</summary>
               <p className="small muted">
                 {tx(
-                  "PDF text is read on this device and saved in your local Gobbler account. Up to 200 pages, 10 MB and 500,000 text characters per document. Scanned images need OCR, which is not included.",
+                  "Manual PDF uploads read existing text: up to 200 pages, 10 MB and 500,000 characters. Automatic OCR and larger PDF imports run through connected local folders.",
                 )}
               </p>
               <label>

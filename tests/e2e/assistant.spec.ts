@@ -53,6 +53,7 @@ test("course assistant saves PDF pages, cites material, handles missing evidence
                 source_url: "",
                 material_id: "m",
                 text: "",
+                ocr: true,
               },
             ],
           },
@@ -84,6 +85,11 @@ test("course assistant saves PDF pages, cites material, handles missing evidence
   await expect(
     page.getByRole("region", { name: "Course answer" }),
   ).toContainText("exercise.pdf · Page 1");
+  await expect(
+    page.getByText("OCR-derived text · check the original page", {
+      exact: false,
+    }),
+  ).toBeVisible();
   unsupported = true;
   await page.getByLabel("Your question").fill("What is not in the material?");
   await page.getByRole("button", { name: "Ask local AI", exact: true }).click();
@@ -133,6 +139,7 @@ test("automatic material shows availability and reviews a suggested date without
     document_name: "Sheet.pdf",
     document_hash: "a".repeat(64),
     document_key: "b".repeat(64),
+    ocr: true,
   };
   await page.route("**/api/data", (r) =>
     r.fulfill({
@@ -157,6 +164,7 @@ test("automatic material shows availability and reviews a suggested date without
           created_at: "2026-10-18",
           synced: 1,
           available: 0,
+          ocr: 1,
         },
       ],
     }),
@@ -171,6 +179,14 @@ test("automatic material shows availability and reviews a suggested date without
           source_name: "Local files · Networks",
           relative_path: "scanned.pdf",
           state: "unreadable",
+        },
+        {
+          source_name: "Local files · Networks",
+          relative_path: "Long scan.pdf",
+          state: "unreadable",
+          issue: "indexing",
+          pages_done: 10,
+          pages_total: 201,
         },
       ],
     }),
@@ -194,6 +210,15 @@ test("automatic material shows availability and reviews a suggested date without
   ).toBeVisible();
   await page.getByText("PDFs needing attention (1)", { exact: true }).click();
   await expect(page.getByText("scanned.pdf", { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("region", { name: "PDF import progress" }),
+  ).toContainText("Pages processed: 10 of 201");
+  await expect(
+    page.getByText("Contains OCR-derived text", { exact: false }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("OCR-derived date", { exact: false }),
+  ).toBeVisible();
   await expect(
     page.getByText("0 readable documents for this module", { exact: true }),
   ).toBeVisible();

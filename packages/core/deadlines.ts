@@ -1,4 +1,4 @@
-export type DocumentPage = { page: number | null; text: string };
+export type DocumentPage = { page: number | null; text: string; ocr?: boolean };
 export type DeadlineCandidate = {
   title: string;
   deadline: string;
@@ -6,6 +6,7 @@ export type DeadlineCandidate = {
   page: number | null;
   document: string;
   all_day?: boolean;
+  ocr?: boolean;
 };
 
 export function berlinInstant(
@@ -101,6 +102,7 @@ export function extractExplicitDeadlines(
         evidence,
         page: page.page,
         document,
+        ...(page.ocr ? { ocr: true } : {}),
         ...(dateOnly ? { all_day: true } : {}),
       });
     }

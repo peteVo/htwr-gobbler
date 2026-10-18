@@ -9,8 +9,9 @@ export const materialInput = z
     pages: z
       .array(
         z.object({
-          page: z.number().int().min(1).max(200).nullable(),
+          page: z.number().int().min(1).max(2000).nullable(),
           text: z.string().max(500000),
+          ocr: z.boolean().optional(),
         }),
       )
       .min(1)
@@ -28,10 +29,11 @@ export type Material = z.infer<typeof materialInput> & {
 };
 export type MaterialSummary = Omit<Material, "pages">;
 export const availableMaterial =
-  "(managed=0 OR EXISTS (SELECT 1 FROM material_files WHERE material_id=materials.id AND material_files.user_id=materials.user_id AND state='available'))";
+  "(managed=0 OR EXISTS (SELECT 1 FROM material_files WHERE (material_id=materials.id OR EXISTS (SELECT 1 FROM json_each(material_files.material_ids) WHERE value=materials.id)) AND material_files.user_id=materials.user_id AND state='available'))";
 export type SyncedMaterialSummary = MaterialSummary & {
   synced?: number;
   available?: number;
+  ocr?: number;
 };
 export type MaterialCandidate = import("./deadlines").DeadlineCandidate & {
   course_id: string;
@@ -47,6 +49,7 @@ export type Passage = {
   source_url: string;
   page: number | null;
   text: string;
+  ocr?: boolean;
 };
 export const answerInput = z.object({
   course_id: z.string().min(1).max(100),
@@ -88,6 +91,7 @@ export function selectPassages(
           name: material.name,
           source_url: material.source_url,
           page: page.page,
+          ...(page.ocr ? { ocr: true } : {}),
           text,
           found: new Set(words(text)),
           title: new Set(words(material.name)),

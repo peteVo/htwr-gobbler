@@ -8,6 +8,7 @@ import {
   syncMaterialFolder,
   readLocalPdf,
 } from "../scripts/material-folders";
+import { PdfPendingError } from "../scripts/pdf-reader";
 import { availableMaterial } from "../packages/core/materials";
 
 test("local folder sync preserves module ownership, deduplicates renames, replaces revisions and excludes missing/unreadable files", async () => {
@@ -93,6 +94,55 @@ test("local folder sync preserves module ownership, deduplicates renames, replac
         .prepare("SELECT COUNT(*) n FROM materials WHERE " + availableMaterial)
         .get()?.n,
     ).toBe(0);
+    await fs.writeFile(
+      path.join(directory, "multi.pdf"),
+      "A multi-part local PDF",
+    );
+    const batchRead = async () =>
+      Array.from({ length: 201 }, (_, i) => ({
+        page: i + 1,
+        text: "Course material page " + (i + 1),
+        ocr: true,
+      }));
+    const initial = await syncMaterialFolder(
+      db,
+      "u",
+      folder,
+      async () => {
+        throw new PdfPendingError(10, 201);
+      },
+      future + 700000,
+    );
+    expect(initial?.pending).toBe(true);
+    expect(
+      sqlite
+        .prepare(
+          "SELECT issue,pages_done FROM material_files WHERE relative_path='multi.pdf'",
+        )
+        .get(),
+    ).toMatchObject({ issue: "indexing", pages_done: 10 });
+    // Failed files retry on their cooldown; subsequent passes eventually reach the resumed PDF.
+    for (let pass = 0; pass < 6; pass++)
+      await syncMaterialFolder(db, "u", folder, batchRead, future + 700000);
+    const linked = sqlite
+      .prepare(
+        "SELECT material_ids FROM material_files WHERE relative_path='multi.pdf'",
+      )
+      .get()!;
+    expect(JSON.parse(String(linked.material_ids))).toHaveLength(2);
+    const available = sqlite
+      .prepare("SELECT id FROM materials WHERE " + availableMaterial)
+      .all();
+    expect(available.length).toBeGreaterThanOrEqual(2);
+    await fs.unlink(path.join(directory, "multi.pdf"));
+    await syncMaterialFolder(db, "u", folder, batchRead, future + 700000);
+    expect(
+      sqlite
+        .prepare(
+          "SELECT state FROM material_files WHERE relative_path='multi.pdf'",
+        )
+        .get()?.state,
+    ).toBe("missing");
     expect(sqlite.prepare("SELECT pages FROM materials").get()?.pages).toBe(
       original.pages,
     );
@@ -124,8 +174,8 @@ test("local folder sync preserves module ownership, deduplicates renames, replac
       path.join(directory, "z.pdf"),
       "A valid document after three malformed downloads.",
     );
-    await syncMaterialFolder(db, "u", folder, read, future);
-    await syncMaterialFolder(db, "u", folder, read, future);
+    for (let pass = 0; pass < 4; pass++)
+      await syncMaterialFolder(db, "u", folder, read, future);
     expect(
       sqlite
         .prepare("SELECT state FROM material_files WHERE relative_path='z.pdf'")

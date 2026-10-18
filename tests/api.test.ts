@@ -1636,6 +1636,32 @@ it("keeps automatic material candidates private, omits reviewed dates and exclud
       "INSERT INTO material_files (user_id,source_id,relative_path,material_id,state) VALUES (?,'folder','Sheet.pdf','m','available')",
     )
     .run(user);
+  sqlite
+    .prepare(
+      "INSERT INTO materials (id,user_id,course_id,name,pages,content_hash,created_at,managed) VALUES ('m2',?,?,'Sheet.pdf · Pages 201–201',?,'hash-2','now',1)",
+    )
+    .run(
+      user,
+      course,
+      JSON.stringify([
+        { page: 201, text: "OCR course text from page 201", ocr: true },
+      ]),
+    );
+  sqlite
+    .prepare(
+      'UPDATE material_files SET material_ids=\'["m","m2"]\' WHERE user_id=?',
+    )
+    .run(user);
+  expect(
+    (await request("/materials/m2", "DELETE", undefined, one)).status,
+  ).toBe(409);
+  const parts = (await (
+    await request("/materials", "GET", undefined, one)
+  ).json()) as any[];
+  expect(parts.find((m) => m.id === "m2")).toMatchObject({
+    available: 1,
+    ocr: 1,
+  });
   expect(
     await (
       await request("/materials/candidates", "GET", undefined, two)
@@ -1677,6 +1703,9 @@ it("keeps automatic material candidates private, omits reviewed dates and exclud
       source_name: "Local files",
       relative_path: "Sheet.pdf",
       state: "unreadable",
+      issue: "",
+      pages_done: 0,
+      pages_total: 0,
     },
   ]);
   const provider = vi.fn();
@@ -1703,4 +1732,8 @@ it("keeps automatic material candidates private, omits reviewed dates and exclud
   } finally {
     vi.unstubAllGlobals();
   }
+  await request("/sources/folder", "DELETE", undefined, one);
+  expect(
+    await (await request("/materials", "GET", undefined, one)).json(),
+  ).toEqual([]);
 });

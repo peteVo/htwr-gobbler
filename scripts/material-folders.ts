@@ -2,7 +2,13 @@ import { localQueries } from "../apps/api/local-queries";
 import fs from "node:fs/promises";
 import { createReadStream } from "node:fs";
 import path from "node:path";
-import { execFile } from "node:child_process";
+import {
+  readLocalPdf,
+  PdfPendingError,
+  PdfReadError,
+  splitMaterialPages,
+} from "./pdf-reader";
+export { readLocalPdf } from "./pdf-reader";
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import { materialInput } from "../packages/core/materials";
@@ -18,42 +24,6 @@ export const folderInput = z.object({
   source_id: z.string().min(1),
 });
 export type MaterialFolder = z.infer<typeof folderInput>;
-const root = path.resolve(import.meta.dirname, "..");
-
-export async function readLocalPdf(data: Buffer): Promise<DocumentPage[]> {
-  return new Promise((resolve, reject) => {
-    const child = execFile(
-      process.execPath,
-      [
-        "--max-old-space-size=256",
-        "--import",
-        "tsx",
-        path.join(root, "scripts/material-pdf.ts"),
-      ],
-      { timeout: 30000, maxBuffer: 3_000_000, windowsHide: true, cwd: root },
-      (error, stdout) => {
-        if (error)
-          return reject(
-            new Error("PDF could not be read within the local limits"),
-          );
-        try {
-          resolve(
-            materialInput.parse({
-              course_id: "local",
-              name: "PDF",
-              source_url: "",
-              pages: JSON.parse(stdout),
-            }).pages,
-          );
-        } catch {
-          reject(new Error("PDF contains no supported text"));
-        }
-      },
-    );
-    child.stdin?.on("error", () => {});
-    child.stdin?.end(data);
-  });
-}
 
 export async function connectMaterialFolder(
   db: D1Database,
@@ -144,7 +114,7 @@ export async function syncMaterialFolder(
           if (inside.startsWith("..") || path.isAbsolute(inside))
             throw new Error("File outside folder");
           const before = await fs.stat(file);
-          if (before.size > 10_000_000) throw new Error("PDF exceeds 10 MB");
+          if (before.size > 50_000_000) throw new PdfReadError("limits");
           if (now - before.mtimeMs < 5000) {
             complete = false;
             await db
@@ -157,7 +127,7 @@ export async function syncMaterialFolder(
           let bytes = 0;
           for await (const chunk of createReadStream(canonical)) {
             bytes += chunk.length;
-            if (bytes > 10_000_000) throw new Error("PDF exceeds 10 MB");
+            if (bytes > 50_000_000) throw new PdfReadError("limits");
             chunks.push(chunk as Buffer);
           }
           const data = Buffer.concat(chunks);
@@ -170,6 +140,7 @@ export async function syncMaterialFolder(
               state: string;
               material_id: string | null;
               checked_at: number;
+              issue: string;
             }>();
           if (
             previous?.file_hash === fileHash &&
@@ -181,12 +152,13 @@ export async function syncMaterialFolder(
           if (
             previous?.file_hash === fileHash &&
             previous.state === "unreadable" &&
+            previous.issue !== "indexing" &&
             now - previous.checked_at < 600000
           ) {
             failed = true;
             continue;
           }
-          if (parsed >= 3) {
+          if (parsed >= 1) {
             complete = false;
             await db
               .prepare(localQueries.unavailableFile)
@@ -196,17 +168,11 @@ export async function syncMaterialFolder(
           }
           parsed++;
           const pages = await read(data);
-          materialInput.parse({
-            course_id: folder.course_id,
-            name: entry.name,
-            source_url: "",
-            pages,
-          });
           const after = await fs.stat(file);
           if (before.size !== after.size || before.mtimeMs !== after.mtimeMs)
             throw new Error("PDF is still changing");
-          const text = JSON.stringify(pages),
-            contentHash = await hash(text);
+          const parts = splitMaterialPages(pages),
+            ids: string[] = [];
           const documentHash = await hash(
             pages
               .map((p) => p.text)
@@ -214,57 +180,109 @@ export async function syncMaterialFolder(
               .replace(/\s+/g, " ")
               .trim(),
           );
-          const candidates = await Promise.all(
-            extractExplicitDeadlines(pages, entry.name)
-              .slice(0, 50)
-              .map(async (d) => ({
-                ...d,
-                course_id: folder.course_id,
-                source_url: "",
-                document_name: entry.name,
-                document_hash: documentHash,
-                document_key: await hash(
-                  JSON.stringify([
-                    documentHash,
-                    d.page,
-                    d.deadline,
-                    d.evidence.replace(/\s+/g, " ").trim(),
-                  ]),
-                ),
-              })),
-          );
-          const id =
-            "material-" +
-            (await hash(JSON.stringify([user, folder.course_id, contentHash])));
-          await db
-            .prepare(localQueries.saveMaterial)
-            .bind(
-              id,
-              user,
-              folder.course_id,
-              entry.name,
-              text,
-              contentHash,
-              stamp,
-              JSON.stringify(candidates),
-              user,
-              user,
-            )
-            .run();
-          const saved = await db
-            .prepare(localQueries.material)
-            .bind(user, folder.course_id, contentHash)
-            .first<{ id: string }>();
-          if (!saved) throw new Error("Material library is full");
+          for (const part of parts) {
+            const name =
+              parts.length === 1
+                ? entry.name
+                : entry.name.slice(0, 205) +
+                  ` · Pages ${part[0].page}–${part.at(-1)!.page}`;
+            materialInput.parse({
+              course_id: folder.course_id,
+              name,
+              source_url: "",
+              pages: part,
+            });
+            const text = JSON.stringify(part),
+              contentHash = await hash(text);
+            const candidates = await Promise.all(
+              extractExplicitDeadlines(part, entry.name)
+                .slice(0, 50)
+                .map(async (d) => ({
+                  ...d,
+                  course_id: folder.course_id,
+                  source_url: "",
+                  document_name: entry.name,
+                  document_hash: documentHash,
+                  document_key: await hash(
+                    JSON.stringify([
+                      documentHash,
+                      d.page,
+                      d.deadline,
+                      d.evidence.replace(/\s+/g, " ").trim(),
+                    ]),
+                  ),
+                })),
+            );
+            const id =
+              "material-" +
+              (await hash(
+                JSON.stringify([user, folder.course_id, contentHash]),
+              ));
+            await db
+              .prepare(localQueries.saveMaterial)
+              .bind(
+                id,
+                user,
+                folder.course_id,
+                name,
+                text,
+                contentHash,
+                stamp,
+                JSON.stringify(candidates),
+                user,
+                user,
+              )
+              .run();
+            const saved = await db
+              .prepare(localQueries.material)
+              .bind(user, folder.course_id, contentHash)
+              .first<{ id: string }>();
+            if (!saved) throw new PdfReadError("library_full");
+            ids.push(saved.id);
+          }
           await db
             .prepare(localQueries.bindFile)
-            .bind(user, folder.source_id, relative, saved.id, fileHash)
+            .bind(
+              user,
+              folder.source_id,
+              relative,
+              ids[0],
+              fileHash,
+              JSON.stringify(ids),
+              pages.length,
+              pages.length,
+            )
             .run();
-        } catch {
+        } catch (error) {
+          if (error instanceof PdfPendingError) {
+            complete = false;
+            parsed = 1;
+            await db
+              .prepare(localQueries.pendingFile)
+              .bind(
+                user,
+                folder.source_id,
+                relative,
+                fileHash,
+                now,
+                error.done,
+                error.total,
+              )
+              .run();
+            continue;
+          }
           failed = true;
+          if (error instanceof PdfReadError) parsed = 1;
           await db
             .prepare(localQueries.failedFile)
-            .bind(user, folder.source_id, relative, fileHash, now)
+            .bind(
+              user,
+              folder.source_id,
+              relative,
+              fileHash,
+              now,
+              error instanceof PdfReadError ? error.issue : "unreadable",
+            )
             .run();
         }
       }
@@ -298,7 +316,7 @@ export async function syncMaterialFolder(
   await db
     .prepare(localQueries.sourceStatus)
     .bind(
-      failed || !complete ? "failed" : "connected",
+      failed ? "failed" : !complete ? "syncing" : "connected",
       failed || !complete ? 1 : 0,
       stamp,
       failed
