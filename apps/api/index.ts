@@ -813,7 +813,7 @@ app.post("/api/materials", async (c) => {
   const pages = JSON.stringify(v.pages),
     id = crypto.randomUUID();
   const result = await c.env.DB.prepare(
-    "INSERT INTO materials (id,user_id,course_id,name,source_url,pages,content_hash,created_at) SELECT ?,?,?,?,?,?,?,? WHERE (SELECT COUNT(*) FROM materials WHERE user_id=?)<100 AND (SELECT COALESCE(SUM(length(pages)),0) FROM materials WHERE user_id=?) + length(?)<=5000000 ON CONFLICT(user_id,course_id,content_hash) DO NOTHING",
+    "INSERT INTO materials (id,user_id,course_id,name,source_url,pages,content_hash,created_at) SELECT ?,?,?,?,?,?,?,? WHERE (SELECT COUNT(*) FROM materials WHERE user_id=?)<500 AND (SELECT COALESCE(SUM(length(pages)),0) FROM materials WHERE user_id=?) + length(?)<=5000000 ON CONFLICT(user_id,course_id,content_hash) DO NOTHING",
   )
     .bind(
       id,

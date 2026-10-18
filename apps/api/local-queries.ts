@@ -10,7 +10,7 @@ export const localQueries = {
     "UPDATE material_files SET state='unreadable' WHERE user_id=? AND source_id=? AND relative_path=?",
   file: "SELECT file_hash,state,material_id,checked_at FROM material_files WHERE user_id=? AND source_id=? AND relative_path=?",
   saveMaterial:
-    "INSERT INTO materials (id,user_id,course_id,name,source_url,pages,content_hash,created_at,managed,candidates) SELECT ?,?,?,?,'',?,?,?,1,? WHERE (SELECT COUNT(*) FROM materials WHERE user_id=?)<100 AND (SELECT COALESCE(SUM(length(pages)),0) FROM materials WHERE user_id=?) + length(?5)<=5000000 ON CONFLICT(user_id,course_id,content_hash) DO NOTHING",
+    "INSERT INTO materials (id,user_id,course_id,name,source_url,pages,content_hash,created_at,managed,candidates) SELECT ?,?,?,?,'',?,?,?,1,? WHERE (SELECT COUNT(*) FROM materials WHERE user_id=?)<500 AND (SELECT COALESCE(SUM(length(pages)),0) FROM materials WHERE user_id=?) + length(?5)<=5000000 ON CONFLICT(user_id,course_id,content_hash) DO NOTHING",
   material:
     "SELECT id FROM materials WHERE user_id=? AND course_id=? AND content_hash=?",
   bindFile:

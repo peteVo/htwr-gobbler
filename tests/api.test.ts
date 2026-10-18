@@ -1482,6 +1482,46 @@ it("answers next-event questions from the owned module calendar without PDFs or 
   }
 });
 
+it("allows a multi-course library past 100 documents while retaining its 500-document account bound", async () => {
+  const cookie = await account();
+  const course = (
+    (await (
+      await request("/courses", "POST", { name: "Library" }, cookie)
+    ).json()) as any
+  ).id;
+  const user = sqlite
+    .prepare("SELECT user_id FROM courses WHERE id=?")
+    .get(course)!.user_id;
+  const insert = sqlite.prepare(
+    "INSERT INTO materials (id,user_id,course_id,name,pages,content_hash,created_at) VALUES (?,?,?,'Notes','[]',?,'now')",
+  );
+  for (let i = 0; i < 499; i++) insert.run("m" + i, user, course, "hash" + i);
+  const material = {
+    course_id: course,
+    name: "New notes",
+    source_url: "",
+    pages: [
+      { page: 1, text: "Readable material beyond one hundred documents." },
+    ],
+  };
+  expect((await request("/materials", "POST", material, cookie)).status).toBe(
+    201,
+  );
+  expect(
+    (
+      await request(
+        "/materials",
+        "POST",
+        {
+          ...material,
+          pages: [{ page: 1, text: "Another distinct document." }],
+        },
+        cookie,
+      )
+    ).status,
+  ).toBe(409);
+});
+
 it("permits fixed local-runner queries only on loopback with the derived operator key", async () => {
   await account();
   const user = sqlite.prepare("SELECT id FROM users").get()!.id;
