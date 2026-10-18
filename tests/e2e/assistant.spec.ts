@@ -29,6 +29,9 @@ test("course assistant saves PDF pages, cites material, handles missing evidence
       await r.fulfill({ json: { id: "m", existing: false } });
     } else await r.fulfill({ json: materials.map(({ pages, ...m }) => m) });
   });
+  await page.route("**/api/materials/candidates", (r) =>
+    r.fulfill({ json: [] }),
+  );
   await page.route("**/api/assistant/status", (r) =>
     r.fulfill({ json: { ready } }),
   );
@@ -110,6 +113,82 @@ test("course assistant saves PDF pages, cites material, handles missing evidence
     .click();
   await page.getByLabel("Module", { exact: true }).selectOption("c");
   await expect(page.getByText("exercise.pdf", { exact: true })).toBeVisible();
+});
+
+test("automatic material shows availability and reviews a suggested date without silently adding a task", async ({
+  page,
+}) => {
+  await page.route("**/api/me", (r) =>
+    r.fulfill({ json: { email: "local@test.invalid" } }),
+  );
+  const candidate = {
+    course_id: "c",
+    title: "Deadline candidate · Sheet.pdf",
+    deadline: "2026-10-22T12:00:00.000Z",
+    evidence: "Abgabe bis zum 22.10.2026 um 14:00",
+    page: 2,
+    document: "Sheet.pdf",
+    source_url: "",
+    document_name: "Sheet.pdf",
+    document_hash: "a".repeat(64),
+    document_key: "b".repeat(64),
+  };
+  await page.route("**/api/data", (r) =>
+    r.fulfill({
+      json: {
+        courses: [{ id: "c", name: "Networks", code: "NET", color: "sage" }],
+        items: [],
+        actions: [],
+        sources: [],
+        changes: [],
+        preferences: defaultPreferences,
+      },
+    }),
+  );
+  await page.route("**/api/materials", (r) =>
+    r.fulfill({
+      json: [
+        {
+          id: "m",
+          course_id: "c",
+          name: "Sheet.pdf",
+          source_url: "",
+          created_at: "2026-10-18",
+          synced: 1,
+          available: 0,
+        },
+      ],
+    }),
+  );
+  await page.route("**/api/materials/candidates", (r) =>
+    r.fulfill({ json: [candidate] }),
+  );
+  await page.route("**/api/assistant/status", (r) =>
+    r.fulfill({ json: { ready: true } }),
+  );
+  let writes = 0;
+  await page.route("**/api/items", (r) => {
+    writes++;
+    return r.fulfill({ json: { id: "i" } });
+  });
+  await page.goto("/");
+  await page
+    .getByRole("navigation")
+    .getByRole("button", { name: "Assistant", exact: true })
+    .click();
+  await page.getByLabel("Module", { exact: true }).selectOption("c");
+  await expect(
+    page.getByText("Local PDF unavailable · excluded from answers"),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Ask local AI", exact: true }),
+  ).toBeDisabled();
+  await expect(
+    page.getByRole("button", { name: "Remove material Sheet.pdf" }),
+  ).toHaveCount(0);
+  await page.getByRole("button", { name: "Review date", exact: true }).click();
+  await expect(page.getByRole("dialog")).toContainText(candidate.evidence);
+  expect(writes).toBe(0);
 });
 
 test("keyboard users can skip navigation, identify dialogs and dismiss mobile navigation", async ({

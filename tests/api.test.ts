@@ -1022,14 +1022,12 @@ describe("account-scoped API and persistence", () => {
       ).toEqual({ imported: 2, changed: 2 });
       expect(fetcher).toHaveBeenCalledTimes(2);
       expect(fetcher.mock.calls[0][1].redirect).toBe("manual");
-      fetcher
-        .mockReset()
-        .mockResolvedValue(
-          new Response("", {
-            status: 302,
-            headers: { Location: "https://untrusted.invalid/" },
-          }),
-        );
+      fetcher.mockReset().mockResolvedValue(
+        new Response("", {
+          status: 302,
+          headers: { Location: "https://untrusted.invalid/" },
+        }),
+      );
       await expect(
         syncFeed(
           db,
@@ -1376,4 +1374,102 @@ it("stores module material once, isolates owners, and asks local AI only with ow
   expect(
     await (await request("/materials", "GET", undefined, one)).json(),
   ).toEqual([]);
+});
+
+it("keeps automatic material candidates private, omits reviewed dates and excludes unavailable PDFs from AI", async () => {
+  const one = await account(),
+    two = await account("folder-other@example.test");
+  const { id: course } = (await (
+    await request("/courses", "POST", { name: "Networks" }, one)
+  ).json()) as any;
+  const user = sqlite
+    .prepare("SELECT user_id FROM courses WHERE id=?")
+    .get(course)!.user_id;
+  const candidate = {
+    course_id: course,
+    document_key: "b".repeat(64),
+    document_hash: "a".repeat(64),
+    document_name: "Sheet.pdf",
+    source_url: "",
+    title: "Date",
+    deadline: "2026-10-22T12:00:00.000Z",
+    document: "Sheet.pdf",
+    evidence: "Abgabe 22.10.2026",
+    page: 1,
+  };
+  sqlite
+    .prepare(
+      "INSERT INTO sources (id,user_id,name,kind) VALUES ('folder',?,'Local files','folder')",
+    )
+    .run(user);
+  sqlite
+    .prepare(
+      "INSERT INTO materials (id,user_id,course_id,name,pages,content_hash,created_at,managed,candidates) VALUES ('m',?,?,'Sheet.pdf',?,'hash','now',1,?)",
+    )
+    .run(
+      user,
+      course,
+      JSON.stringify([{ page: 1, text: "Private course text" }]),
+      JSON.stringify([candidate]),
+    );
+  sqlite
+    .prepare(
+      "INSERT INTO material_files (user_id,source_id,relative_path,material_id,state) VALUES (?,'folder','Sheet.pdf','m','available')",
+    )
+    .run(user);
+  expect(
+    await (
+      await request("/materials/candidates", "GET", undefined, two)
+    ).json(),
+  ).toEqual([]);
+  expect(
+    await (
+      await request("/materials/candidates", "GET", undefined, one)
+    ).json(),
+  ).toEqual([candidate]);
+  expect((await request("/materials/m", "DELETE", undefined, one)).status).toBe(
+    409,
+  );
+  await request(
+    "/items",
+    "POST",
+    {
+      ...item,
+      course_id: course,
+      document_name: candidate.document_name,
+      document_hash: candidate.document_hash,
+      document_key: candidate.document_key,
+    },
+    one,
+  );
+  expect(
+    await (
+      await request("/materials/candidates", "GET", undefined, one)
+    ).json(),
+  ).toEqual([]);
+  sqlite.exec("UPDATE material_files SET state='unreadable'");
+  const provider = vi.fn();
+  vi.stubGlobal("fetch", provider);
+  try {
+    expect(
+      await (
+        await request(
+          "/assistant/ask",
+          "POST",
+          { course_id: course, question: "What does it say?" },
+          one,
+        )
+      ).json(),
+    ).toEqual({ answer: "", supported: false, citations: [] });
+    expect(provider).not.toHaveBeenCalled();
+    expect(
+      (
+        (await (
+          await request("/materials", "GET", undefined, one)
+        ).json()) as any[]
+      )[0].available,
+    ).toBe(0);
+  } finally {
+    vi.unstubAllGlobals();
+  }
 });

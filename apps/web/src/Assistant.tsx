@@ -4,7 +4,8 @@ import type { Course } from "../../../packages/core/index";
 import type { DocumentPage } from "../../../packages/core/deadlines";
 import type {
   CourseAnswer,
-  MaterialSummary,
+  SyncedMaterialSummary,
+  MaterialCandidate,
 } from "../../../packages/core/materials";
 import { useText } from "./text";
 
@@ -13,15 +14,18 @@ export function Assistant({
   signedIn,
   language,
   request,
+  review,
 }: {
   courses: Course[];
   signedIn: boolean;
   language: string;
   request: <T>(path: string, method?: string, body?: unknown) => Promise<T>;
+  review: (candidate: MaterialCandidate) => void;
 }) {
   const tx = useText();
   const [course, setCourse] = useState(""),
-    [materials, setMaterials] = useState<MaterialSummary[]>([]);
+    [materials, setMaterials] = useState<SyncedMaterialSummary[]>([]);
+  const [candidates, setCandidates] = useState<MaterialCandidate[]>([]);
   const [ready, setReady] = useState(false),
     [checking, setChecking] = useState(false),
     [busy, setBusy] = useState("");
@@ -34,7 +38,12 @@ export function Assistant({
     [pages, setPages] = useState<DocumentPage[]>([]);
   const [answer, setAnswer] = useState<CourseAnswer | null>(null);
   async function refresh() {
-    setMaterials(await request<MaterialSummary[]>("/materials"));
+    const [library, dates] = await Promise.all([
+      request<SyncedMaterialSummary[]>("/materials"),
+      request<MaterialCandidate[]>("/materials/candidates"),
+    ]);
+    setMaterials(library);
+    setCandidates(dates);
   }
   async function check() {
     setChecking(true);
@@ -49,16 +58,28 @@ export function Assistant({
   useEffect(() => {
     if (!signedIn) return;
     let active = true;
-    request<MaterialSummary[]>("/materials")
-      .then((v) => {
-        if (active) setMaterials(v);
-      })
-      .catch(() => {
-        if (active) setError("Could not load course materials. Try again.");
-      });
+    const load = () =>
+      Promise.all([
+        request<SyncedMaterialSummary[]>("/materials"),
+        request<MaterialCandidate[]>("/materials/candidates"),
+      ])
+        .then(([v, dates]) => {
+          if (active) {
+            setMaterials(v);
+            setCandidates(dates);
+          }
+        })
+        .catch(() => {
+          if (active) setError("Could not load course materials. Try again.");
+        });
+    void load();
+    const timer = setInterval(() => {
+      if (document.visibilityState === "visible") void load();
+    }, 60000);
     void check();
     return () => {
       active = false;
+      clearInterval(timer);
     };
   }, [signedIn]);
   if (!signedIn)
@@ -74,7 +95,7 @@ export function Assistant({
         <h2>{tx("Ask your course material")}</h2>
         <p className="muted">
           {tx(
-            "Answers use selected excerpts from material you saved for this module. Check the quotations; the AI can still make mistakes. Moodle is not read automatically.",
+            "Answers use selected excerpts from this module's available material. Connected local folders update automatically. Check the quotations; the AI can still make mistakes.",
           )}
         </p>
         <label htmlFor="assistant-module">{tx("Module")}</label>
@@ -154,7 +175,12 @@ export function Assistant({
           </label>
           <button
             className="primary"
-            disabled={!!busy || !course || !selected.length || !ready}
+            disabled={
+              !!busy ||
+              !course ||
+              !selected.some((m) => m.available !== 0) ||
+              !ready
+            }
           >
             {busy === "asking"
               ? tx("Reading your material…")
@@ -216,6 +242,23 @@ export function Assistant({
       </section>
       <section>
         <h2>{tx("Course material")}</h2>
+        <p className="small muted">
+          {tx(
+            "Gobbler reads connected PDF folders every minute while the laptop is awake. Sync-my-L2P must download Moodle changes first; a local file check does not confirm Moodle is up to date.",
+          )}
+        </p>
+        <button
+          className="text-button"
+          disabled={!!busy}
+          onClick={() => {
+            setError("");
+            void refresh().catch(() =>
+              setError("Could not load course materials. Try again."),
+            );
+          }}
+        >
+          {tx("Refresh material library")}
+        </button>
         {!course ? (
           <p className="muted">
             {tx("Choose a module to add or read its material.")}
@@ -232,32 +275,78 @@ export function Assistant({
             {selected.map((m) => (
               <article className="material-row" key={m.id}>
                 <strong>{m.name}</strong>
-                <button
-                  className="text-button"
-                  disabled={!!busy}
-                  aria-label={tx("Remove material {0}", m.name)}
-                  onClick={async () => {
-                    setBusy("deleting");
-                    setError("");
-                    setAnswer(null);
-                    try {
-                      await request(
-                        "/materials/" + encodeURIComponent(m.id),
-                        "DELETE",
-                      );
-                      await refresh();
-                      setNotice("Material removed from the assistant library.");
-                    } catch (e) {
-                      setError((e as Error).message);
-                    } finally {
-                      setBusy("");
-                    }
-                  }}
-                >
-                  {tx("Remove")}
-                </button>
+                {m.synced ? (
+                  <span className="small muted">
+                    {tx(
+                      m.available === 0
+                        ? "Local PDF unavailable · excluded from answers"
+                        : "From connected local folder",
+                    )}
+                  </span>
+                ) : (
+                  <button
+                    className="text-button"
+                    disabled={!!busy}
+                    aria-label={tx("Remove material {0}", m.name)}
+                    onClick={async () => {
+                      setBusy("deleting");
+                      setError("");
+                      setAnswer(null);
+                      try {
+                        await request(
+                          "/materials/" + encodeURIComponent(m.id),
+                          "DELETE",
+                        );
+                        await refresh();
+                        setNotice(
+                          "Material removed from the assistant library.",
+                        );
+                      } catch (e) {
+                        setError((e as Error).message);
+                      } finally {
+                        setBusy("");
+                      }
+                    }}
+                  >
+                    {tx("Remove")}
+                  </button>
+                )}
               </article>
             ))}
+            {candidates.filter((d) => d.course_id === course).length > 0 && (
+              <section aria-label={tx("Dates to review")}>
+                <h3>{tx("Dates to review")}</h3>
+                <p className="small muted">
+                  {tx(
+                    "These PDF dates are suggestions. Check the wording and existing tasks before saving; they are not confirmed deadlines.",
+                  )}
+                </p>
+                {candidates
+                  .filter((d) => d.course_id === course)
+                  .map((d) => (
+                    <article key={d.document_key} className="assistant-answer">
+                      <strong>{d.document_name}</strong>
+                      <p>
+                        {new Intl.DateTimeFormat(language, {
+                          dateStyle: "medium",
+                          ...(d.all_day ? {} : { timeStyle: "short" as const }),
+                          timeZone: "Europe/Berlin",
+                        }).format(new Date(d.deadline))}
+                        {" · Europe/Berlin"}
+                        {d.page ? tx(" · Page {0}", d.page) : ""}
+                      </p>
+                      <blockquote>{d.evidence}</blockquote>
+                      <button
+                        className="secondary"
+                        disabled={!!busy}
+                        onClick={() => review(d)}
+                      >
+                        {tx("Review date")}
+                      </button>
+                    </article>
+                  ))}
+              </section>
+            )}
             <details className="material-upload">
               <summary>{tx("Add course material")}</summary>
               <p className="small muted">

@@ -8,7 +8,7 @@ Reminder timing and deadline-change options are in Settings → Reminders. Enabl
 
 - The current user's Startup folder contains `Gobbler.lnk`, pointing to a hidden launcher in this checkout's ignored `.wrangler/local` folder. It runs `pnpm local`'s equivalent with the installed Node executable. It requires this checkout and its dependencies to remain in place; reinstall startup after moving the checkout or changing Node's installation path.
 - Servers bind to loopback only at ports 5173 and 8787. The runner serves the finished `dist` build through a local gateway at 5173; Wrangler's local runtime at 8787 supplies the API and built assets. Vite's development server is reserved for `pnpm dev`. Existing matching servers are reused; a development server at 5173 is rejected by the daily runner. A PID lock prevents duplicate runners; restarting the startup action does not start another copy.
-- Only the configured personal workspace's connected subscriptions are checked. Synthetic browser-test accounts are excluded. File uploads are not polled. A due-feed scan runs every minute; each feed is eligible every 30 minutes. After sleep, overdue checks run when execution resumes. Missed intervals are not replayed as a burst.
+- Only the configured personal workspace's connected subscriptions are checked. Synthetic browser-test accounts are excluded. Manual uploads are not polled. Connected local PDF folders are checked every minute, with three new/changed documents per course per pass. See [Assistant](ASSISTANT.md) for one-time folder mapping and the optional Windows task that launches the official RWTH downloader every 30 minutes. Local file health does not establish Moodle download freshness. A due-feed scan runs every minute; each feed is eligible every 30 minutes. After sleep, overdue checks run when execution resumes. Missed intervals are not replayed as a burst.
 - The app refreshes records every minute while visible and signed in, and when focus/connectivity returns. Editing dialogs pause this refresh. Existing source errors, last-success timestamps and one-hour stale indicators remain authoritative.
 - Checks continue with the browser closed while the runner is active, the PC is awake and Windows remains signed in. Notifications still require the browser app to be open. There is no phone push, cloud monitoring or wake-from-sleep guarantee.
 
@@ -54,13 +54,13 @@ Removal does not delete records/backups or stop an already running process. Loca
 
 ## Installation and update support
 
-| Environment | Start and update | Status |
-| --- | --- | --- |
-| Windows, Node 24, pnpm 11.25.0 | Installed sign-in launcher; `local-update.ps1 -Action Apply` | Daily-use target; finished build, monitoring and backups |
-| Windows manual operation | `pnpm build`, then `pnpm start` | Finished app and API only; no scheduled checks/backups |
-| Linux, Node 24, pnpm 11.25.0 | Install, migrate, build, then `pnpm start` | Browser workflow checked in CI; startup and backup scheduling require manual setup |
-| macOS | Same manual commands | Not verified on hardware |
-| Development | `pnpm dev` | Live source updates; no scheduled checks/backups |
+| Environment                    | Start and update                                             | Status                                                                             |
+| ------------------------------ | ------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| Windows, Node 24, pnpm 11.25.0 | Installed sign-in launcher; `local-update.ps1 -Action Apply` | Daily-use target; finished build, monitoring and backups                           |
+| Windows manual operation       | `pnpm build`, then `pnpm start`                              | Finished app and API only; no scheduled checks/backups                             |
+| Linux, Node 24, pnpm 11.25.0   | Install, migrate, build, then `pnpm start`                   | Browser workflow checked in CI; startup and backup scheduling require manual setup |
+| macOS                          | Same manual commands                                         | Not verified on hardware                                                           |
+| Development                    | `pnpm dev`                                                   | Live source updates; no scheduled checks/backups                                   |
 
 Keep `dist` in place for daily startup. After editing code, use the documented update procedure to rebuild and restart; edits do not automatically appear in the finished app. The gateway preserves the app origin, API cookies, reminder permissions and service-worker address. HTML and the service-worker script are served without HTTP caching so a reload can pick up a new build; hashed assets remain cacheable. Private API responses retain their no-store policy. The local status endpoint exposes only the five monitoring fields and is never cached. The gateway accepts only its loopback Host address, and forwards requests only to the fixed local backend.
 

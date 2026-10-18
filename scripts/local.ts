@@ -5,10 +5,53 @@ import { getPlatformProxy } from "wrangler";
 import { z } from "zod";
 import { checkSources } from "../apps/api/sync";
 import { createBackup, findDatabase, verifyBackup } from "./backup";
+import {
+  folderInput,
+  connectMaterialFolder,
+  syncMaterialFolder,
+} from "./material-folders";
 
 const root = path.resolve(import.meta.dirname, ".."),
   local = path.join(root, ".wrangler", "local");
 process.chdir(root);
+const configPath = path.join(local, "config.json");
+const configInput = z.object({
+  user_id: z.string().uuid(),
+  material_folders: z.array(folderInput).max(50).default([]),
+});
+if (process.argv[2] === "--connect-material-folder") {
+  const config = configInput.parse(
+    JSON.parse(fs.readFileSync(configPath, "utf8")),
+  );
+  if (!process.argv[3] || !process.argv[4])
+    throw new Error("Supply a module ID and its download folder");
+  const connection = await getPlatformProxy<{ DB: D1Database }>({
+    remoteBindings: false,
+  });
+  try {
+    const folder = await connectMaterialFolder(
+      connection.env.DB,
+      config.user_id,
+      process.argv[3],
+      process.argv[4],
+    );
+    config.material_folders = [
+      ...config.material_folders.filter(
+        (f) => f.source_id !== folder.source_id,
+      ),
+      folder,
+    ];
+    configInput.parse(config);
+    fs.writeFileSync(configPath + ".tmp", JSON.stringify(config));
+    fs.renameSync(configPath + ".tmp", configPath);
+    console.log(
+      "Course folder connected. The local runner will read its PDFs automatically.",
+    );
+  } finally {
+    await connection.dispose();
+  }
+  process.exit(0);
+}
 if (process.argv[2] === "--backup") {
   const proxy = await getPlatformProxy<{
     DB: D1Database;
@@ -47,9 +90,9 @@ if (!fs.existsSync(path.join(root, "dist/index.html")))
   throw new Error(
     "Build Gobbler with pnpm build before starting the local runner.",
   );
-const { user_id } = z
-  .object({ user_id: z.string().uuid() })
-  .parse(JSON.parse(fs.readFileSync(path.join(local, "config.json"), "utf8")));
+const { user_id } = configInput.parse(
+  JSON.parse(fs.readFileSync(configPath, "utf8")),
+);
 const lock = path.join(local, "runner.lock");
 if (fs.existsSync(lock)) {
   const pid = Number(fs.readFileSync(lock, "utf8"));
@@ -187,6 +230,7 @@ try {
   )
     throw new Error("Local workspace not found");
   let backupAttempt = 0;
+  let folderAttempt = 0;
   async function tick() {
     if (stopping || !proxy) return;
     writeStatus();
@@ -224,6 +268,25 @@ try {
       }
     } catch {
       status.check_failed = true;
+    }
+    writeStatus();
+    if (Date.now() - folderAttempt >= 60000) {
+      folderAttempt = Date.now();
+      try {
+        const config = configInput.parse(
+          JSON.parse(fs.readFileSync(configPath, "utf8")),
+        );
+        if (config.user_id !== user_id)
+          throw new Error("Workspace changed; restart Gobbler");
+        for (const folder of config.material_folders) {
+          await syncMaterialFolder(proxy.env.DB, user_id, folder);
+          writeStatus();
+        }
+      } catch {
+        console.error(
+          "Local course folders could not be checked. Inspect the local configuration and Sources.",
+        );
+      }
     }
     writeStatus();
     if (process.argv.includes("--once")) await stop();

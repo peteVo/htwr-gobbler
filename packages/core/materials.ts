@@ -27,6 +27,19 @@ export type Material = z.infer<typeof materialInput> & {
   created_at: string;
 };
 export type MaterialSummary = Omit<Material, "pages">;
+export const availableMaterial =
+  "(managed=0 OR EXISTS (SELECT 1 FROM material_files WHERE material_id=materials.id AND material_files.user_id=materials.user_id AND state='available'))";
+export type SyncedMaterialSummary = MaterialSummary & {
+  synced?: number;
+  available?: number;
+};
+export type MaterialCandidate = import("./deadlines").DeadlineCandidate & {
+  course_id: string;
+  source_url: string;
+  document_name: string;
+  document_hash: string;
+  document_key: string;
+};
 export type Passage = {
   id: string;
   material_id: string;

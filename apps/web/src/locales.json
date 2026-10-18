@@ -1666,5 +1666,57 @@
   "Download your stored academic records as JSON. Feed credentials and account secrets are excluded. Course material text is not included; keep your original documents.": {
     "de": "Lade deine gespeicherten Studienunterlagen als JSON herunter. Feed-Zugangsdaten und Kontogeheimnisse sind ausgeschlossen. Kursmaterialtexte sind nicht enthalten; bewahre die Originaldokumente auf.",
     "vi": "Tải các mục học tập đã lưu dưới dạng JSON. Không bao gồm thông tin đăng nhập nguồn lịch và bí mật tài khoản. Văn bản tài liệu môn học không được xuất; hãy giữ tài liệu gốc."
+  },
+  "Answers use selected excerpts from this module's available material. Connected local folders update automatically. Check the quotations; the AI can still make mistakes.": {
+    "de": "Antworten verwenden Auszüge aus dem verfügbaren Material dieses Moduls. Verbundene lokale Ordner werden automatisch eingelesen. Prüfe die Zitate; die KI kann Fehler machen.",
+    "vi": "Câu trả lời dựa trên các trích đoạn tài liệu hiện có của học phần. Các thư mục cục bộ đã kết nối được cập nhật tự động. Hãy kiểm tra trích dẫn; AI vẫn có thể sai."
+  },
+  "Gobbler reads connected PDF folders every minute while the laptop is awake. Sync-my-L2P must download Moodle changes first; a local file check does not confirm Moodle is up to date.": {
+    "de": "Gobbler liest verbundene PDF-Ordner jede Minute ein, solange der Laptop aktiv ist. Sync-my-L2P muss Moodle-Änderungen zuerst herunterladen; eine lokale Prüfung bestätigt nicht den aktuellen Moodle-Stand.",
+    "vi": "Gobbler đọc các thư mục PDF đã kết nối mỗi phút khi máy đang thức. Sync-my-L2P phải tải thay đổi từ Moodle trước; kiểm tra tệp cục bộ không xác nhận Moodle đã cập nhật."
+  },
+  "Refresh material library": {
+    "de": "Materialbibliothek aktualisieren",
+    "vi": "Làm mới thư viện tài liệu"
+  },
+  "Local PDF unavailable · excluded from answers": {
+    "de": "Lokales PDF nicht verfügbar · nicht für Antworten verwendet",
+    "vi": "PDF cục bộ không khả dụng · không dùng để trả lời"
+  },
+  "From connected local folder": {
+    "de": "Aus verbundenem lokalen Ordner",
+    "vi": "Từ thư mục cục bộ đã kết nối"
+  },
+  "Dates to review": {
+    "de": "Termine zur Prüfung",
+    "vi": "Các ngày cần xem xét"
+  },
+  "These PDF dates are suggestions. Check the wording and existing tasks before saving; they are not confirmed deadlines.": {
+    "de": "Diese PDF-Termine sind Vorschläge. Prüfe den Wortlaut und vorhandene Aufgaben vor dem Speichern; es sind keine bestätigten Fristen.",
+    "vi": "Các ngày trong PDF chỉ là đề xuất. Kiểm tra nội dung và nhiệm vụ hiện có trước khi lưu; đây chưa phải hạn chót đã xác nhận."
+  },
+  "Review date": {
+    "de": "Termin prüfen",
+    "vi": "Xem xét ngày"
+  },
+  "Calendars cover published events. Connected PDF folders cover downloaded files only; announcements and submissions have not been checked.": {
+    "de": "Kalender enthalten veröffentlichte Termine. Verbundene PDF-Ordner umfassen nur heruntergeladene Dateien; Ankündigungen und Abgaben wurden nicht geprüft.",
+    "vi": "Lịch bao gồm các sự kiện đã công bố. Thư mục PDF đã kết nối chỉ bao gồm tệp đã tải; thông báo và bài nộp chưa được kiểm tra."
+  },
+  "Local PDFs · automatic file checks every minute; Moodle download freshness is separate": {
+    "de": "Lokale PDFs · automatische Dateiprüfung jede Minute; Aktualität des Moodle-Downloads wird getrennt betrachtet",
+    "vi": "PDF cục bộ · kiểm tra tệp tự động mỗi phút; độ mới của bản tải Moodle được xét riêng"
+  },
+  "Some local PDFs could not be read. Check folder access, readable text and library limits.": {
+    "de": "Einige lokale PDFs konnten nicht gelesen werden. Prüfe Ordnerzugriff, lesbaren Text und Bibliotheksgrenzen.",
+    "vi": "Không đọc được một số PDF cục bộ. Kiểm tra quyền truy cập thư mục, văn bản đọc được và giới hạn thư viện."
+  },
+  "Local import is catching up. Another check follows shortly.": {
+    "de": "Der lokale Import läuft noch. Eine weitere Prüfung folgt in Kürze.",
+    "vi": "Đang tiếp tục nhập tài liệu cục bộ. Sẽ kiểm tra lại trong ít phút."
+  },
+  "This material comes from a connected folder. Disconnect its local source to stop importing it.": {
+    "de": "Dieses Material stammt aus einem verbundenen Ordner. Trenne die lokale Quelle, um den Import zu stoppen.",
+    "vi": "Tài liệu này đến từ thư mục đã kết nối. Ngắt nguồn cục bộ để dừng nhập."
   }
 }

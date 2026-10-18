@@ -396,6 +396,40 @@ function App() {
       </div>
     );
   }
+  function reviewDocument(d: DeadlineCandidate, review: DocumentReview) {
+    const exact = data.items.find(
+      (i) =>
+        i.course_id === review.course_id &&
+        i.document_key === review.document_key,
+    );
+    const previous = review.target_id
+      ? data.items.find((i) => i.id === review.target_id)
+      : exact;
+    if (exact && !review.target_id) {
+      setEditing(exact);
+      setNotice(
+        "This document date is already saved. Reviewing its existing task.",
+      );
+      setModal("item");
+      return;
+    }
+    setEditing({
+      ...blank,
+      ...previous,
+      ...review,
+      source_url: review.source_url || previous?.source_url || "",
+      id: previous?.id || "",
+      source_id: null,
+      last_verified: null,
+      title: previous?.title || d.title,
+      starts_at: d.deadline,
+      all_day: d.all_day ?? false,
+      ends_at: null,
+      evidence: `${d.document}${d.page ? tx(" · page {0}", d.page) : ""}: ${d.evidence}`,
+      verification: "needs_review",
+    } as Item);
+    setModal("item");
+  }
   const sourceCurrent = (s: Snapshot["sources"][number]) =>
     s.status === "connected" &&
     !!s.last_success &&
@@ -444,7 +478,7 @@ function App() {
         <CircleAlert size={15} />
         <span>
           {tx(
-            "Calendar coverage only. PDFs, announcements and submissions have not been checked.",
+            "Calendars cover published events. Connected PDF folders cover downloaded files only; announcements and submissions have not been checked.",
           )}
         </span>
       </div>
@@ -1315,13 +1349,17 @@ function App() {
                         <div>
                           <h3>{s.name}</h3>
                           <p>
-                            {s.kind === "file"
+                            {s.kind === "folder"
                               ? tx(
-                                  "Manual file import · re-upload to check for changes",
+                                  "Local PDFs · automatic file checks every minute; Moodle download freshness is separate",
                                 )
-                              : tx(
-                                  "Calendar subscription · scheduled checks every 30 minutes for up to 10 feeds per run",
-                                )}
+                              : s.kind === "file"
+                                ? tx(
+                                    "Manual file import · re-upload to check for changes",
+                                  )
+                                : tx(
+                                    "Calendar subscription · scheduled checks every 30 minutes for up to 10 feeds per run",
+                                  )}
                           </p>
                           {s.error && (
                             <p className="warning-text">{tx(s.error)}</p>
@@ -1371,6 +1409,7 @@ function App() {
                     signedIn={!!email}
                     language={prefs.language}
                     request={api}
+                    review={(d) => reviewDocument(d, d)}
                   />
                 )}
                 {page === "settings" && (
@@ -2050,40 +2089,7 @@ function App() {
                   setBusy(false);
                 }
               }}
-              add={(d, review) => {
-                const exact = data.items.find(
-                  (i) =>
-                    i.course_id === review.course_id &&
-                    i.document_key === review.document_key,
-                );
-                const previous = review.target_id
-                  ? data.items.find((i) => i.id === review.target_id)
-                  : exact;
-                if (exact && !review.target_id) {
-                  setEditing(exact);
-                  setNotice(
-                    "This document date is already saved. Reviewing its existing task.",
-                  );
-                  setModal("item");
-                  return;
-                }
-                setEditing({
-                  ...blank,
-                  ...previous,
-                  ...review,
-                  source_url: review.source_url || previous?.source_url || "",
-                  id: previous?.id || "",
-                  source_id: null,
-                  last_verified: null,
-                  title: previous?.title || d.title,
-                  starts_at: d.deadline,
-                  all_day: d.all_day ?? false,
-                  ends_at: null,
-                  evidence: `${d.document}${d.page ? tx(" · page {0}", d.page) : ""}: ${d.evidence}`,
-                  verification: "needs_review",
-                } as Item);
-                setModal("item");
-              }}
+              add={reviewDocument}
             />
           )}
         </dialog>

@@ -17,6 +17,7 @@ const tables = [
   "api_tokens",
   "actions",
   "materials",
+  "material_files",
 ];
 export function findDatabase(root: string) {
   const candidates = fs
@@ -69,7 +70,7 @@ export async function verifyBackup(directory: string) {
     assert.deepEqual(db.prepare("PRAGMA foreign_key_check").all(), []);
     for (const table of tables) {
       if (
-        ["actions", "materials"].includes(table) &&
+        ["actions", "materials", "material_files"].includes(table) &&
         !(table in manifest.counts)
       )
         continue;
@@ -118,7 +119,7 @@ export async function createBackup(
         tables
           .filter(
             (table) =>
-              !["actions", "materials"].includes(table) ||
+              !["actions", "materials", "material_files"].includes(table) ||
               !!snapshot
                 .prepare(
                   "SELECT name FROM sqlite_master WHERE type='table' AND name=?",

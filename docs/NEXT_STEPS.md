@@ -1,4 +1,4 @@
-# App completion roadmap · local pilot · 17 October 2026
+# App completion roadmap · local pilot · 18 October 2026
 
 The objective is a complete academic assistant experience. Course registration and university account setup are personal coursework tasks, not app development milestones. Local operation remains the chosen deployment scope.
 
@@ -24,7 +24,7 @@ The objective is a complete academic assistant experience. Course registration a
 ## Next implementation milestones
 
 1. **Core experience:** validate local course Q&A with representative real material and questions, improve retrieval where those checks reveal gaps, and keep approaching deadlines/reminders reliable. The user declined encrypted backup work in favor of these core jobs. Finished-build serving and the installation/update support matrix are implemented; a focused internal accessibility/security review accompanies the local assistant. Full independent security and assistive-technology audits are not claimed.
-2. **Broader ingestion:** implement approved course/material/announcement discovery when Gobbler has its own supported university integration. Until then, improve user-provided document/export workflows without implying automatic Moodle coverage.
+2. **Broader ingestion:** the official RWTH downloader now supplies local PDF folders without manual uploads. Gobbler maps them to modules, reads new/changed text and offers explicit dates for review. Validate representative questions and missing-file behavior. Direct announcement/submission discovery still needs Gobbler’s own approved university integration.
 3. **Cross-device release:** choose and approve hosting, then migrate and verify shared records, phone access and background push. This remains deferred while the app is local only.
 
 ## Completed: finished-build local serving
@@ -49,6 +49,6 @@ Use unit/API tests for parsing, matching, ownership and data preservation; brows
 
 Physical sleep spanning a scheduled check and a real 24-hour backup interval have not been directly observed. Simulated elapsed-time tests, cold startup, shutdown/startup and short sleep/wake checks passed previously. Private records are not cached for offline reading; an offline shell does not imply fresh data or successful monitoring.
 
-Approved university OAuth registration and API capabilities are still prerequisites for automatic course discovery. Do not borrow another app's client ID, copy browser cookies, bypass SSO/MFA or collect university passwords. See INTEGRATIONS.md.
+Approved university OAuth registration and API capabilities are still prerequisites for Gobbler’s own direct university connector. The folder bridge consumes only files downloaded by the official app and does not use its tokens or client registration. Do not borrow another app's client ID, copy browser cookies, bypass SSO/MFA or collect university passwords. See INTEGRATIONS.md.
 
 No paid resources, cloud migration, personal-data upload or university email sending is authorized by this roadmap. Synthetic Cloudflare staging stays closed to registration with cron disabled; free-hosting research in FREE_HOSTING.md is informational.

@@ -22,6 +22,8 @@ import {
   answerInput,
   selectPassages,
   type Material,
+  type MaterialCandidate,
+  availableMaterial,
 } from "../../packages/core/materials";
 
 type Env = {
@@ -701,18 +703,48 @@ app.post("/api/sources/:id/sync", async (c) => {
 });
 app.delete("/api/sources/:id", async (c) => {
   // Retain academic records but remove the encrypted subscription.
-  await c.env.DB.prepare("DELETE FROM sources WHERE id=? AND user_id=?")
-    .bind(c.req.param("id"), c.get("user"))
-    .run();
+  await c.env.DB.batch([
+    c.env.DB.prepare("DELETE FROM sources WHERE id=? AND user_id=?").bind(
+      c.req.param("id"),
+      c.get("user"),
+    ),
+    c.env.DB.prepare(
+      "DELETE FROM materials WHERE user_id=? AND managed=1 AND NOT EXISTS (SELECT 1 FROM material_files WHERE material_id=materials.id)",
+    ).bind(c.get("user")),
+  ]);
   return c.json({ ok: true });
 });
 app.get("/api/materials", async (c) => {
   const rows = await c.env.DB.prepare(
-    "SELECT id,course_id,name,source_url,created_at FROM materials WHERE user_id=? ORDER BY created_at DESC,id",
+    `SELECT id,course_id,name,source_url,created_at,managed AS synced,${availableMaterial} AS available FROM materials WHERE user_id=? ORDER BY created_at DESC,id`,
   )
     .bind(c.get("user"))
     .all();
   return c.json(rows.results);
+});
+app.get("/api/materials/candidates", async (c) => {
+  const user = c.get("user");
+  const rows = await c.env.DB.prepare(
+    `SELECT candidates FROM materials WHERE user_id=? AND ${availableMaterial}`,
+  )
+    .bind(user)
+    .all<{ candidates: string }>();
+  const saved = await c.env.DB.prepare(
+    "SELECT course_id,document_key FROM items WHERE user_id=? AND document_key IS NOT NULL",
+  )
+    .bind(user)
+    .all<{ course_id: string; document_key: string }>();
+  const keys = new Set(
+    saved.results.map((r) => JSON.stringify([r.course_id, r.document_key])),
+  );
+  const candidates = rows.results.flatMap(
+    (r) => JSON.parse(r.candidates) as MaterialCandidate[],
+  );
+  return c.json(
+    candidates
+      .filter((d) => !keys.has(JSON.stringify([d.course_id, d.document_key])))
+      .slice(0, 100),
+  );
 });
 app.post("/api/materials", async (c) => {
   const v = materialInput.parse(await c.req.json()),
@@ -760,6 +792,19 @@ app.post("/api/materials", async (c) => {
   return c.json({ id, existing: false }, 201);
 });
 app.delete("/api/materials/:id", async (c) => {
+  const linked = await c.env.DB.prepare(
+    "SELECT material_id FROM material_files WHERE material_id=? AND user_id=? LIMIT 1",
+  )
+    .bind(c.req.param("id"), c.get("user"))
+    .first();
+  if (linked)
+    return c.json(
+      {
+        error:
+          "This material comes from a connected folder. Disconnect its local source to stop importing it.",
+      },
+      409,
+    );
   await c.env.DB.prepare("DELETE FROM materials WHERE id=? AND user_id=?")
     .bind(c.req.param("id"), c.get("user"))
     .run();
@@ -794,7 +839,7 @@ app.post("/api/assistant/ask", async (c) => {
   )
     return c.json({ error: "Course not found" }, 404);
   const rows = await c.env.DB.prepare(
-    "SELECT id,course_id,name,source_url,pages,created_at FROM materials WHERE user_id=? AND course_id=? ORDER BY created_at,id",
+    `SELECT id,course_id,name,source_url,pages,created_at FROM materials WHERE user_id=? AND course_id=? AND ${availableMaterial} ORDER BY created_at,id`,
   )
     .bind(user, v.course_id)
     .all<Omit<Material, "pages"> & { pages: string }>();
