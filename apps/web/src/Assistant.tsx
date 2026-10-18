@@ -390,11 +390,13 @@ export function Assistant({
                 {" · "}
                 {f.relative_path}
                 {" · "}
-                {tx(
-                  "Pages processed: {0} of {1}",
-                  f.pages_done ?? 0,
-                  f.pages_total ?? 0,
-                )}
+                {f.pages_total
+                  ? tx(
+                      "Pages processed: {0} of {1}",
+                      f.pages_done ?? 0,
+                      f.pages_total,
+                    )
+                  : tx("Waiting for the next import pass.")}
               </p>
             ))}
             <p>

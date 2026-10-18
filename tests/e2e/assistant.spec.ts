@@ -188,6 +188,14 @@ test("automatic material shows availability and reviews a suggested date without
           pages_done: 10,
           pages_total: 201,
         },
+        {
+          source_name: "Local files · Networks",
+          relative_path: "Queued scan.pdf",
+          state: "unreadable",
+          issue: "indexing",
+          pages_done: 0,
+          pages_total: 0,
+        },
       ],
     }),
   );
@@ -213,6 +221,9 @@ test("automatic material shows availability and reviews a suggested date without
   await expect(
     page.getByRole("region", { name: "PDF import progress" }),
   ).toContainText("Pages processed: 10 of 201");
+  await expect(
+    page.getByRole("region", { name: "PDF import progress" }),
+  ).toContainText("Waiting for the next import pass.");
   await expect(
     page.getByText("Contains OCR-derived text", { exact: false }),
   ).toBeVisible();

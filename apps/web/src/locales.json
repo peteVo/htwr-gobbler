@@ -1,4 +1,8 @@
 {
+  "Waiting for the next import pass.": {
+    "de": "Wartet auf den nächsten Importdurchlauf.",
+    "vi": "Đang chờ lượt nhập tiếp theo."
+  },
   "Connected folders are checked automatically while this laptop is awake. Scanned pages may take longer; progress is shown here. Sync-my-L2P downloads Moodle changes separately.": {
     "de": "Verbundene Ordner werden automatisch geprüft, solange dieser Laptop aktiv ist. Gescannte Seiten können länger dauern; der Fortschritt erscheint hier. Sync-my-L2P lädt Moodle-Änderungen separat herunter.",
     "vi": "Thư mục đã kết nối được tự động kiểm tra khi máy tính đang thức. Trang quét có thể mất lâu hơn; tiến độ được hiển thị tại đây. Sync-my-L2P tải các thay đổi Moodle riêng."
