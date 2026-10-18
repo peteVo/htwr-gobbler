@@ -121,6 +121,25 @@ test("local folder sync preserves module ownership, deduplicates renames, replac
         )
         .get(),
     ).toMatchObject({ issue: "indexing", pages_done: 10 });
+    await fs.writeFile(
+      path.join(directory, "a-new.pdf"),
+      "A new text PDF before a paused batch",
+    );
+    await syncMaterialFolder(
+      db,
+      "u",
+      folder,
+      async () => [{ page: 1, text: "New readable text" }],
+      future + 700000,
+    );
+    expect(
+      sqlite
+        .prepare(
+          "SELECT pages_done FROM material_files WHERE relative_path='multi.pdf'",
+        )
+        .get()?.pages_done,
+    ).toBe(10);
+    await fs.unlink(path.join(directory, "a-new.pdf"));
     // Failed files retry on their cooldown; subsequent passes eventually reach the resumed PDF.
     for (let pass = 0; pass < 6; pass++)
       await syncMaterialFolder(db, "u", folder, batchRead, future + 700000);

@@ -179,6 +179,7 @@ test("automatic material shows availability and reviews a suggested date without
           source_name: "Local files · Networks",
           relative_path: "scanned.pdf",
           state: "unreadable",
+          issue: "ocr_incomplete",
         },
         {
           source_name: "Local files · Networks",
@@ -218,6 +219,9 @@ test("automatic material shows availability and reviews a suggested date without
   ).toBeVisible();
   await page.getByText("PDFs needing attention (1)", { exact: true }).click();
   await expect(page.getByText("scanned.pdf", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("Partial text was rejected", { exact: false }),
+  ).toBeVisible();
   await expect(
     page.getByRole("region", { name: "PDF import progress" }),
   ).toContainText("Pages processed: 10 of 201");
