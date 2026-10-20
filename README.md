@@ -23,6 +23,10 @@ pnpm dev
 
 Open **http://127.0.0.1:5173**. Use this address rather than `localhost` so the configured write origin matches. The API runs at `http://127.0.0.1:8787`. No Cloudflare account is required for local development. Academic records persist in `.wrangler/state`; that directory and all secrets are ignored by Git. For an existing prepared checkout, do not overwrite `.dev.vars`.
 
+### Moving to another computer
+
+Clone or copy the repository, install Node.js 24 and pnpm 11.25.0, then follow the setup above to create **new local** `.dev.vars` secrets and apply migrations. Do not copy `.wrangler/` or `.dev.vars` from this machine as part of a source checkout; local records, account credentials, feed encryption keys and backups are private operational data. To move an existing workspace, use the verified recovery process in [Local use](docs/LOCAL_USE.md) and [Recovery and updates](docs/RECOVERY_AND_UPDATES.md), preserving the matching database and secrets together. Reconnect local course folders on the new computer. See [Current status](docs/CURRENT_STATUS.md) for supported environments and known gaps, [Architecture](docs/ARCHITECTURE.md) for the code map, and [Decisions](docs/DECISIONS.md) for design constraints.
+
 The logged-out view is a clearly labeled, read-only sample workspace. Sign in → **Create an account** opens an empty personal workspace. This is a gobbler account, separate from RWTH SSO. Do not reuse your RWTH password.
 
 For daily Windows use, the installed local runner serves the finished build at Windows sign-in, checks connected feeds every 30 minutes while the PC is awake, and keeps seven verified daily backups. Sources and Settings show its current status. See [local operation, backup verification and removal](docs/LOCAL_USE.md). Run `pnpm build` before installing startup. `pnpm start` serves the finished app/API manually; `pnpm dev` serves live development sources. Neither command alone starts automatic checks/backups.
