@@ -2,12 +2,13 @@ import { test, expect } from "@playwright/test";
 test("a saved recovery key restores the workspace through the sign-in screen", async ({
   page,
   request,
+  baseURL,
 }) => {
   const email = `recovery-${Date.now()}@example.test`,
     password = "a-local-test-password-123",
     next = "a-recovered-password-456";
   await request.post("/api/auth/register", {
-    headers: { Origin: "http://127.0.0.1:5173" },
+    headers: { Origin: new URL(baseURL!).origin },
     data: { email, password },
   });
   await page.goto("/");
@@ -25,7 +26,7 @@ test("a saved recovery key restores the workspace through the sign-in screen", a
     page.getByText("PERSONAL WORKSPACE", { exact: true }),
   ).toBeVisible();
   await page.request.post("/api/items", {
-    headers: { Origin: "http://127.0.0.1:5173" },
+    headers: { Origin: new URL(baseURL!).origin },
     data: {
       title: "Keep this assignment",
       kind: "assignment",
@@ -56,7 +57,7 @@ test("a saved recovery key restores the workspace through the sign-in screen", a
     page.getByLabel("Your recovery key", { exact: true }),
   ).toHaveCount(0);
   const logout = await page.request.post("/api/logout", {
-    headers: { Origin: "http://127.0.0.1:5173" },
+    headers: { Origin: new URL(baseURL!).origin },
   });
   expect(logout.status()).toBe(200);
   await page.reload();

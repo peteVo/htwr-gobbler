@@ -521,7 +521,6 @@ function App() {
             <img src="/icon.svg" width="35" height="35" alt="" />
             <span>
               htwr<span className="brand-dash">–</span>gobbler
-              <small>{tx("YOUR ACADEMIC SPACE")}</small>
             </span>
           </a>
           <button
@@ -531,14 +530,6 @@ function App() {
           >
             <X />
           </button>
-          <div className="workspace">
-            <span className="university-mark">rwth</span>
-            <div>
-              <strong>RWTH Aachen</strong>
-              <small>{tx("Winter semester 26/27")}</small>
-            </div>
-          </div>
-          <span className="nav-caption">{tx("WORKSPACE")}</span>
           <nav aria-label={tx("Main navigation")}>
             {navigation.map(([key, Icon]) => (
               <button
@@ -575,11 +566,6 @@ function App() {
             ))}
           </nav>
           <div className="sidebar-bottom">
-            <p>
-              {tx("A clearer head.")}
-              <br />
-              {tx("A little more headspace.")}
-            </p>
             <div className="account">
               <span className="avatar">
                 {email ? email[0].toUpperCase() : "G"}
@@ -624,9 +610,8 @@ function App() {
               <Menu size={22} />
             </button>
             <div className="breadcrumb">
-              {tx("Workspace")}
-              <span>/</span>
-              <strong>{searching ? t.results : t[page]}</strong>
+              <BookOpen size={18} />
+              <span>RWTH Aachen</span>
             </div>
             <label className="search">
               <Search size={17} />
@@ -710,26 +695,15 @@ function App() {
             )}
             <div className="page-heading">
               <div>
-                <p className="eyebrow">
-                  {page === "today"
-                    ? new Intl.DateTimeFormat(locale, {
-                        dateStyle: "full",
-                        timeZone: "Europe/Berlin",
-                      }).format(new Date())
-                    : tx("YOUR ACADEMIC SPACE")}
-                </p>
-                <h1>
-                  {searching
-                    ? t.results
-                    : page === "today"
-                      ? t.headline
-                      : t[page]}
-                </h1>
+                <h1>{searching ? t.results : t[page]}</h1>
                 <p>
                   {searching
                     ? `“${search.trim()}”`
                     : page === "today"
-                      ? t.sub
+                      ? new Intl.DateTimeFormat(locale, {
+                          dateStyle: "full",
+                          timeZone: "Europe/Berlin",
+                        }).format(clock)
                       : page === "tasks"
                         ? tx(
                             "Keep track here. Submit through your course system.",
@@ -741,7 +715,7 @@ function App() {
                           : tx("One place for the details of your semester.")}
                 </p>
               </div>
-              {page !== "assistant" && (
+              {(searching || (page !== "assistant" && page !== "settings")) && (
                 <button
                   className="primary"
                   disabled={loading}
@@ -801,32 +775,44 @@ function App() {
               <>
                 {page === "today" && (
                   <>
-                    <section className="briefing">
-                      <div className="briefing-icon">
-                        <BookOpen size={25} />
-                      </div>
-                      <div>
-                        <p className="eyebrow">{t.briefing}</p>
-                        <h2>
-                          {summary.overdue
-                            ? tx(
-                                summary.overdue === 1
-                                  ? "1 overdue task needs a look."
-                                  : "{0} overdue tasks need a look.",
-                                summary.overdue,
-                              )
-                            : summary.week
+                    <section className="day-summary" aria-label={t.briefing}>
+                      <div className="day-summary-main">
+                        <Clock3 size={22} />
+                        <div>
+                          <strong>
+                            {summary.overdue
                               ? tx(
-                                  summary.week === 1
-                                    ? "1 assignment due in the next 7 days."
-                                    : "{0} assignments due in the next 7 days.",
-                                  summary.week,
+                                  summary.overdue === 1
+                                    ? "1 overdue task needs a look."
+                                    : "{0} overdue tasks need a look.",
+                                  summary.overdue,
                                 )
-                              : tx("A little room to plan ahead.")}
-                        </h2>
-                        <p>
-                          {summary.today}{" "}
-                          {tx("open items on today’s calendar.")}{" "}
+                              : summary.week
+                                ? tx(
+                                    summary.week === 1
+                                      ? "1 assignment due in the next 7 days."
+                                      : "{0} assignments due in the next 7 days.",
+                                    summary.week,
+                                  )
+                                : tx("A little room to plan ahead.")}
+                          </strong>
+                          <p className="muted">
+                            {summary.today}{" "}
+                            {tx("open items on today’s calendar.")}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        className="summary-source"
+                        onClick={() => setPage("sources")}
+                      >
+                        {summary.total > 0 &&
+                        summary.healthy === summary.total ? (
+                          <ShieldCheck size={18} />
+                        ) : (
+                          <CircleAlert size={18} />
+                        )}
+                        <span>
                           {summary.total
                             ? summary.total === summary.healthy
                               ? tx(
@@ -840,17 +826,10 @@ function App() {
                                 )
                             : tx(
                                 "No university sources have been checked yet.",
-                              )}{" "}
-                          {data.items.some(
-                            (i) => i.verification === "needs_review",
-                          )
-                            ? tx("Some dates still need your review.")
-                            : ""}
-                        </p>
-                      </div>
-                      <span className="briefing-art" aria-hidden="true">
-                        g.
-                      </span>
+                              )}
+                        </span>
+                        <ArrowRight size={16} />
+                      </button>
                     </section>
                     {!!email && (
                       <MaterialDates
@@ -860,255 +839,223 @@ function App() {
                         review={(d) => reviewDocument(d, d)}
                       />
                     )}
-                    <div className="overview-line">
-                      <div>
-                        <span className="metric">
-                          {summary.week.toString().padStart(2, "0")}
-                        </span>
-                        <span>
-                          {t.week}
-                          <small>{tx("assignments due")}</small>
-                        </span>
-                      </div>
-                      <div>
-                        <span className="metric">
-                          {summary.today.toString().padStart(2, "0")}
-                        </span>
-                        <span>
-                          {t.today}
-                          <small>{tx("scheduled items")}</small>
-                        </span>
-                      </div>
-                      <div>
-                        <span className="metric warm">
-                          {data.items
-                            .filter(
-                              (i) =>
-                                i.status === "open" &&
-                                i.verification === "needs_review",
-                            )
-                            .length.toString()
-                            .padStart(2, "0")}
-                        </span>
-                        <span>
-                          {t.review}
-                          <small>{tx("verify the original")}</small>
-                        </span>
-                      </div>
-                    </div>
                     <div className="dashboard-grid">
-                      <section className="deadline-section">
-                        <div className="section-heading">
-                          <h2>{t.upcoming}</h2>
-                          <button
-                            className="text-button"
-                            onClick={() => setPage("tasks")}
-                          >
-                            {t.viewall}
-                            <ArrowRight size={14} />
-                          </button>
-                        </div>
-                        <div className="task-list">
-                          {overdueDeadlines.length > 0 && (
-                            <>
-                              <h3>
-                                {tx(
-                                  "Overdue assignments ({0})",
-                                  overdueDeadlines.length,
-                                )}
-                              </h3>
-                              {overdueDeadlines.slice(0, 2).map((i) => (
-                                <TaskRow item={i} key={i.id} />
-                              ))}
-                            </>
-                          )}
-                          {upcomingDeadlines.length > 0 && (
-                            <>
-                              <h3>{tx("Upcoming assignments")}</h3>
-                              {upcomingDeadlines.slice(0, 4).map((i) => (
-                                <TaskRow item={i} key={i.id} />
-                              ))}
-                            </>
-                          )}
-                          {openDeadlines.length > 0 &&
-                            !upcomingDeadlines.length && (
-                              <p className="small muted">
-                                {tx(
-                                  "No upcoming assignments stored. Open Tasks & deadlines to review all saved work.",
-                                )}
-                              </p>
+                      <div className="dashboard-main">
+                        <section className="deadline-section">
+                          <div className="section-heading">
+                            <h2>{t.upcoming}</h2>
+                            <button
+                              className="text-button"
+                              onClick={() => setPage("tasks")}
+                            >
+                              {t.viewall}
+                              <ArrowRight size={14} />
+                            </button>
+                          </div>
+                          <div className="task-list">
+                            {overdueDeadlines.length > 0 && (
+                              <>
+                                <h3>
+                                  {tx(
+                                    "Overdue assignments ({0})",
+                                    overdueDeadlines.length,
+                                  )}
+                                </h3>
+                                {overdueDeadlines.slice(0, 2).map((i) => (
+                                  <TaskRow item={i} key={i.id} />
+                                ))}
+                              </>
                             )}
-                          {!openDeadlines.length && (
+                            {upcomingDeadlines.length > 0 && (
+                              <>
+                                <h3>{tx("Upcoming assignments")}</h3>
+                                {upcomingDeadlines.slice(0, 4).map((i) => (
+                                  <TaskRow item={i} key={i.id} />
+                                ))}
+                              </>
+                            )}
+                            {openDeadlines.length > 0 &&
+                              !upcomingDeadlines.length && (
+                                <p className="small muted">
+                                  {tx(
+                                    "No upcoming assignments stored. Open Tasks & deadlines to review all saved work.",
+                                  )}
+                                </p>
+                              )}
+                            {!openDeadlines.length && (
+                              <Empty
+                                text={tx(
+                                  "No open assignments stored. This does not mean your university has no deadlines.",
+                                )}
+                              />
+                            )}
+                          </div>
+                          <div className="small muted list-footnote">
+                            <ShieldCheck size={14} />
+                            {tx(
+                              "Dates keep their source and verification state.",
+                            )}
+                          </div>
+                        </section>
+                        {!isDemo && (
+                          <Actions
+                            key={selectedAction || "actions"}
+                            initialAction={data.actions?.find(
+                              (a) => a.id === selectedAction,
+                            )}
+                            actions={data.actions ?? []}
+                            courses={data.courses}
+                            busy={busy}
+                            save={async (method, id, value) => {
+                              setBusy(true);
+                              try {
+                                await api(
+                                  "/actions" + (id ? "/" + id : ""),
+                                  method,
+                                  value,
+                                );
+                                await load();
+                              } finally {
+                                setBusy(false);
+                              }
+                            }}
+                          />
+                        )}
+                        <section className="activity-section">
+                          <div className="section-heading">
+                            <h2>{t.activity}</h2>
+                            <span className="tiny-label">
+                              {tx("RECENT ACTIVITY")}
+                            </span>
+                          </div>
+                          {recentChanges.slice(0, 4).map((c) => (
+                            <div className="activity-row" key={c.id}>
+                              <span className="activity-symbol">
+                                {c.kind === "added" ? (
+                                  <Plus size={14} />
+                                ) : (
+                                  <RefreshCw size={13} />
+                                )}
+                              </span>
+                              <div>
+                                <strong>{c.title}</strong>
+                                <small>
+                                  {
+                                    data.courses.find(
+                                      (course) =>
+                                        course.id ===
+                                        data.items.find((i) => i.id === c.item_id)
+                                          ?.course_id,
+                                    )?.name
+                                  }
+                                </small>
+                                {c.previous_starts_at &&
+                                  c.next_starts_at &&
+                                  c.previous_starts_at !== c.next_starts_at && (
+                                    <span
+                                      className={
+                                        c.kind === "deadline_earlier"
+                                          ? "warning-text"
+                                          : ""
+                                      }
+                                    >
+                                      {c.kind === "deadline_earlier"
+                                        ? tx("Deadline moved earlier")
+                                        : c.kind === "deadline_later"
+                                          ? tx("Deadline moved later")
+                                          : tx("Schedule changed")}
+                                      :{" "}
+                                      {stamp(c.previous_starts_at, {
+                                        dateStyle: "medium",
+                                        ...(c.previous_all_day
+                                          ? {}
+                                          : { timeStyle: "short" as const }),
+                                      })}{" "}
+                                      →{" "}
+                                      {stamp(c.next_starts_at, {
+                                        dateStyle: "medium",
+                                        ...(c.next_all_day
+                                          ? {}
+                                          : { timeStyle: "short" as const }),
+                                      })}
+                                    </span>
+                                  )}
+                                <span>
+                                  {c.kind === "added"
+                                    ? tx("Added to your workspace")
+                                    : tx("Information updated")}{" "}
+                                  ·{" "}
+                                  {stamp(c.created_at, {
+                                    month: "short",
+                                    day: "numeric",
+                                  })}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                          {!data.changes.length && (
                             <Empty
                               text={tx(
-                                "No open assignments stored. This does not mean your university has no deadlines.",
+                                "Changes will appear here after your first import.",
                               )}
                             />
                           )}
-                        </div>
-                        <div className="small muted list-footnote">
-                          <ShieldCheck size={14} />
-                          {tx(
-                            "Dates keep their source and verification state.",
-                          )}
-                        </div>
-                      </section>
-                      {!isDemo && (
-                        <Actions
-                          key={selectedAction || "actions"}
-                          initialAction={data.actions?.find(
-                            (a) => a.id === selectedAction,
-                          )}
-                          actions={data.actions ?? []}
-                          courses={data.courses}
-                          busy={busy}
-                          save={async (method, id, value) => {
-                            setBusy(true);
-                            try {
-                              await api(
-                                "/actions" + (id ? "/" + id : ""),
-                                method,
-                                value,
-                              );
-                              await load();
-                            } finally {
-                              setBusy(false);
-                            }
-                          }}
-                        />
-                      )}
-                      <section className="schedule-section">
-                        <div className="section-heading">
-                          <h2>{t.schedule}</h2>
-                          <span className="tiny-label">{tx("TODAY")}</span>
-                        </div>
-                        {items
-                          .filter(
-                            (i) =>
-                              berlinDay(i.starts_at) ===
-                                berlinDay(new Date()) &&
-                              i.kind !== "assignment",
-                          )
-                          .map((i) => (
-                            <button
-                              key={i.id}
-                              className="schedule-row"
-                              onClick={() => edit(i)}
-                            >
-                              <time>
-                                {i.all_day
-                                  ? tx("All day")
-                                  : stamp(i.starts_at, {
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                    })}
-                              </time>
-                              <span>
-                                <strong>{i.title}</strong>
-                                <small>{i.description || i.kind}</small>
-                              </span>
-                            </button>
-                          ))}
-                        {!items.some(
-                          (i) =>
-                            berlinDay(i.starts_at) === berlinDay(new Date()) &&
-                            i.kind !== "assignment",
-                        ) && (
-                          <Empty
-                            text={tx("No scheduled events stored for today.")}
-                          />
-                        )}
-                        <button
-                          className="text-button schedule-footer"
-                          onClick={() => setPage("calendar")}
-                        >
-                          {tx("Open calendar")}
-                          <ArrowRight size={15} />
-                        </button>
-                      </section>
-                      <section className="activity-section">
-                        <div className="section-heading">
-                          <h2>{t.activity}</h2>
-                          <span className="tiny-label">
-                            {tx("RECENT ACTIVITY")}
-                          </span>
-                        </div>
-                        {recentChanges.slice(0, 4).map((c) => (
-                          <div className="activity-row" key={c.id}>
-                            <span className="activity-symbol">
-                              {c.kind === "added" ? (
-                                <Plus size={14} />
-                              ) : (
-                                <RefreshCw size={13} />
-                              )}
-                            </span>
-                            <div>
-                              <strong>{c.title}</strong>
-                              <small>
-                                {
-                                  data.courses.find(
-                                    (course) =>
-                                      course.id ===
-                                      data.items.find((i) => i.id === c.item_id)
-                                        ?.course_id,
-                                  )?.name
-                                }
-                              </small>
-                              {c.previous_starts_at &&
-                                c.next_starts_at &&
-                                c.previous_starts_at !== c.next_starts_at && (
-                                  <span
-                                    className={
-                                      c.kind === "deadline_earlier"
-                                        ? "warning-text"
-                                        : ""
-                                    }
-                                  >
-                                    {c.kind === "deadline_earlier"
-                                      ? tx("Deadline moved earlier")
-                                      : c.kind === "deadline_later"
-                                        ? tx("Deadline moved later")
-                                        : tx("Schedule changed")}
-                                    :{" "}
-                                    {stamp(c.previous_starts_at, {
-                                      dateStyle: "medium",
-                                      ...(c.previous_all_day
-                                        ? {}
-                                        : { timeStyle: "short" as const }),
-                                    })}{" "}
-                                    →{" "}
-                                    {stamp(c.next_starts_at, {
-                                      dateStyle: "medium",
-                                      ...(c.next_all_day
-                                        ? {}
-                                        : { timeStyle: "short" as const }),
-                                    })}
-                                  </span>
-                                )}
-                              <span>
-                                {c.kind === "added"
-                                  ? tx("Added to your workspace")
-                                  : tx("Information updated")}{" "}
-                                ·{" "}
-                                {stamp(c.created_at, {
-                                  month: "short",
-                                  day: "numeric",
-                                })}
-                              </span>
-                            </div>
+                        </section>
+                      </div>
+                      <div className="dashboard-aside">
+                        <section className="schedule-section">
+                          <div className="section-heading">
+                            <h2>{t.schedule}</h2>
+                            <span className="tiny-label">{tx("TODAY")}</span>
                           </div>
-                        ))}
-                        {!data.changes.length && (
-                          <Empty
-                            text={tx(
-                              "Changes will appear here after your first import.",
-                            )}
-                          />
-                        )}
-                      </section>
-                      <section className="sources-section">
-                        {sourceHealth}
-                      </section>
+                          {items
+                            .filter(
+                              (i) =>
+                                berlinDay(i.starts_at) ===
+                                  berlinDay(new Date()) &&
+                                i.kind !== "assignment",
+                            )
+                            .map((i) => (
+                              <button
+                                key={i.id}
+                                className="schedule-row"
+                                onClick={() => edit(i)}
+                              >
+                                <time>
+                                  {i.all_day
+                                    ? tx("All day")
+                                    : stamp(i.starts_at, {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      })}
+                                </time>
+                                <span>
+                                  <strong>{i.title}</strong>
+                                  <small>{i.description || i.kind}</small>
+                                </span>
+                              </button>
+                            ))}
+                          {!items.some(
+                            (i) =>
+                              berlinDay(i.starts_at) === berlinDay(new Date()) &&
+                              i.kind !== "assignment",
+                          ) && (
+                            <Empty
+                              text={tx("No scheduled events stored for today.")}
+                            />
+                          )}
+                          <button
+                            className="text-button schedule-footer"
+                            onClick={() => setPage("calendar")}
+                          >
+                            {tx("Open calendar")}
+                            <ArrowRight size={15} />
+                          </button>
+                        </section>
+                        <section className="sources-section">
+                          {sourceHealth}
+                        </section>
+                      </div>
                     </div>
                   </>
                 )}

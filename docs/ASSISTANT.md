@@ -4,7 +4,7 @@ The Assistant view answers questions using material saved or automatically impor
 
 ## Saved calendar questions
 
-Explicit timing questions such as “When’s the next lecture?” check the selected module’s saved calendar directly, including when there are no PDFs or the local AI is offline. EN/DE/VI next-lecture, tutorial, exam and assignment timing phrases are recognized. Results use the earliest future open entry of the requested type, exclude completed/dismissed records, preserve date-only and review uncertainty, and display stale-source warnings. A missing entry means the local calendar has no matching record; it does not establish cancellation or the absence of a real class/deadline. This path does not call a model or fabricate dates from course PDFs. Broader course-content questions still use readable material and the local model.
+Explicit timing questions such as “When’s the next lecture?” check the selected module’s saved calendar directly, including when there are no PDFs or the local AI is offline. EN/DE/VI next-lecture, tutorial, exam and assignment timing phrases are recognized. Results use the earliest eligible open entry of the requested type: timed entries must be at or after now, while date-only entries remain eligible throughout their Berlin calendar day. Completed/dismissed records are excluded; date-only and review uncertainty and stale-source warnings remain visible. A missing entry means the local calendar has no matching record; it does not establish cancellation or the absence of a real class/deadline. This path does not call a model or fabricate dates from course PDFs. Broader course-content questions still use readable material and the local model.
 
 ## Use
 
@@ -58,3 +58,5 @@ The installed Windows engine completed its first-install automatic update before
 ## Evidence and retrieval
 
 Numbered lecture filenames such as `segmentation1` are tokenized into topic words and numbers. Matching document titles add a bounded ranking bonus while actual text matches remain stronger. The local model selects existing excerpt IDs; Gobbler supplies the original excerpt text itself rather than asking the model to retype formulas. Invalid IDs, missing references, provider failures and truncated answers are rejected. Original PDF page numbers and OCR warnings remain attached. Exact excerpt identity does not prove that every claim in a generated explanation is supported; compare the answer with its source.
+
+Excerpts with no topic-word match in their text or document title are omitted. When nothing matches, the API returns an unsupported answer without calling the model, even if Ollama is offline. This keeps unrelated material out of the model context; synonyms or cross-language questions can still require a more specific question in the source's language.

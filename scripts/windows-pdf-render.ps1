@@ -1,5 +1,6 @@
 # Called as command text with JSON on stdin; no execution-policy or system-setting changes.
 $ErrorActionPreference = 'Stop'
+[Console]::InputEncoding = [System.Text.UTF8Encoding]::new($false)
 [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
 Add-Type -AssemblyName System.Runtime.WindowsRuntime
 $null = [Windows.Storage.StorageFile, Windows.Storage, ContentType=WindowsRuntime]

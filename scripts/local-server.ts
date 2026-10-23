@@ -79,4 +79,4 @@ export function createLocalServer(upstreamPort = 8787) {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href)
-  createLocalServer().listen(5173, "127.0.0.1");
+  createLocalServer().listen(Number(process.env.GOBBLER_PORT || 5173), "127.0.0.1");

@@ -4,6 +4,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { app } from "../apps/api/index";
 import { syncFeed, checkSources } from "../apps/api/sync";
 import { crypt, hash } from "../apps/api/security";
+import { berlinDay } from "../packages/core/index";
 
 // The adapter exercises the actual migration and SQL against SQLite, without mocking query results.
 let sqlite: DatabaseSync, db: D1Database;
@@ -1515,6 +1516,94 @@ it("answers next-event questions from the owned module calendar without PDFs or 
     expect(missing).toMatchObject({
       supported: false,
       calendar: { kind: "exam", item: null },
+    });
+    expect(provider).not.toHaveBeenCalled();
+  } finally {
+    vi.unstubAllGlobals();
+  }
+});
+
+it.each([
+  "2026-10-22T10:00:00Z",
+  "2026-10-22T22:30:00Z",
+  "2026-12-22T12:00:00Z",
+  "2026-12-22T23:30:00Z",
+])(
+  "keeps date-only deadlines due today in calendar answers at %s",
+  async (instant) => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(instant));
+    try {
+      const cookie = await account();
+      const { id: course_id } = (await (
+        await request("/courses", "POST", { name: "Deadlines" }, cookie)
+      ).json()) as { id: string };
+      const today = berlinDay(new Date());
+      const yesterday = new Date(Date.now() - 86400000).toISOString();
+      const tomorrow = new Date(Date.now() + 86400000).toISOString();
+      for (const v of [
+        { title: "Past timed deadline", starts_at: yesterday },
+        { title: "Past date-only deadline", starts_at: yesterday, all_day: true },
+        {
+          title: "Completed today", starts_at: today + "T00:00:00Z",
+          all_day: true, status: "done",
+        },
+        {
+          title: "Dismissed today", starts_at: today + "T00:00:00Z",
+          all_day: true, status: "dismissed",
+        },
+        {
+          title: "Due today", starts_at: today + "T00:00:00Z",
+          all_day: true, verification: "needs_review",
+        },
+        { title: "Tomorrow", starts_at: tomorrow },
+      ])
+        expect(
+          (await request("/items", "POST", { ...item, course_id, ...v }, cookie)).status,
+        ).toBe(200);
+      const ask = () => request(
+        "/assistant/ask", "POST",
+        { course_id, question: "When is my next deadline?" }, cookie,
+      );
+      expect(await (await ask()).json()).toMatchObject({
+        supported: true,
+        calendar: {
+          item: { title: "Due today", all_day: true, verification: "needs_review" },
+        },
+      });
+      vi.setSystemTime(new Date(tomorrow));
+      expect(await (await ask()).json()).toMatchObject({
+        calendar: { item: { title: "Tomorrow", all_day: false } },
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+  },
+);
+
+it("declines unrelated material questions without calling the model", async () => {
+  const cookie = await account();
+  const { id: course_id } = (await (
+    await request("/courses", "POST", { name: "Networks" }, cookie)
+  ).json()) as { id: string };
+  expect((await request("/materials", "POST", {
+    course_id,
+    name: "TCP notes",
+    source_url: "",
+    pages: [{
+      page: 3,
+      text: "TCP uses acknowledgements and retransmission for reliable delivery.",
+    }],
+  }, cookie)).status).toBe(201);
+  const provider = vi.fn();
+  vi.stubGlobal("fetch", provider);
+  try {
+    const response = await request("/assistant/ask", "POST", {
+      course_id, question: "Where is the chemistry laboratory?",
+    }, cookie);
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      answer: "", supported: false, citations: [],
     });
     expect(provider).not.toHaveBeenCalled();
   } finally {

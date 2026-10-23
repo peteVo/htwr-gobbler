@@ -170,14 +170,14 @@ for (const width of [320, 375, 414, 768, 1280])
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
     await expect(
-      page.getByRole("heading", { name: "A little clarity for your day." }),
+      page.getByRole("heading", { name: "Today", exact: true }),
     ).toBeVisible();
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,
       ),
     ).toBe(true);
-    if (width <= 650)
+    if (await page.getByRole("button", { name: "Open navigation" }).isVisible())
       await page.getByRole("button", { name: "Open navigation" }).click();
     await page
       .getByRole("navigation")

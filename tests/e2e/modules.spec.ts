@@ -2,8 +2,9 @@ import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 test("Moodle assignments show their module and ordinary exercise sessions stay out of the default task list", async ({
   page,
+  baseURL,
 }) => {
-  const headers = { Origin: "http://127.0.0.1:5173" };
+  const headers = { Origin: new URL(baseURL!).origin };
   await page.request.post("/api/auth/register", {
     headers,
     data: {

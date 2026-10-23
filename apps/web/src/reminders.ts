@@ -83,12 +83,10 @@ export function useReminders(email: string, data: Snapshot) {
       running = true;
       try {
         if (navigator.locks) {
+          // Queue refreshes behind in-flight checks so a cancelled effect cannot starve delivery.
           await navigator.locks.request(
             `gobbler-reminders:${email}`,
-            { ifAvailable: true },
-            async (lock) => {
-              if (lock) await deliver();
-            },
+            deliver,
           );
         } else {
           // shortcut: simultaneous tabs can race without Web Locks; add coordination before supporting those browsers.

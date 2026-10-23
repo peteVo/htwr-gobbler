@@ -1,8 +1,9 @@
 import { test, expect } from "@playwright/test";
 test("undated module actions persist through completion, reopening, editing and deletion", async ({
   page,
+  baseURL,
 }) => {
-  const headers = { Origin: "http://127.0.0.1:5173" },
+  const headers = { Origin: new URL(baseURL!).origin },
     email = `actions-${Date.now()}@example.test`,
     password = "a-local-test-password-123";
   await page.goto("/");
@@ -85,8 +86,9 @@ test("undated module actions persist through completion, reopening, editing and 
 
 test("long action titles and editing controls fit narrow screens", async ({
   page,
+  baseURL,
 }) => {
-  const headers = { Origin: "http://127.0.0.1:5173" };
+  const headers = { Origin: new URL(baseURL!).origin };
   await page.request.post("/api/auth/register", {
     headers,
     data: {

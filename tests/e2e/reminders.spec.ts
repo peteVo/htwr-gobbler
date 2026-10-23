@@ -240,6 +240,33 @@ test("failed native delivery is retried without marking an alert sent, and its c
   ).toHaveValue("Routing sheet");
 });
 
+test("a reminder waits for an in-flight tab check and delivers when its lock is released", async ({
+  page,
+}) => {
+  await setup(page, { enabled: true });
+  await page.addInitScript(() => {
+    const w = window as any;
+    const request = navigator.locks.request.bind(navigator.locks);
+    w.reminderChecks = 0;
+    void request("gobbler-reminders:reminder@example.test", () =>
+      new Promise<void>((resolve) => {
+        w.releaseReminderLock = resolve;
+      }),
+    );
+    navigator.locks.request = ((...args: any[]) => {
+      w.reminderChecks++;
+      return (request as any)(...args);
+    }) as typeof navigator.locks.request;
+  });
+  await page.goto("/");
+  await expect
+    .poll(() => page.evaluate(() => (window as any).reminderChecks))
+    .toBeGreaterThan(0);
+  expect(await sent(page)).toEqual([]);
+  await page.evaluate(() => (window as any).releaseReminderLock());
+  await expect.poll(async () => (await sent(page)).length).toBe(1);
+});
+
 test("two open tabs coordinate automatic delivery and Berlin quiet hours defer alerts", async ({
   page,
 }) => {

@@ -50,6 +50,28 @@ test("material validation and retrieval retain page evidence and bound model con
   expect(passages[0]).toMatchObject({ id: "1", page: 3 });
   expect(passages.every((p) => p.text.length <= 1600)).toBe(true);
 });
+
+test("retrieval declines unrelated questions and retains original OCR page evidence", () => {
+  for (const question of [
+    "Where is the chemistry laboratory?",
+    "Wo ist das Chemielabor?",
+    "Phong thi nghiem hoa hoc o dau?",
+    "What is this?",
+  ])
+    expect(selectPassages([material], question)).toEqual([]);
+  const passages = selectPassages(
+    [{ ...material, pages: [{ ...material.pages[0], ocr: true }] }],
+    "How does TCP work?",
+  );
+  expect(passages).toEqual([
+    expect.objectContaining({
+      page: 3,
+      ocr: true,
+      text: material.pages[0].text,
+      material_id: "m",
+    }),
+  ]);
+});
 test("retrieval favors topic evidence over common question words and repeated filename matches", () => {
   const library = [
     {

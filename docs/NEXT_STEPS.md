@@ -1,4 +1,4 @@
-# App completion roadmap · local pilot · 18 October 2026
+# App completion roadmap · local pilot · 22 October 2026
 
 The objective is a complete academic assistant experience. Course registration and university account setup are personal coursework tasks, not app development milestones. Local operation remains the chosen deployment scope.
 
@@ -23,6 +23,8 @@ The objective is a complete academic assistant experience. Course registration a
 
 ## Next implementation milestones
 
+The 22 October local follow-up completed fresh checkout validation, fixed date-only calendar answers, unrelated assistant retrieval, reminder retry coordination and native-renderer Unicode paths, and checked the supported local Q&A/OCR models with authorized PDFs. Automated and bounded integration evidence is recorded in [validation](VALIDATION.md). Independent answer/OCR review and physical reboot, scheduled-check sleep and 24-hour backup observations remain open in [local acceptance](LOCAL_ACCEPTANCE.md). The earlier laptop's personal workspace and scheduled tasks were not migrated into this test checkout.
+
 1. **Core experience:** validate local course Q&A with representative real material and questions, improve retrieval where those checks reveal gaps, and keep approaching deadlines/reminders reliable. The user declined encrypted backup work in favor of these core jobs. Finished-build serving and the installation/update support matrix are implemented; a focused internal accessibility/security review accompanies the local assistant. Full independent security and assistive-technology audits are not claimed.
 2. **Broader ingestion:** the official RWTH downloader now supplies local PDF folders without manual uploads. Gobbler maps them to modules, reads new/changed text and offers explicit dates for review. Validate representative questions and missing-file behavior. Direct announcement/submission discovery still needs Gobbler’s own approved university integration.
 3. **Cross-device release:** choose and approve hosting, then migrate and verify shared records, phone access and background push. This remains deferred while the app is local only.
@@ -46,6 +48,8 @@ On 17 October, the user completed **Settings → Reminders → Enable foreground
 ## Validation and remaining gates
 
 Use unit/API tests for parsing, matching, ownership and data preservation; browser scenarios for real workflows, keyboard access and 320/375/414/768 px layouts; strict TypeScript and a production build. Keep test accounts separate from personal records.
+
+For the remaining Windows personal-use acceptance observations—fresh-checkout validation, source-grounded Q&A/OCR, reboot, sleep across a due check and 24-hour backup with an isolated synthetic restore—see [Local Windows acceptance](LOCAL_ACCEPTANCE.md). Prior successes and pending observations are listed separately there. Local single-PC operation remains the chosen scope; hosting, cloud migration, phone access and background push are deferred.
 
 Physical sleep spanning a scheduled check and a real 24-hour backup interval have not been directly observed. Simulated elapsed-time tests, cold startup, shutdown/startup and short sleep/wake checks passed previously. Private records are not cached for offline reading; an offline shell does not imply fresh data or successful monitoring.
 

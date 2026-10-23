@@ -35,6 +35,7 @@ For daily Windows use, the installed local runner serves the finished build at W
 
 - Local course Q&A in Assistant: save a module's PDF text or pasted material, ask questions through Ollama and inspect supporting quotations/page references. Account/module isolation, duplicate uploads, explicit unsupported answers and engine failures are handled. No AI API charge. Mapped folders from the official RWTH downloader supply new/changed PDFs automatically, with unavailable-file coverage and dates offered for review. See [local assistant setup and limits](docs/ASSISTANT.md).
 
+- App-wide reading-desk redesign with 17px body text, 16px controls and supporting sizes of at least 14px, self-hosted English/German/Vietnamese font subsets, light/dark themes and mobile layouts. See the [UI revamp plan](docs/UI_REVAMP_PLAN.md).
 - Responsive Today dashboard, course management, task/event CRUD, completion and dismissal, source URLs, evidence and verification states.
 - Module-linked next-action checklists for setup and course reviews without a known deadline. Original instructions and coverage notes stay visible; completion/reopening is separate from dated assignments and never performs a university registration or submission.
 - Assignments are the default Tasks view. Moodle calendar categories identify modules automatically; those modules appear with tasks and calendar deadlines. Ordinary Übung sessions are tutorials, while “ist fällig” entries are assignments. Times remain the exported instants.
@@ -74,7 +75,7 @@ pnpm build
 pnpm exec playwright install chromium
 ```
 
-On Windows with Edge installed, run `pnpm test:e2e`. On Linux or when using the downloaded browser, set `PLAYWRIGHT_CHANNEL=chromium` before running `pnpm test:e2e`. Tests start local servers if necessary. Browser tests create synthetic accounts and records in the local development database; use a separate checkout if you want isolated test storage. CI runs unit/API tests, build, and Chromium browser/MCP checks.
+On Windows with Edge installed, run `pnpm test:e2e`. On Linux or when using the downloaded browser, set `PLAYWRIGHT_CHANNEL=chromium` before running `pnpm test:e2e`. Tests start their own local API and finished-build gateway, and refuse to reuse occupied ports. If another app uses port 5173, set `GOBBLER_TEST_PORT=5273`; the API still needs port 8787. In PowerShell, use `$env:GOBBLER_TEST_PORT='5273'` before the command. `REUSE_SERVER=1` is an explicit override for an already prepared synthetic Gobbler test environment. Browser tests create synthetic accounts and records in the local development database; use a separate checkout if you want isolated test storage. CI runs unit/API tests, build, and Chromium browser/MCP checks.
 
 See [app completion roadmap](docs/NEXT_STEPS.md), [validation](docs/VALIDATION.md), [integration research](docs/INTEGRATIONS.md), [deployment](docs/DEPLOYMENT.md), [security](docs/SECURITY.md), [MCP setup](docs/MCP.md), and [implementation plan](docs/IMPLEMENTATION_PLAN.md).
 

@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-23T06:29:33.3293260Z",
+  "title": "Design System: Gobbler",
+  "extensions": {
+    "colorMeta": {
+      "paper": { "role": "neutral", "displayName": "Warm Paper", "canonical": "#f6f4ef", "tonalRamp": ["#292823", "#45443e", "#626059", "#807e76", "#9e9c94", "#bdbbb3", "#dcdbd3", "#f6f4ef"] },
+      "surface": { "role": "neutral", "displayName": "Clean Surface", "canonical": "#fffefa", "tonalRamp": ["#292824", "#46453f", "#64625a", "#828078", "#a19f97", "#c0beb6", "#dfddd5", "#fffefa"] },
+      "sidebar": { "role": "primary", "displayName": "Deep Navy Rail", "canonical": "#182f43", "tonalRamp": ["#182f43", "#28445a", "#3b5b71", "#557187", "#748b9e", "#9aabba", "#c5d0d8", "#fbfaf6"] },
+      "ink": { "role": "neutral", "displayName": "Reading Ink", "canonical": "#243849", "tonalRamp": ["#243849", "#3a4e60", "#526576", "#6d7e8c", "#8b99a4", "#acb6bd", "#d0d6da", "#edf1f2"] },
+      "muted": { "role": "neutral", "displayName": "Supporting Ink", "canonical": "#586978", "tonalRamp": ["#26323b", "#3a4751", "#505e69", "#687680", "#849099", "#a3adb4", "#c5ccd1", "#e9edef"] },
+      "line": { "role": "neutral", "displayName": "Quiet Divider", "canonical": "#d7dddf", "tonalRamp": ["#303b3e", "#485457", "#626e71", "#7f8a8d", "#9da8aa", "#bdc7c9", "#d7dddf", "#f6f8f8"] },
+      "accent": { "role": "primary", "displayName": "Working Blue", "canonical": "#285a7c", "tonalRamp": ["#182f43", "#24465f", "#315e7d", "#487896", "#6793ae", "#8db0c6", "#bbd1dd", "#edf5fa"] },
+      "gold": { "role": "tertiary", "displayName": "Review Amber", "canonical": "#f5ecd4", "tonalRamp": ["#3b301a", "#594827", "#786236", "#987d49", "#b89b61", "#d6ba80", "#ead6aa", "#f5ecd4"] },
+      "clay": { "role": "tertiary", "displayName": "Clay Tint", "canonical": "#f5e6df", "tonalRamp": ["#432b24", "#624137", "#82594b", "#a27363", "#c18f7e", "#dcb1a2", "#ecd0c6", "#f5e6df"] },
+      "blue": { "role": "secondary", "displayName": "Pale Blue Tint", "canonical": "#e3edf5", "tonalRamp": ["#203546", "#354d60", "#4e667a", "#6c8497", "#8ea3b4", "#b4c4d0", "#d0dce4", "#e3edf5"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Page Title", "purpose": "Serif page-level headings." },
+      "body": { "displayName": "Working Text", "purpose": "Readable interface and academic content." },
+      "label": { "displayName": "Control Label", "purpose": "Form labels and semibold actions." }
+    },
+    "shadows": [
+      { "name": "mobile-navigation", "value": "10px 0 40px var(--shadow)", "purpose": "Separates the open mobile navigation rail from the workspace." },
+      { "name": "modal-dialog", "value": "0 24px 72px var(--shadow)", "purpose": "Lifts dialog surfaces above the workspace." }
+    ],
+    "motion": [
+      { "name": "control-color", "value": "background-color 0.16s, color 0.16s", "purpose": "Quiet hover and state transitions on buttons." },
+      { "name": "reduced-motion", "value": "prefers-reduced-motion: reduce", "purpose": "The stylesheet disables nonessential transitions and animations when requested." }
+    ],
+    "breakpoints": [
+      { "name": "wide-content", "value": "1500px", "purpose": "Adds horizontal breathing room to wide layouts." },
+      { "name": "compact-rail", "value": "1150px", "purpose": "Narrows the desktop rail and workspace gutters." },
+      { "name": "single-column", "value": "900px", "purpose": "Stacks dashboard, assistant and settings content." },
+      { "name": "mobile-menu", "value": "800px", "purpose": "Replaces the fixed rail with a labeled menu." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Filled blue action with readable semibold text and a clear focus ring.",
+      "html": "<button class=\"ds-button-primary\">Add assignment</button>",
+      "css": ".ds-button-primary { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 11px 18px; gap: 9px; border: 0; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font: 600 1rem/1.5 'Source Sans 3', system-ui, sans-serif; cursor: pointer; transition: background-color 0.16s, color 0.16s; } .ds-button-primary:hover { background: var(--accent-hover); } .ds-button-primary:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; } .ds-button-primary:active { translate: 0 1px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Quiet outlined action on a clean surface.",
+      "html": "<button class=\"ds-button-secondary\">Open source</button>",
+      "css": ".ds-button-secondary { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 11px 18px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); font: 600 1rem/1.5 'Source Sans 3', system-ui, sans-serif; cursor: pointer; transition: background-color 0.16s, color 0.16s; } .ds-button-secondary:hover { background: var(--soft); } .ds-button-secondary:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Readable field with quiet border and clear keyboard focus.",
+      "html": "<label class=\"ds-field\">Course name<input placeholder=\"e.g. Linear Algebra\"></label>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 8px; color: var(--ink); font: 600 1rem/1.5 'Source Sans 3', system-ui, sans-serif; } .ds-field input { width: 100%; min-height: 46px; padding: 11px 13px; border: 1px solid var(--muted); border-radius: 8px; background: var(--surface); color: var(--ink); font: 400 1rem/1.5 'Source Sans 3', system-ui, sans-serif; } .ds-field input:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; } .ds-field input::placeholder { color: var(--muted); }"
+    },
+    {
+      "name": "Navigation Item",
+      "kind": "nav",
+      "refersTo": "navigation",
+      "description": "Rail item with muted default, soft hover and pale active state.",
+      "html": "<nav class=\"ds-nav\"><button>Today</button><button class=\"is-active\" aria-current=\"page\">Tasks</button></nav>",
+      "css": ".ds-nav { display: flex; flex-direction: column; gap: 6px; padding: 8px; background: var(--sidebar); } .ds-nav button { min-height: 48px; width: 100%; padding: 13px 12px; border: 0; border-radius: 8px; background: transparent; color: var(--rail-muted); text-align: left; font: 500 1rem/1.35 'Source Sans 3', system-ui, sans-serif; cursor: pointer; } .ds-nav button:hover { background: var(--rail-hover); } .ds-nav button.is-active { background: var(--rail-active); color: var(--rail-active-ink); font-weight: 600; } .ds-nav button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }"
+    },
+    {
+      "name": "Verification Chip",
+      "kind": "chip",
+      "refersTo": "verification",
+      "description": "Compact status label; review state uses amber and still includes status words.",
+      "html": "<span class=\"ds-chip ds-chip-review\">Needs review</span>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; padding: 1px 6px; margin-left: 4px; border-radius: 3px; background: var(--soft); color: var(--accent); font: 400 0.875rem/1.5 'Source Sans 3', system-ui, sans-serif; } .ds-chip-review { background: var(--gold); color: var(--gold-ink); }"
+    },
+    {
+      "name": "Course Card",
+      "kind": "card",
+      "refersTo": "course-card",
+      "description": "Clean bordered surface with generous padding; no resting shadow.",
+      "html": "<article class=\"ds-card\"><h2>Course material</h2><p>3 readable documents</p></article>",
+      "css": ".ds-card { padding: 26px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); } .ds-card h2 { margin: 0 0 12px; font: 600 1.5rem/1.3 'Source Sans 3', system-ui, sans-serif; } .ds-card p { margin: 0; color: var(--muted); font: 400 0.9375rem/1.5 'Source Sans 3', system-ui, sans-serif; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Academic Reading Desk",
+    "overview": "Gobbler gives coursework a calm, practical place to be read and acted on. A deep navy rail anchors a warm paper workspace; clear headings, generous body text and visible source evidence keep attention on the next useful action. Its academic character comes from disciplined typography and quiet surfaces, not decorative school imagery.\n\nThe same reading discipline carries through Today, tasks, calendar, courses, sources, assistant and settings. The existing Gobbler mark remains the identity anchor. The interface supports light, dark and system themes, localized controls, keyboard use and reduced motion.",
+    "keyCharacteristics": [
+      "Warm paper work surfaces framed by a deep navy navigation rail.",
+      "Readable, spacious working text with serif page titles.",
+      "Source and review states stay explicit and readable."
+    ],
+    "rules": [
+      { "name": "The Readable-First Rule", "body": "Keep ordinary copy at 17px, controls at 16px and supporting copy at 14px or larger.", "section": "typography" },
+      { "name": "The Next-Action Rule", "body": "Keep the next assignment and its date/source easy to find before secondary setup or aggregate information.", "section": "layout" }
+    ],
+    "dos": [
+      "Do keep source provenance and review state visible beside the coursework they qualify.",
+      "Do use the supplied light/dark semantic tokens so status contrast survives each theme.",
+      "Do retain generous line-height and wrapping for long course names, questions and dates."
+    ],
+    "donts": [
+      "Don't reduce supporting text below 14px or controls below 16px.",
+      "Don't communicate verification or errors through color alone.",
+      "Don't replace the reading desk with decorative mockups or promotional artwork."
+    ]
+  }
+}

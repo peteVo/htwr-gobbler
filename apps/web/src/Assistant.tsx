@@ -1,4 +1,3 @@
-/* Hallmark · component critique: P5 H4 E4 S5 R5 V4 · existing Garden workbench tokens */
 import { useEffect, useState } from "react";
 import type { Course } from "../../../packages/core/index";
 import type { DocumentPage } from "../../../packages/core/deadlines";
@@ -123,52 +122,58 @@ export function Assistant({
   const calendarQuestion = scheduleKind(question);
   return (
     <div className="assistant-layout">
-      <section>
+      <section className="assistant-workspace">
         <h2>{tx("Ask about your course")}</h2>
         <p className="muted">
           {tx(
             "Answers use selected excerpts from this module's available material. Connected local folders update automatically. Check the quotations; the AI can still make mistakes.",
           )}
         </p>
-        <label htmlFor="assistant-module">{tx("Module")}</label>
-        <select
-          id="assistant-module"
-          value={course}
-          disabled={!!busy}
-          onChange={(e) => {
-            setCourse(e.target.value);
-            setText("");
-            setPages([]);
-            setName("");
-            setUrl("");
-            setAnswer(null);
-            setError("");
-            setNotice("");
-          }}
-        >
-          <option value="">{tx("Choose a module")}</option>
-          {courses.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
-        <p role="status" className="small muted">
-          {checking
-            ? tx("Checking local AI…")
-            : ready
-              ? tx("Local AI is ready. Course text stays on this laptop.")
-              : tx(
-                  "Local AI is not ready. Start Ollama and install the configured model, then retry.",
-                )}
-        </p>
-        <button
-          className="text-button"
-          disabled={checking || !!busy}
-          onClick={() => void check()}
-        >
-          {tx("Check local AI")}
-        </button>
+        <div className="assistant-context">
+          <div>
+            <label htmlFor="assistant-module">{tx("Module")}</label>
+            <select
+              id="assistant-module"
+              value={course}
+              disabled={!!busy}
+              onChange={(e) => {
+                setCourse(e.target.value);
+                setText("");
+                setPages([]);
+                setName("");
+                setUrl("");
+                setAnswer(null);
+                setError("");
+                setNotice("");
+              }}
+            >
+              <option value="">{tx("Choose a module")}</option>
+              {courses.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="assistant-engine">
+            <p role="status" className="small muted">
+              {checking
+                ? tx("Checking local AI…")
+                : ready
+                  ? tx("Local AI is ready. Course text stays on this laptop.")
+                  : tx(
+                      "Local AI is not ready. Start Ollama and install the configured model, then retry.",
+                    )}
+            </p>
+            <button
+              className="text-button"
+              disabled={checking || !!busy}
+              onClick={() => void check()}
+            >
+              {tx("Check local AI")}
+            </button>
+          </div>
+        </div>
         <form
           onSubmit={async (e) => {
             e.preventDefault();
@@ -353,7 +358,7 @@ export function Assistant({
           </section>
         )}
       </section>
-      <section>
+      <section className="assistant-library">
         <h2>{tx("Course material")}</h2>
         <MaterialDates
           courses={courses}

@@ -1,5 +1,8 @@
 import { test, expect, vi, afterEach } from "vitest";
 import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   readLocalPdf,
@@ -9,6 +12,46 @@ import {
 } from "../scripts/pdf-reader";
 import { selectPassages, materialInput } from "../packages/core/materials";
 afterEach(() => vi.unstubAllGlobals());
+
+test.skipIf(process.platform !== "win32")(
+  "native PDF renderer accepts a Unicode file path over JSON stdin",
+  async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "gobbler-render-"));
+    try {
+      const folder = path.join(root, "Prüfung Việt Nam");
+      await fs.mkdir(folder);
+      const file = path.join(folder, "Übungprüfung.pdf");
+      await fs.copyFile("tests/fixtures/scanned.pdf", file);
+      const script = await fs.readFile("scripts/windows-pdf-render.ps1", "utf8");
+      const stdout = await new Promise<string>((resolve, reject) => {
+        const child = execFile(
+          "powershell.exe",
+          ["-NoProfile", "-NonInteractive", "-Command", script],
+          { cwd: process.cwd(), timeout: 30000, windowsHide: true },
+          (error, output) =>
+            error
+              ? reject(new Error("Native PDF rendering failed"))
+              : resolve(output),
+        );
+        child.stdin?.on("error", () => {});
+        child.stdin?.end(JSON.stringify({ path: file, pages: [1] }));
+      });
+      const images = JSON.parse(stdout) as { page: number; image: string }[];
+      expect(images).toHaveLength(1);
+      expect(images[0].page).toBe(1);
+      expect(
+        Buffer.from(images[0].image, "base64").subarray(1, 4).toString(),
+      ).toBe("PNG");
+    } finally {
+      const tempRoot = path.resolve(os.tmpdir()) + path.sep;
+      const target = path.resolve(root);
+      if (!target.startsWith(tempRoot))
+        throw new Error("Invalid temporary path");
+      await fs.rm(target, { recursive: true, force: true });
+    }
+  },
+  30000,
+);
 
 test("PDF extraction resumes at the next original page and bounded parts retain OCR provenance", async () => {
   const data = await fs.readFile("tests/fixtures/batched.pdf");

@@ -18,6 +18,7 @@ import { hash, passwordHash, equal, crypt } from "./security";
 import { acquireSource, ingest, syncFeed, checkSources } from "./sync";
 import { restoreRecords } from "./restore";
 import { answerCourse } from "./assistant";
+import { berlinInstant } from "../../packages/core/deadlines";
 import { localQueries } from "./local-queries";
 import {
   scheduleKind,
@@ -902,10 +903,12 @@ app.post("/api/assistant/ask", async (c) => {
   const kind = scheduleKind(v.question);
   if (kind) {
     const now = new Date().toISOString();
+    const [year, month, day] = berlinDay(now).split("-").map(Number);
+    const dayStart = berlinInstant(year, month, day, 0, 0)!;
     const row = await c.env.DB.prepare(
-      "SELECT i.id,i.title,i.starts_at,i.ends_at,i.all_day,i.verification,i.source_url,s.last_success AS last_checked,s.status AS source_status,s.kind AS source_kind FROM items i LEFT JOIN sources s ON s.id=i.source_id AND s.user_id=i.user_id WHERE i.user_id=? AND i.course_id=? AND i.kind=? AND i.status='open' AND i.starts_at>=? ORDER BY i.starts_at,i.id LIMIT 1",
+      "SELECT i.id,i.title,i.starts_at,i.ends_at,i.all_day,i.verification,i.source_url,s.last_success AS last_checked,s.status AS source_status,s.kind AS source_kind FROM items i LEFT JOIN sources s ON s.id=i.source_id AND s.user_id=i.user_id WHERE i.user_id=? AND i.course_id=? AND i.kind=? AND i.status='open' AND (i.starts_at>=? OR (i.all_day=1 AND i.starts_at>=?)) ORDER BY i.starts_at,i.id LIMIT 1",
     )
-      .bind(user, v.course_id, kind, now)
+      .bind(user, v.course_id, kind, now, dayStart)
       .first<
         NonNullable<CalendarAnswer["item"]> & {
           last_checked: string | null;

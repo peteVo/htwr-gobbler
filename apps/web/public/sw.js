@@ -1,4 +1,4 @@
-const CACHE = "gobbler-shell-v1";
+const CACHE = "gobbler-shell-v2";
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches
@@ -44,6 +44,7 @@ self.addEventListener("fetch", (event) => {
   }
   if (
     url.pathname.startsWith("/assets/") ||
+    url.pathname.startsWith("/fonts/") ||
     ["/icon.svg", "/manifest.webmanifest"].includes(url.pathname)
   )
     event.respondWith(

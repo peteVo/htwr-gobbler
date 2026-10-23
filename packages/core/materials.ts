@@ -119,6 +119,7 @@ export function selectPassages(
         0,
       ),
     }))
+    .filter((p) => p.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, 8)
     .map(({ score, found, title, ...p }, i) => ({ ...p, id: String(i + 1) }));

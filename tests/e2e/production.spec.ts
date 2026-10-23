@@ -46,6 +46,7 @@ test("installed service worker reloads the offline shell without caching private
   );
   await page.reload();
   await expect(page.getByText("DEMO WORKSPACE", { exact: true })).toBeVisible();
+  await page.evaluate(() => document.fonts.ready.then(() => undefined));
   expect(await page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(
     true,
   );
@@ -58,6 +59,7 @@ test("installed service worker reloads the offline shell without caching private
       .map((request) => new URL(request.url).pathname);
   });
   expect(cached.some((url) => url.startsWith("/assets/"))).toBe(true);
+  expect(cached.some((url) => url.startsWith("/fonts/"))).toBe(true);
   expect(
     cached.some((url) => url.startsWith("/api/") || url === "/local-status"),
   ).toBe(false);

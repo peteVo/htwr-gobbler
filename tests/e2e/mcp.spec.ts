@@ -4,8 +4,9 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 import path from "node:path";
 test("read-only MCP queries the same persisted academic records", async ({
   request,
+  baseURL,
 }) => {
-  const headers = { Origin: "http://127.0.0.1:5173" };
+  const headers = { Origin: new URL(baseURL!).origin };
   const registration = await request.post("/api/auth/register", {
     headers,
     data: {

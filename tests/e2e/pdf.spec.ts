@@ -1,16 +1,17 @@
 import { test, expect } from "@playwright/test";
 test("PDF dates are read locally with page evidence and saved as needing review", async ({
   page,
+  baseURL,
 }) => {
   const email = `pdf-${Date.now()}@example.test`,
     password = "a-local-test-password-123";
   await page.request.post("/api/auth/register", {
-    headers: { Origin: "http://127.0.0.1:5173" },
+    headers: { Origin: new URL(baseURL!).origin },
     data: { email, password },
   });
   const course = await (
     await page.request.post("/api/courses", {
-      headers: { Origin: "http://127.0.0.1:5173" },
+      headers: { Origin: new URL(baseURL!).origin },
       data: { name: "PDF Module" },
     })
   ).json();
